@@ -47,6 +47,7 @@ Every session begins with orientation. Never start editing without completing th
 - **Continue after interruption** -- if a session disconnects or is resumed, pick up where you left off. Don't restart from scratch unless asked.
 - **Run the commands yourself** -- git push, deploy scripts, build commands. Don't hand the user instructions to run manually.
 - **Don't silently choose business logic** -- calculations, report math, domain rules. Log the decision in DECISION-LOG.md and flag for review.
+- **Completion checklist before declaring done** -- before saying a task, phase, or project is finished, read through every todo, phase, and checklist item. Confirm each one is actually complete, not just "I think I did that." If anything is unchecked, finish it. Never declare done from memory.
 
 ## Dev Server Hygiene
 

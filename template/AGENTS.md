@@ -61,6 +61,7 @@ All communication uses plain English. Target audience: a self-taught programmer 
 - Continue after interruption -- pick up where you left off.
 - Run commands yourself -- don't hand the user instructions.
 - Don't silently choose business logic -- log decisions.
+- Completion checklist before declaring done -- read through every todo/phase/checklist item and confirm each is actually complete. Never declare done from memory.
 
 ### Dev Server Hygiene
 
