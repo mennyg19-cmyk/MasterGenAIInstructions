@@ -1,0 +1,43 @@
+---
+description: How to operate when the user says "run autonomously". Owns the DECISION-LOG.md format.
+alwaysApply: true
+---
+
+# Autonomous Mode
+
+Triggered when the user says "run autonomously."
+
+## Before the User Leaves
+
+1. Scope the full project/task.
+2. Surface all foreseeable questions immediately.
+3. User answers them; confirm understanding.
+4. User leaves; agent proceeds.
+
+## While the User Is Away
+
+- Make decisions on ambiguous items and log every one to `DECISION-LOG.md`.
+- Follow `git-discipline.mdc` for commits (working branch, push after each step so the user can see progress remotely).
+- Follow `review-protocol.mdc` for reviews at phase boundaries.
+
+### DECISION-LOG.md Format
+
+Each entry:
+
+```
+## [Date] [Short description]
+**What I had to decide:** ...
+**Options I considered:** ...
+**What I chose:** ...
+**Why:** ...
+**Status:** DECIDED / BLOCKED
+```
+
+### High-Risk Decisions
+
+Data loss, security implications, breaking changes, or business logic choices: write the decision to DECISION-LOG.md with status **BLOCKED**, commit and push the log so the user can see it remotely, and do NOT proceed past that point.
+
+## When the User Returns
+
+- Present a summary: what was done, what decisions were made, what's pending.
+- User reviews DECISION-LOG.md and approves or overrides.

@@ -1,0 +1,62 @@
+---
+description: Multi-agent rebuild workflow. Triggered when the user says "rebuild". Changes HOW things work internally while keeping the UI pixel-identical.
+---
+
+# Rebuild Protocol
+
+**A rebuild changes HOW things work, never how they LOOK.**
+
+The rebuilt app must be pixel-identical to the current app from the end user's perspective -- same navigation, same screens, same look and feel. The switch must be seamless. Users should never know anything changed. What changes is the code underneath: architecture, patterns, performance, maintainability.
+
+## Phase 0: Multi-Model Audit
+
+1. Main agent reads the codebase for orientation.
+2. For EACH area of the codebase, spawn multiple subagents using DIFFERENT models (e.g. Opus, GPT, Gemini -- whatever is available).
+3. Each model audits the same area independently.
+4. Every model has different strengths and blind spots -- cross-model coverage catches what any single model would miss.
+5. Each subagent documents every feature, behavior, pattern, and UX detail it finds.
+
+## Phase 1: Feature Inventory + Cross-Reference
+
+1. Collect all audit reports from all models across all areas.
+2. Cross-reference reports to ensure nothing was missed.
+3. Reconcile any disagreements between models.
+4. Produce **FEATURE-INVENTORY.md** -- the complete truth of what the app does today.
+5. This includes full UX documentation: every screen, every navigation path, every interaction the end user sees (this is what must NOT change).
+
+## Phase 2: Architecture Proposals
+
+1. Spawn two premier agents:
+   - `claude-opus-4-8-thinking-high`
+   - `gpt-5.5-extra-high`
+2. Each proposes a clean architecture from scratch.
+3. Old code = reference for WHAT (features/behavior), not HOW (implementation).
+4. If old code already does something the best way possible, say so -- keep it.
+5. Both proposals must preserve the exact same UX (screens, navigation, look and feel).
+
+## Phase 3: Debate and Converge
+
+1. Premier agents review each other's proposals.
+2. Debate trade-offs in plain English (tone per `workflow.mdc`).
+3. Converge on a unified **REBUILD-PLAN.md**.
+4. Plan must explicitly confirm: "End-user experience is unchanged."
+
+## Phase 4: Build
+
+1. Main agent executes the plan phase by phase.
+2. Follow `review-protocol.mdc` before each commit (commits can trigger deploys per `deploy-awareness.mdc`).
+3. Only commit and push after review passes -- never push unreviewed code.
+4. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`.
+5. UX parity check at the end of each phase that touches frontend.
+6. No phase advances until review passes.
+
+## Phase 5: Final Scope Review
+
+1. After the entire build is complete, launch a full review with premier agents.
+2. Compare the finished product against the original FEATURE-INVENTORY.md.
+3. Check: did anything get added that wasn't in scope?
+4. Check: did anything get dropped or degraded?
+5. Check: is the UX still pixel-identical to the original?
+6. Check: do all documented behaviors still work the same way?
+7. Produce **REBUILD-COMPLETION-REPORT.md** with pass/fail for each check.
+8. If anything drifted, fix it before declaring the rebuild done.

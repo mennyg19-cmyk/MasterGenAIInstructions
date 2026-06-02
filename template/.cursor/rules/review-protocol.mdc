@@ -1,0 +1,27 @@
+---
+description: When and how to use review subagents. This file owns all review rules. Protocols reference it, stating only their deviations.
+alwaysApply: true
+---
+
+# Review Protocol
+
+## What Is a Phase
+
+A "phase" = a feature, a module, a protocol step, or any body of work that spans more than one commit. If you'd write multiple commits, it's a phase.
+
+## When to Review
+
+- After completing a phase, launch a readonly review subagent before committing.
+- Commits can trigger deploys (per `deploy-awareness.mdc`), so never push unreviewed code.
+- Resolve blockers from the review before committing or moving to the next phase.
+
+## How to Review
+
+- Default review model: `gpt-5.5-extra-high` (readonly subagent).
+- The review subagent gets: the changed files, the project context (README, AGENTS.md), and the goal of the phase.
+- Review findings go into DECISION-LOG.md.
+
+## Deviations
+
+- Rebuild and redesign protocols have more intensive review cycles (see those files).
+- Hotfix protocol skips the multi-agent review for speed (single self-review only).

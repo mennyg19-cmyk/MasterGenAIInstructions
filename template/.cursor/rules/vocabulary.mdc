@@ -1,0 +1,32 @@
+---
+description: Command vocabulary -- defines what every instruction word means and which protocol to follow.
+alwaysApply: true
+---
+
+# Vocabulary
+
+These definitions are exact. Do not under-scope or over-scope.
+
+## Scope Commands
+
+| Command | Scope |
+|---|---|
+| **"tidy"** / **"clean up"** | Current file only. Remove dead code, fix naming, inline trivial things. |
+| **"refactor"** | Whole feature or module. Helpers, components, styles, structure, dedupe, file splits -- everything applicable. |
+| **"aggressive refactor"** / **"deep refactor"** | Entire codebase. Every applicable category in `clean-code.mdc`. Still follow discipline rules. |
+
+If the user says "refactor" and you only touch one category (e.g., styles), that is a failure. Cover every applicable category.
+
+## Protocol Triggers
+
+| Command | Action |
+|---|---|
+| **"rebuild"** | Follow `rebuild-protocol.mdc`. Changes HOW things work, never how they LOOK. UI stays pixel-identical. |
+| **"redesign"** | Follow `redesign-protocol.mdc`. Changes how the app LOOKS and FEELS. Keeps core logic intact. Starts with a discovery conversation. |
+| **"fix"** | Address a specific bug. Smallest possible change. |
+| **"add"** | New feature. Follow existing patterns. |
+| **"update"** / **"enhance"** | Extend an existing feature. |
+| **"run autonomously"** | Follow `autonomous-mode.mdc`. |
+| **"review"** | Follow `review-protocol.mdc` on the current state. |
+| **"hotfix"** / **"production is broken"** | Follow `hotfix-protocol.mdc`. Fastest path: fix, test, deploy. |
+| **"hand off"** / **"save state"** | Follow `session-handoff.mdc`. Write HANDOFF.md for the next session. |

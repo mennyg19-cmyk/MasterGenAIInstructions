@@ -1,0 +1,67 @@
+---
+description: Core operating principles every agent follows on every turn. Owns tone, onboarding, security, and execution discipline.
+alwaysApply: true
+---
+
+# Workflow
+
+## Tone (this file owns this -- other files reference it)
+
+All communication, comments, docs, and decision logs use plain English.
+
+- Target audience: a self-taught programmer who reads code fine but hates jargon.
+- Not overly technical, not dumbed down.
+- Good: "Retry up to 3 times because the API sometimes drops the first request"
+- Bad: "Implements exponential backoff with jitter for transient fault tolerance"
+- Also bad: "This tries again if it doesn't work the first time"
+
+## Session Start
+
+Every session begins with orientation. Never start editing without completing this:
+
+1. If HANDOFF.md exists, read it first (a previous session left notes)
+2. Read README.md (project overview, directory map)
+3. Read AGENTS.md (conventions)
+4. Read DECISION-LOG.md (recent decisions, current state)
+5. Read the specific files relevant to the current task
+
+## Core Principles
+
+- **Read before edit** -- scan for existing helpers, components, patterns before writing anything new.
+- **Smallest complete change** -- no drive-by rewrites.
+- **Match existing patterns** -- don't introduce competing approaches.
+- **No silent scope creep** -- restate goal, locate blast radius, check prior art before starting.
+- **Reference app pattern** -- when building something "based on" or "like" another app, first define: which app is source-of-truth for UI/UX? Which for business logic? Which for data format? Document in README before building.
+- **Documentation** -- README is the front door. Keep it current with changes.
+- **Uncertainty** -- if user is present, ask. If autonomous mode, decide and log per `autonomous-mode.mdc`.
+- **Testing** -- follow `testing-protocol.mdc`.
+
+## Execution Discipline
+
+- **Fix, don't suggest** -- when the user gives a direct instruction, implement it. No "you could try..." unless the user asks for options.
+- **Don't stop until done** -- finish all phases, all todos, all steps. If you need to stop, explain why and get permission.
+- **Verify in the running app** -- especially UI, routes, and calculations. Don't mark done from code review alone.
+- **Implement plans verbatim** -- when a plan file is attached, follow it exactly. Don't edit the plan file. Don't re-create todos that already exist.
+- **Screenshots are ground truth** -- when the user sends a screenshot showing a problem, that overrides what you think the code says.
+- **Revert completely or not at all** -- if asked to revert, restore the full prior good state. Partial reverts cause more damage.
+- **Continue after interruption** -- if a session disconnects or is resumed, pick up where you left off. Don't restart from scratch unless asked.
+- **Run the commands yourself** -- git push, deploy scripts, build commands. Don't hand the user instructions to run manually.
+- **Don't silently choose business logic** -- calculations, report math, domain rules. Log the decision in DECISION-LOG.md and flag for review.
+
+## Dev Server Hygiene
+
+- Kill any dev servers you started when done or when starting new ones.
+- Never leave multiple instances on different ports.
+- Report which port the running app is on.
+- If the user reports port confusion, reset all instances and start one clean one.
+
+## Security Basics
+
+- Never commit secrets, tokens, passwords, or API keys.
+- Always provide a `.env.example` with placeholder values for every secret.
+- `.env`, `.env.local`, and any file with real credentials must be in `.gitignore`.
+- Never hardcode secrets in source code.
+- Sanitize user input before using it in queries, file paths, or shell commands.
+- Never log secrets or tokens (even in debug mode).
+- If a secret is accidentally committed, rotate it immediately.
+- Default to least privilege.

@@ -1,0 +1,39 @@
+---
+description: Testing strategy and execution. Tests are built alongside code, not after. TESTING-STRATEGY.md enables cheap post-build test runs.
+alwaysApply: true
+---
+
+# Testing Protocol
+
+Testing strategy is built ALONGSIDE the code, not after.
+
+## During the Build
+
+- As each feature/module is built, write a testing strategy entry in **TESTING-STRATEGY.md**.
+- Each entry: what to test, expected behavior, edge cases.
+- Write actual test files alongside the code -- never a "write all tests at the end" batch.
+- Test names describe the scenario in words: `returns_zero_when_no_invoices`, not `test_calculate`.
+
+## After the Build
+
+- The full test suite can be run by a cheaper/faster model.
+- TESTING-STRATEGY.md serves as the guide: lists every testable behavior, grouped by feature.
+- A cheaper model reads the strategy, runs the tests, and reports pass/fail without needing deep context.
+
+## What to Test
+
+- Business logic and calculations.
+- User-facing behavior.
+- Edge cases identified during the build.
+- Error paths.
+- Authorization.
+
+## What NOT to Test
+
+- Framework internals (don't test that the framework serves routes).
+- Trivial getters/setters with no logic.
+- UI layout details (that's visual review, not automated tests).
+
+## Bug Fixes
+
+- Every bug fix gets a regression test that would have caught it.

@@ -1,0 +1,22 @@
+---
+description: Commit, push, and branching rules. This file owns ALL git behavior. Other files reference it, stating only their deviations.
+alwaysApply: true
+---
+
+# Git Discipline
+
+## Branching
+
+- Never work directly on `main`. Main stays clean and deployable.
+- At the start of a task/feature/phase, create or switch to a working branch.
+- When a phase or full job is done, merge the working branch into `main`.
+- Branch naming: descriptive and short (e.g. `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`).
+
+## Commits
+
+- Auto-commit and push to the working branch after every completed logical change.
+- One logical change = one commit.
+- Push immediately -- never leave unpushed commits on the branch.
+- Honest, concise commit messages referencing what was touched.
+- Never amend pushed commits.
+- If a deploy target was affected, note it in the commit message.

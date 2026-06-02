@@ -1,0 +1,34 @@
+---
+description: Project-specific deploy configuration. Fill in the placeholders below for your project. Remove this comment when configured.
+alwaysApply: true
+---
+
+# Deploy Awareness
+
+<!-- TEMPLATE: Fill in the sections below for your project. -->
+
+## Deploy Targets
+
+<!-- List your deploy targets. Examples: -->
+<!-- - Azure App Service: `achim-sales-reports` -->
+<!-- - Vercel: auto-deploys on push to main -->
+<!-- - Expo: `eas update --branch test` -->
+
+## Trigger Files
+
+<!-- Which files, when changed, require a deploy? Examples: -->
+<!-- - `webapp/**`, `reports/**`, `core/**` → webapp deploy -->
+<!-- - `runbooks/universal_runbook.py` → runbook deploy -->
+
+## Deploy Commands
+
+<!-- What commands to run for each target. Examples: -->
+<!-- - Webapp: `.\deploy.ps1` -->
+<!-- - Runbook: `.\deploy-runbook.ps1` -->
+<!-- - Expo: `eas update --branch test --message "description"` -->
+
+## Post-Deploy Checks
+
+<!-- What to verify after deploying. Examples: -->
+<!-- - Site loads at https://reports.achimonline.com -->
+<!-- - Test endpoint returns 200 -->

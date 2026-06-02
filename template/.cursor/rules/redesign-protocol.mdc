@@ -1,0 +1,48 @@
+---
+description: UI/UX redesign workflow. Triggered when the user says "redesign". Changes how the app looks and feels while keeping core logic intact.
+---
+
+# Redesign Protocol
+
+Changes the UI/UX (and adjusts backend where needed to support it). Keeps core logic intact. Commits follow `git-discipline.mdc`. Reviews follow `review-protocol.mdc`.
+
+## Phase 0: Discovery Conversation
+
+1. Ask the user: what's bothering you about the current design? (boring, colors off, navigation confusing, looks generic, etc.)
+2. Follow up: which specific pages or sections?
+3. Document the pain points as **REDESIGN-BRIEF.md**.
+
+## Phase 1: Current UX Audit
+
+1. Subagents review the current UI/UX.
+2. Document what works well (keep) vs. what aligns with the pain points.
+3. Catalog every screen, component, and interaction.
+4. Note which backend pieces would need adjustment.
+
+## Phase 2: Design Proposals
+
+1. Spawn multiple subagents using DIFFERENT models (doesn't need premier agents -- design ideas don't require top-tier).
+2. Each proposes a different design direction addressing the pain points.
+3. Proposals include: color palette, layout, navigation, typography, spacing.
+4. Tone: per `workflow.mdc`.
+
+## Phase 3: User Review + Iteration
+
+1. Present all proposals to the user.
+2. User picks elements they like from different proposals.
+3. Synthesize the feedback into a refined direction.
+4. Iterate until user approves.
+5. Produce **REDESIGN-PLAN.md** with the approved direction.
+
+## Phase 4: Build the Redesign
+
+1. Execute phase by phase (theme/colors first, then layout, then navigation, then components).
+2. Follow `review-protocol.mdc` before each commit.
+3. Adjust backend where needed to support new UI patterns.
+
+## Phase 5: Final Review
+
+1. Compare finished product against REDESIGN-PLAN.md.
+2. Verify all existing functionality still works.
+3. Verify the specific pain points from Phase 0 are resolved.
+4. Produce **REDESIGN-COMPLETION-REPORT.md**.
