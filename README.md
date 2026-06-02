@@ -6,8 +6,10 @@ Personal agent operating system for AI-assisted development. Bootstrap new proje
 
 ```
 MasterGenAIInstructions/
-|-- bootstrap.ps1        # PowerShell scaffolder (primary)
-|-- bootstrap.sh         # Bash version (cross-platform)
+|-- bootstrap.ps1        # PowerShell: create a new project
+|-- bootstrap.sh         # Bash: create a new project
+|-- apply.ps1            # PowerShell: apply rules to an existing project
+|-- apply.sh             # Bash: apply rules to an existing project
 |-- template/            # Everything below gets copied into new projects
 |   |-- .cursor/rules/   # 13 Cursor rule files
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
@@ -50,7 +52,21 @@ A new project directory with:
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
 - Proper `.gitignore`.
 
-### After Bootstrapping
+### Applying to an Existing Project
+
+```powershell
+# PowerShell
+.\apply.ps1 -TargetDir "C:\path\to\existing\project"
+```
+
+```bash
+# Bash
+./apply.sh /path/to/existing/project
+```
+
+This copies the 13 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
+
+### After Bootstrapping or Applying
 
 1. Open the new project in Cursor.
 2. Fill in `deploy-awareness.mdc` with your deploy targets.
