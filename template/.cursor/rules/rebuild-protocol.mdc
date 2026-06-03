@@ -133,7 +133,20 @@ The reason: agents lose focus on long tasks and skip things that were in the pla
 
 ## Phase 4: Build
 
-1. Main agent executes the plan todo by todo.
+### Phase 4.0: Foundation + Smoke Deploy
+
+The FIRST batch of todos should be the bare minimum scaffold: project init, config files, database connection, auth setup, a single route that renders. Then:
+
+1. Run `tsc --noEmit` and `next build` (or equivalent). Fix all errors.
+2. **Deploy to the target platform** (Vercel, Azure, etc.).
+3. Verify the smoke deploy works: site loads, health endpoint returns 200, auth flow completes.
+4. If the smoke deploy fails, fix it NOW. Do not build more features on a broken foundation.
+
+This catches missing middleware, missing env vars, wrong build commands, database connection issues, and platform config gaps -- all of which have caused stacked failures in past projects when left until the end.
+
+### Phase 4.1+: Feature Build
+
+1. Main agent executes the remaining plan todos one by one.
 2. Mark each todo as in-progress when starting, completed when done. Never skip a todo.
 3. Follow `review-protocol.mdc` before each commit (commits can trigger deploys per `deploy-awareness.mdc`).
 4. Only commit and push after review passes -- never push unreviewed code.

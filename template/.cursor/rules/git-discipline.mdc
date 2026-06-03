@@ -11,6 +11,8 @@ alwaysApply: true
 - At the start of a task/feature/phase, create or switch to a working branch.
 - When a phase or full job is done, merge the working branch into `main`.
 - Branch naming: descriptive and short (e.g. `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`).
+- **Never assume `main` is the production branch.** Check the deploy config or README first. Past projects had production deploying from `fresh-start` while `main` was abandoned code.
+- **Document the branch strategy in README** on day one: which branch deploys where, which branch is for development, which is for production. If this isn't documented, figure it out and document it before making changes.
 
 ## Commits
 

@@ -85,6 +85,8 @@ All communication uses plain English. Target audience: a self-taught programmer 
 - Merge to `main` when a phase or job is done.
 - Honest commit messages. Never amend pushed commits.
 - Branch naming: `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`.
+- **Never assume `main` is the production branch.** Check deploy config or README first.
+- **Document branch strategy in README on day one**: which branch deploys where, which is for dev, which is for prod.
 
 ---
 
@@ -185,7 +187,7 @@ See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
 
 **Critical mechanical requirement:** "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and -- most importantly -- the **`model` parameter set explicitly** to a specific model slug. If you omit the `model` parameter, the subagent runs on your own model, which defeats multi-model coverage. Every subagent call MUST have `model` set. Available slugs: `composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime.
 
-Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
+Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), **smoke deploy after the foundation scaffold** (catches missing middleware, env vars, build command issues before they stack up), then build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 
@@ -215,4 +217,36 @@ See `cleanup-protocol.mdc`. Full codebase sweep for clutter: test artifacts, cac
 
 ## Deploy Awareness
 
-Project-specific. See `deploy-awareness.mdc` for this project's deploy targets, trigger files, commands, and post-deploy checks.
+See `deploy-awareness.mdc` for full rules. Key points:
+
+### Build Verification
+
+Before every commit: run type checker (`tsc --noEmit`), linter, and build command locally. Never push code that doesn't compile. Run the full build at least once per phase.
+
+### Database Deploy Rules
+
+- **NEVER** put `prisma db push` or `prisma db push --accept-data-loss` in a build script. This can destroy production data on every deploy.
+- **NEVER** put `prisma migrate deploy` in the build command when deploying against an existing DB with unknown migration history.
+- **Safe build command**: `prisma generate && next build`.
+- Use `prisma migrate` for production, `db push` for local dev only.
+- Run migrations manually or in a separate CI step, not in the build.
+
+### Environment Variables
+
+- Every new env var: add to `.env.example`, add to env validation schema, document which environments need it, flag in commit message.
+- Before deploying: compare `.env.example` against what's set in the deploy target. Missing vars = silent failures.
+- After major features: audit env vars across all environments for drift.
+
+### Auth Framework Completeness
+
+When adding auth (Clerk, Auth0, etc.), verify ALL of these as a set: provider wrapper, middleware file, sign-in/sign-up page routes, env vars in every environment, callback URLs in the auth dashboard. Missing any one causes deploy crashes.
+
+### Smoke Deploy
+
+Deploy early, not after 5 phases of local-only development. After the foundation scaffold, do a smoke deploy. Fix any issues before building more features on top.
+
+### Windows / PowerShell
+
+- PowerShell `Out-File` adds UTF-8 BOM that breaks Prisma and JSON parsers. Strip with `$content.TrimStart([char]0xFEFF)`.
+- Build output capture in PowerShell is fragile. Redirect to file: `2>&1 | Out-File build.log`.
+- Stray `package-lock.json` in parent directories can confuse Turbopack workspace root detection.

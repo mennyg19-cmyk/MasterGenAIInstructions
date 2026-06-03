@@ -1,34 +1,121 @@
 ---
-description: Project-specific deploy configuration. Fill in the placeholders below for your project. Remove this comment when configured.
+description: Deployment discipline -- build verification, deploy safety, env var management, and database deploy rules. Always applies.
 alwaysApply: true
 ---
 
 # Deploy Awareness
 
-<!-- TEMPLATE: Fill in the sections below for your project. -->
+## Build Verification (before every commit)
 
-## Deploy Targets
+Before committing code that touches anything beyond docs/comments:
+
+1. Run the type checker (`tsc --noEmit` or framework equivalent). Fix all errors.
+2. Run the linter. Fix all errors.
+3. Run `next build` (or the project's build command) locally at least once per phase. A commit that breaks the build is a failure.
+4. If the project has unit tests, run them. Don't commit code that breaks existing tests.
+
+**Never push code that doesn't compile.** The retroactive "oh I'll fix the type errors later" pattern has caused multiple stacked deploy failures in past projects.
+
+## Database Deploy Rules
+
+### NEVER in a build script
+
+- **`prisma db push`** -- this is a prototyping tool, not a deploy tool.
+- **`prisma db push --accept-data-loss`** -- this can DROP COLUMNS and DESTROY DATA on every deploy. This has been the single most dangerous recurring issue across projects.
+- **`prisma migrate deploy`** in the build command when deploying against an existing database with unknown migration history -- this causes deploy failures when the DB doesn't match expected migration state.
+
+### Production database rules
+
+- **Use `prisma migrate` for production databases.** Never `db push`.
+- **Run migrations manually or in a separate CI step**, not baked into the build command.
+- **Safe build command**: `prisma generate && next build` (generates the client, builds the app, touches nothing in the database).
+- Before running migrations against a production database, verify the migration history matches. If it doesn't, baseline it first.
+- **Never run `--accept-data-loss` against any database with real data.** If Prisma asks for it, something is wrong -- investigate, don't force it.
+
+### Dev database rules
+
+- `db push` is fine for local development only.
+- Integration tests should use an isolated schema/database, not the production one.
+
+## Environment Variable Discipline
+
+### On every feature that adds a new env var
+
+1. Add it to `.env.example` with a placeholder value and a comment explaining what it does.
+2. If the project uses env validation (Zod schema, etc.), add it there.
+3. If the project deploys to multiple environments (test, staging, prod), document which environments need it.
+4. Flag in the commit message: "New env var: `VARIABLE_NAME` -- needs to be set on [environments]."
+
+### Before deploying
+
+- Compare `.env.example` against what's actually set in the deploy target (Vercel dashboard, Azure config, etc.).
+- Any env var in `.env.example` that's missing from the deploy target = deploy will fail or silently break.
+- When in doubt, run the app's env validation check (if it has one) against the production env vars.
+
+### Env var drift
+
+- Test and production environments WILL drift apart over time. Features get added to test with new env vars that never make it to production.
+- After any major feature push, audit env vars across all environments.
+
+## Auth Framework Completeness
+
+When adding an auth provider (Clerk, Auth0, NextAuth, etc.), verify ALL of these exist as a set -- missing any one causes deploy crashes:
+
+1. Provider wrapper in the root layout (e.g., `<ClerkProvider>`)
+2. Middleware file (e.g., `src/middleware.ts` with `clerkMiddleware()`)
+3. Sign-in and sign-up page routes (e.g., `(auth)/sign-in/[[...sign-in]]/page.tsx`)
+4. All required env vars set in every deploy environment
+5. Callback/redirect URLs configured in the auth provider's dashboard
+
+Missing the middleware file has caused "Something went wrong" crashes on deploy. Missing sign-in pages has caused 404s. These are easy to forget in a fresh scaffold.
+
+## Smoke Deploy Rule
+
+**Deploy early, deploy often.** Don't build 5 phases of code locally and then try to deploy for the first time.
+
+- After the foundation/scaffold phase of any build or rebuild, do a smoke deploy to the target platform.
+- The smoke deploy catches: missing env vars, missing middleware, build command issues, database connection problems, platform-specific config gaps.
+- If the smoke deploy fails, fix it before building more features on top of a broken foundation.
+- Every subsequent phase should end with a deploy verification (even if it's just confirming the build still passes).
+
+## Branch + Deploy Target Documentation
+
+In the project's README, document:
+
+1. **Which branch deploys where.** Never assume `main` is production. Past projects had production on `fresh-start` while `main` was abandoned Shopify template code.
+2. **Deploy target URLs** (even if they're TBD during initial setup).
+3. **How deploys are triggered** (auto on push? manual promotion? CI pipeline?).
+
+If this isn't documented, the first thing an agent should do is figure it out and write it down.
+
+## Windows / PowerShell Awareness
+
+- **UTF-8 BOM**: PowerShell's `Out-File` adds a BOM (bytes 239 187 191) that breaks many tools (Prisma migration parser, some JSON parsers). Always strip with `$content.TrimStart([char]0xFEFF)` or use `[System.IO.File]::WriteAllText()` with UTF-8 no-BOM encoding.
+- **Build output capture**: `next build` output in PowerShell is fragile. Redirect full output to a file (`2>&1 | Out-File build.log`) and read it, rather than piping through `Select-String`.
+- **Stray lockfiles**: A `package-lock.json` in a parent directory (e.g., `C:\Users\Menny\`) can confuse Turbopack's workspace root detection and cause "Module not found" errors. If module resolution fails mysteriously, check parent directories for stray lockfiles.
+
+---
+
+## Project-Specific Configuration
+
+<!-- TEMPLATE: Fill in the sections below for your project. Remove comments when configured. -->
+
+### Deploy Targets
 
 <!-- List your deploy targets. Examples: -->
-<!-- - Azure App Service: `achim-sales-reports` -->
-<!-- - Vercel: auto-deploys on push to main -->
-<!-- - Expo: `eas update --branch test` -->
+<!-- - Vercel project `my-app-test`: auto-deploys on push to `main` -->
+<!-- - Vercel project `my-app-prod`: manual promotion only -->
+<!-- - Azure App Service: `my-app-prod` -->
 
-## Trigger Files
+### Production Branch
 
-<!-- Which files, when changed, require a deploy? Examples: -->
-<!-- - `webapp/**`, `reports/**`, `core/**` → webapp deploy -->
-<!-- - `runbooks/universal_runbook.py` → runbook deploy -->
+<!-- Which branch triggers production deploys? Examples: -->
+<!-- - `main` auto-deploys to test, manual promote to prod -->
+<!-- - `production` is the prod branch, `main` is staging -->
 
-## Deploy Commands
-
-<!-- What commands to run for each target. Examples: -->
-<!-- - Webapp: `.\deploy.ps1` -->
-<!-- - Runbook: `.\deploy-runbook.ps1` -->
-<!-- - Expo: `eas update --branch test --message "description"` -->
-
-## Post-Deploy Checks
+### Post-Deploy Checks
 
 <!-- What to verify after deploying. Examples: -->
-<!-- - Site loads at https://reports.achimonline.com -->
-<!-- - Test endpoint returns 200 -->
+<!-- - Site loads at https://myapp.vercel.app -->
+<!-- - `GET /api/health` returns 200 -->
+<!-- - Auth flow works (sign-in → dashboard) -->
