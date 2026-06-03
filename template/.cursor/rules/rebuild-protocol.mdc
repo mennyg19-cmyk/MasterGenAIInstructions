@@ -14,12 +14,15 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 
 1. Main agent reads the codebase for orientation. Identify the major areas (e.g. frontend, backend, database, config, tests, deployment).
 
-2. **For EACH area, spawn at least 2 subagents using DIFFERENT model families.** Use the `model` parameter on every subagent call to force distinct models. Available model slugs:
+2. **For EACH area, spawn at least 2 subagents using DIFFERENT model families.** Use the `model` parameter on every subagent call to force distinct models. Rotate through as many families as possible. The goal is diversity, not raw power -- cheaper/faster models are fine for auditing. Available model slugs (use these exact strings):
+   - `composer-2.5-fast` (Composer family)
    - `claude-opus-4-8-thinking-high` (Claude family)
    - `gpt-5.5-extra-high` (GPT family)
-   - `composer-2.5-fast` (Composer family -- good for speed passes)
+   - Any other model slugs available at runtime (check what's offered -- Gemini, etc.)
 
-3. **NEVER use the same model slug for two subagents auditing the same area.** If you spawn 2 subagents for the backend, one must be Claude and one must be GPT (or another distinct model). Using the same model twice defeats the purpose -- the whole point is catching what one model misses.
+   **Rotate families across areas.** Example with 3 areas: Area 1 gets Composer + Claude, Area 2 gets GPT + Composer, Area 3 gets Claude + GPT. Every family should touch multiple areas so no single model's blind spots dominate.
+
+3. **NEVER use the same model for two subagents auditing the same area.** Same model twice = same blind spots twice = pointless. The whole reason for multi-model auditing is that each model catches things the others miss.
 
 4. Each subagent gets the SAME prompt for its area, but runs independently on a different model.
 5. Each subagent documents every feature, behavior, pattern, and UX detail it finds.
