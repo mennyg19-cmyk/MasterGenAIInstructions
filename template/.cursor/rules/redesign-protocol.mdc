@@ -23,7 +23,7 @@ Changes the UI/UX (and adjusts backend where needed to support it). Keeps core l
 
 ## Phase 2: Design Proposals
 
-1. Spawn multiple subagents using DIFFERENT models (doesn't need premier agents -- design ideas don't require top-tier).
+1. Spawn at least 2 subagents using DIFFERENT model families via the `model` parameter (e.g. `claude-opus-4-8-thinking-high` and `gpt-5.5-extra-high`, or `composer-2.5-fast`). Never use the same model twice -- diverse perspectives are the point.
 2. Each proposes a different design direction addressing the pain points.
 3. Proposals include: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
 4. Tone: per `workflow.mdc`.

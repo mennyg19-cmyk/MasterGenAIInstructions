@@ -12,10 +12,16 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 
 ## Phase 0: Multi-Model Audit + History Mining
 
-1. Main agent reads the codebase for orientation.
-2. For EACH area of the codebase, spawn multiple subagents using DIFFERENT models (e.g. Opus, GPT, Gemini -- whatever is available).
-3. Each model audits the same area independently.
-4. Every model has different strengths and blind spots -- cross-model coverage catches what any single model would miss.
+1. Main agent reads the codebase for orientation. Identify the major areas (e.g. frontend, backend, database, config, tests, deployment).
+
+2. **For EACH area, spawn at least 2 subagents using DIFFERENT model families.** Use the `model` parameter on every subagent call to force distinct models. Available model slugs:
+   - `claude-opus-4-8-thinking-high` (Claude family)
+   - `gpt-5.5-extra-high` (GPT family)
+   - `composer-2.5-fast` (Composer family -- good for speed passes)
+
+3. **NEVER use the same model slug for two subagents auditing the same area.** If you spawn 2 subagents for the backend, one must be Claude and one must be GPT (or another distinct model). Using the same model twice defeats the purpose -- the whole point is catching what one model misses.
+
+4. Each subagent gets the SAME prompt for its area, but runs independently on a different model.
 5. Each subagent documents every feature, behavior, pattern, and UX detail it finds.
 6. **Mine chat histories.** Spawn subagents to read through past agent transcripts (in the `.cursor/projects/` transcripts folder) for this project. Find:
    - Bugs that were fixed during the original build (prevent them from recurring).
