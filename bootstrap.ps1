@@ -88,6 +88,19 @@ if (-not $NoGitHub) {
 
 Pop-Location
 
+# Register the project for future updates
+$RegistryFile = Join-Path $ScriptDir "registry.json"
+$registry = @()
+if (Test-Path $RegistryFile) {
+    $registry = Get-Content $RegistryFile -Raw | ConvertFrom-Json
+}
+$fullPath = (Resolve-Path $Destination).Path
+if ($registry -notcontains $fullPath) {
+    $registry += $fullPath
+    $registry | ConvertTo-Json | Set-Content $RegistryFile
+    Write-Host "  [registered] Project added to registry for future rule updates."
+}
+
 Write-Host ""
 Write-Host "Done! Your project is ready at: $Destination"
 Write-Host ""

@@ -10,6 +10,8 @@ MasterGenAIInstructions/
 |-- bootstrap.sh         # Bash: create a new project
 |-- apply.ps1            # PowerShell: apply rules to an existing project
 |-- apply.sh             # Bash: apply rules to an existing project
+|-- update-all.ps1       # PowerShell: push rule updates to all registered projects
+|-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
 |   |-- .cursor/rules/   # 13 Cursor rule files
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
@@ -97,9 +99,15 @@ This copies the 13 rule files and AGENTS.md into the project. It creates DECISIO
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `session-handoff.mdc` | End of session or context limit |
 
-## Updating the Template
+## Updating Rules Across All Projects
 
-Edit rule files in this repo. New projects bootstrapped afterward get the latest rules. Existing projects keep their copy -- edit those in-place if needed.
+When you edit a rule in this repo, push the changes to all registered projects:
+
+```powershell
+.\update-all.ps1
+```
+
+This copies the updated `.cursor/rules/` and `AGENTS.md` to every project in `registry.json`. It will offer to commit the changes in each project. Projects that no longer exist are automatically removed from the registry.
 
 ## Using Without Cursor
 

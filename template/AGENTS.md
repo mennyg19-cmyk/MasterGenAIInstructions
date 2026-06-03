@@ -181,7 +181,7 @@ All communication uses plain English. Target audience: a self-taught programmer 
 
 ## Rebuild Protocol
 
-See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow. Summary: multi-model audit, feature inventory, architecture proposals from premier agents, debate and converge, build with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
+See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow. Summary: multi-model audit + chat history mining (find past bugs, late additions, pain points), feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 

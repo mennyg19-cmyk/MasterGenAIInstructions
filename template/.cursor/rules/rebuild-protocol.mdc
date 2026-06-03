@@ -10,21 +10,29 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 
 **Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. The only constraint is the UX stays identical. If a completely different tech stack would be better, propose it.
 
-## Phase 0: Multi-Model Audit
+## Phase 0: Multi-Model Audit + History Mining
 
 1. Main agent reads the codebase for orientation.
 2. For EACH area of the codebase, spawn multiple subagents using DIFFERENT models (e.g. Opus, GPT, Gemini -- whatever is available).
 3. Each model audits the same area independently.
 4. Every model has different strengths and blind spots -- cross-model coverage catches what any single model would miss.
 5. Each subagent documents every feature, behavior, pattern, and UX detail it finds.
+6. **Mine chat histories.** Spawn subagents to read through past agent transcripts (in the `.cursor/projects/` transcripts folder) for this project. Find:
+   - Bugs that were fixed during the original build (prevent them from recurring).
+   - Features that were added after the initial plan (make sure they're in the inventory).
+   - Pain points and regressions that came up during development.
+   - Workarounds or hacks that were applied under time pressure.
+   - Anything the user had to correct the agent on (the rebuild should get it right the first time).
+7. Produce **BUILD-HISTORY.md** documenting everything learned from the chat histories.
 
 ## Phase 1: Feature Inventory + Cross-Reference
 
 1. Collect all audit reports from all models across all areas.
 2. Cross-reference reports to ensure nothing was missed.
-3. Reconcile any disagreements between models.
-4. Produce **FEATURE-INVENTORY.md** -- the complete truth of what the app does today.
-5. This includes full UX documentation: every screen, every navigation path, every interaction the end user sees (this is what must NOT change).
+3. Cross-reference against **BUILD-HISTORY.md** -- make sure late additions, bug fixes, and post-launch features are all captured.
+4. Reconcile any disagreements between models.
+5. Produce **FEATURE-INVENTORY.md** -- the complete truth of what the app does today.
+6. This includes full UX documentation: every screen, every navigation path, every interaction the end user sees (this is what must NOT change).
 
 ## Phase 2: Architecture Proposals
 
@@ -37,21 +45,37 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 5. Both proposals must preserve the exact same UX (screens, navigation, look and feel).
 6. Each proposal must justify its tech stack choices in plain English: why this framework, why this language, why this hosting.
 
-## Phase 3: Debate and Converge
+## Phase 3: Debate, Converge, and Plan in Detail
 
 1. Premier agents review each other's proposals.
 2. Debate trade-offs in plain English (tone per `workflow.mdc`).
 3. Converge on a unified **REBUILD-PLAN.md**.
 4. Plan must explicitly confirm: "End-user experience is unchanged."
+5. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps in the plan.
+
+### Granular Todos (critical)
+
+The plan MUST be broken into the most granular, detail-oriented todos possible. General todos like "build the auth system" are a failure. Instead:
+
+- Every screen, every route, every component, every API endpoint, every database table gets its own todo.
+- Every known bug from BUILD-HISTORY.md gets a todo to verify it doesn't recur.
+- Every feature from FEATURE-INVENTORY.md gets a todo to confirm it's implemented.
+- Todos should be small enough that an agent can complete one without losing focus.
+- If a todo takes more than ~30 minutes of work, break it down further.
+- Number every todo so nothing gets skipped.
+
+The reason: agents lose focus on long tasks and skip things that were in the plan but described too generally. Granular todos prevent this.
 
 ## Phase 4: Build
 
-1. Main agent executes the plan phase by phase.
-2. Follow `review-protocol.mdc` before each commit (commits can trigger deploys per `deploy-awareness.mdc`).
-3. Only commit and push after review passes -- never push unreviewed code.
-4. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`.
-5. UX parity check at the end of each phase that touches frontend.
-6. No phase advances until review passes.
+1. Main agent executes the plan todo by todo.
+2. Mark each todo as in-progress when starting, completed when done. Never skip a todo.
+3. Follow `review-protocol.mdc` before each commit (commits can trigger deploys per `deploy-awareness.mdc`).
+4. Only commit and push after review passes -- never push unreviewed code.
+5. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`.
+6. UX parity check at the end of each phase that touches frontend.
+7. No phase advances until review passes.
+8. Before advancing to the next phase, read through every todo in the current phase and confirm each is marked complete (per completion checklist rule in `workflow.mdc`).
 
 ## Phase 5: Final Scope Review
 
