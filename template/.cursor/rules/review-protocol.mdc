@@ -21,6 +21,27 @@ A "phase" = a feature, a module, a protocol step, or any body of work that spans
 - The review subagent gets: the changed files, the project context (README, AGENTS.md), and the goal of the phase.
 - Review findings go into DECISION-LOG.md.
 
+## "Compiles" Is Never the Bar
+
+A review that only confirms the code compiles, typechecks, and lints is not a review -- it's a build check. Those are necessary but not sufficient.
+
+Every review must also answer: **does the work actually do what it was supposed to do?**
+
+- For a feature: does it perform the full behavior the user asked for, end to end?
+- For a UI page: is every control present and functional, or is it a read-only stub?
+- For a bug fix: is the bug actually gone, verified in the running app?
+
+If a review only ever reports type errors and formatting nits and never checks whether the feature works, the review is broken. Past failures shipped "done" phases that compiled cleanly but were missing most of the actual functionality.
+
+## Feature-Parity Review (rebuilds and any "match the old thing" work)
+
+When the goal is to match an existing app, spec, or design, the review is a **feature-parity review**:
+
+- The reviewer gets the FEATURE-INVENTORY.md (or spec) AND the old app's reference (screenshots or source).
+- For every item, the reviewer marks PRESENT / PARTIAL / STUB / MISSING with evidence.
+- The phase does not pass while anything is PARTIAL, STUB, or MISSING.
+- Verify in the running app, not from code alone.
+
 ## Deviations
 
 - Rebuild and redesign protocols have more intensive review cycles (see those files).

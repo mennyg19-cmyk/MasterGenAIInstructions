@@ -142,6 +142,8 @@ All communication uses plain English. Target audience: a self-taught programmer 
 - Review with a readonly subagent (default: `gpt-5.5-extra-high`) BEFORE committing.
 - Review findings go into DECISION-LOG.md.
 - Resolve blockers before committing or advancing.
+- **"Compiles" is never the bar.** A review must check that the work actually does what it was supposed to, end to end -- not just that it typechecks and lints. For a UI page: is every control present and functional, or a read-only stub? For a bug fix: is the bug gone in the running app?
+- **Feature-parity review** (rebuilds / "match the old thing" work): reviewer gets the inventory + old reference, marks every item PRESENT/PARTIAL/STUB/MISSING with evidence, verified in the running app. Phase fails while anything is less than PRESENT.
 
 ---
 
@@ -184,6 +186,8 @@ All communication uses plain English. Target audience: a self-taught programmer 
 ## Rebuild Protocol
 
 See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
+
+**The #1 rule: the old app's UI is the source of truth.** A rebuild is NOT building a new app from a spec -- it is re-implementing the existing app's exact UI with new internals behind it. Do NOT design new pages, reorganize navigation, change menus, or alter dashboard metrics. Before building any page, open the old page's UI code and replicate it control-for-control. "Built the engine, skipped the car" (great backend + read-only skeleton pages) is a FAILURE. Every backend capability must be wired to the exact UI control that existed in the old app. Keep the old codebase accessible the whole time and reference it on every UI todo. The inventory and plan are organized PAGE BY PAGE with a UI sub-checklist per page (a coarse phase like "Admin UI" covering 20 pages is how 75% of features get lost). Build UI and internals together per feature, not backend-first. Verify each page in the running app against the old app's screenshot before marking it done.
 
 **Critical mechanical requirement:** "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and -- most importantly -- the **`model` parameter set explicitly** to a specific model slug. If you omit the `model` parameter, the subagent runs on your own model, which defeats multi-model coverage. Every subagent call MUST have `model` set. Available slugs: `composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime.
 
