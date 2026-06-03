@@ -8,6 +8,8 @@ description: Multi-agent rebuild workflow. Triggered when the user says "rebuild
 
 The rebuilt app must be pixel-identical to the current app from the end user's perspective -- same navigation, same screens, same look and feel. The switch must be seamless. Users should never know anything changed. What changes is the code underneath: architecture, patterns, performance, maintainability.
 
+**Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. The only constraint is the UX stays identical. If a completely different tech stack would be better, propose it.
+
 ## Phase 0: Multi-Model Audit
 
 1. Main agent reads the codebase for orientation.
@@ -29,10 +31,11 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 1. Spawn two premier agents:
    - `claude-opus-4-8-thinking-high`
    - `gpt-5.5-extra-high`
-2. Each proposes a clean architecture from scratch.
+2. Each proposes a clean architecture from scratch -- framework, language, hosting, and all technical choices are open.
 3. Old code = reference for WHAT (features/behavior), not HOW (implementation).
 4. If old code already does something the best way possible, say so -- keep it.
 5. Both proposals must preserve the exact same UX (screens, navigation, look and feel).
+6. Each proposal must justify its tech stack choices in plain English: why this framework, why this language, why this hosting.
 
 ## Phase 3: Debate and Converge
 

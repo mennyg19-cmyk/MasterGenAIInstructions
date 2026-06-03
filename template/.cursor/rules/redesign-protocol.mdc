@@ -6,6 +6,8 @@ description: UI/UX redesign workflow. Triggered when the user says "redesign". C
 
 Changes the UI/UX (and adjusts backend where needed to support it). Keeps core logic intact. Commits follow `git-discipline.mdc`. Reviews follow `review-protocol.mdc`.
 
+**Everything is on the table.** CSS framework, component library, design system, layout approach, even the frontend framework itself -- all of it can change unless the user specifically says to keep something. If switching from vanilla CSS to Tailwind or from one component library to another would produce a better result, propose it.
+
 ## Phase 0: Discovery Conversation
 
 1. Ask the user: what's bothering you about the current design? (boring, colors off, navigation confusing, looks generic, etc.)
@@ -23,16 +25,30 @@ Changes the UI/UX (and adjusts backend where needed to support it). Keeps core l
 
 1. Spawn multiple subagents using DIFFERENT models (doesn't need premier agents -- design ideas don't require top-tier).
 2. Each proposes a different design direction addressing the pain points.
-3. Proposals include: color palette, layout, navigation, typography, spacing.
+3. Proposals include: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
 4. Tone: per `workflow.mdc`.
+
+### Visual Previews
+
+Each proposal MUST include a visual preview the user can see in a browser:
+
+1. Create a `previews/` folder in the project root.
+2. Each proposal gets a standalone HTML file: `previews/proposal-1.html`, `previews/proposal-2.html`, etc.
+3. Each file is self-contained -- inline CSS, no external dependencies, no build step. Just open in a browser.
+4. Preview the key screens that are changing (the ones from the pain points in Phase 0).
+5. Use real-looking placeholder data, not "Lorem ipsum."
+6. The user compares proposals by opening tabs side by side.
+7. The `previews/` folder is temporary -- delete it after the user picks a direction.
 
 ## Phase 3: User Review + Iteration
 
-1. Present all proposals to the user.
-2. User picks elements they like from different proposals.
-3. Synthesize the feedback into a refined direction.
-4. Iterate until user approves.
-5. Produce **REDESIGN-PLAN.md** with the approved direction.
+1. Present all proposals to the user with links to the preview files.
+2. User opens the previews in a browser and compares visually.
+3. User picks elements they like from different proposals.
+4. Synthesize the feedback into a refined direction -- generate a new preview if needed.
+5. Iterate until user approves.
+6. Produce **REDESIGN-PLAN.md** with the approved direction.
+7. Delete the `previews/` folder.
 
 ## Phase 4: Build the Redesign
 

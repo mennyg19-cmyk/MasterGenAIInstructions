@@ -181,13 +181,13 @@ All communication uses plain English. Target audience: a self-taught programmer 
 
 ## Rebuild Protocol
 
-See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow. Summary: multi-model audit, feature inventory, architecture proposals from premier agents, debate and converge, build with review gates, final scope review. UI stays pixel-identical.
+See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow. Summary: multi-model audit, feature inventory, architecture proposals from premier agents, debate and converge, build with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 
 ## Redesign Protocol
 
-See `redesign-protocol.mdc` for the full 6-phase workflow. Summary: discovery conversation about pain points, UX audit, multiple design proposals from different models, user review and iteration, phased build, final review.
+See `redesign-protocol.mdc` for the full 6-phase workflow. Summary: discovery conversation about pain points, UX audit, multiple design proposals from different models with visual HTML previews the user can open in a browser to compare side by side, user review and iteration, phased build, final review. Everything visual/frontend is on the table (CSS framework, component library, layout approach) unless the user says otherwise.
 
 ---
 
