@@ -8,6 +8,7 @@ Personal agent operating system for AI-assisted development. Bootstrap new proje
 MasterGenAIInstructions/
 |-- bootstrap.ps1        # PowerShell: create a new project
 |-- bootstrap.sh         # Bash: create a new project
+|-- manager.pyw          # Double-click GUI manager (Python/tkinter)
 |-- apply.ps1            # PowerShell: apply rules to an existing project
 |-- apply.sh             # Bash: apply rules to an existing project
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
@@ -26,7 +27,17 @@ MasterGenAIInstructions/
 
 ## Quick Start
 
-### Starting a New Project
+### GUI Manager (recommended)
+
+Double-click `manager.pyw` to open the GUI. It has tabs for:
+- **New Project** -- create a bootstrapped project with all rules
+- **Apply to Existing** -- add rules to an existing project
+- **Update All** -- push rule changes to every registered project
+- **Registry** -- view and manage registered projects
+
+Requires Python 3 (uses tkinter, no extra installs).
+
+### Command Line: Starting a New Project
 
 ```powershell
 # PowerShell
