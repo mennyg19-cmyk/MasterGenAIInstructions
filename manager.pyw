@@ -309,8 +309,9 @@ class RegistryFrame(ttk.Frame):
 
         btn_frame = ttk.Frame(self)
         btn_frame.pack(fill="x", pady=(0, 10))
-        ttk.Button(btn_frame, text="Refresh", command=self.refresh).pack(side="left")
+        ttk.Button(btn_frame, text="Add Project...", command=self.add_project).pack(side="left")
         ttk.Button(btn_frame, text="Remove Selected", command=self.remove_selected).pack(side="left", padx=(10, 0))
+        ttk.Button(btn_frame, text="Refresh", command=self.refresh).pack(side="left", padx=(10, 0))
 
         self.listbox = tk.Listbox(self, height=15, font=("Consolas", 9), selectmode="extended")
         self.listbox.pack(fill="both", expand=True)
@@ -322,6 +323,13 @@ class RegistryFrame(ttk.Frame):
         for path in load_registry():
             exists = "  " if Path(path).exists() else "  [MISSING] "
             self.listbox.insert("end", f"{exists}{path}")
+
+    def add_project(self):
+        d = filedialog.askdirectory(title="Choose a project folder to register")
+        if d:
+            registered = register_project(d)
+            self.refresh()
+            messagebox.showinfo("Added", f"Registered:\n{registered}")
 
     def remove_selected(self):
         selected = self.listbox.curselection()
