@@ -203,6 +203,12 @@ Write HANDOFF.md with: what's done, what's in progress, what's next, open decisi
 
 ---
 
+## Cleanup Protocol
+
+See `cleanup-protocol.mdc`. Full codebase sweep for clutter: test artifacts, cache files, logs, old versions, dead code files, temp files. Agent asks about ambiguous items (e.g., multiple app versions), then presents a detailed deletion report -- every file, what it is, why it was created, why delete it. User confirms before anything is deleted. After cleanup, update .gitignore to prevent recurrence.
+
+---
+
 ## Deploy Awareness
 
 Project-specific. See `deploy-awareness.mdc` for this project's deploy targets, trigger files, commands, and post-deploy checks.

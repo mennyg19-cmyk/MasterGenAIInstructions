@@ -13,7 +13,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 13 Cursor rule files
+|   |-- .cursor/rules/   # 14 Cursor rule files
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -66,7 +66,7 @@ A new project directory with:
 ./apply.sh /path/to/existing/project
 ```
 
-This copies the 13 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
+This copies the 14 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
 
 ### After Bootstrapping or Applying
 
@@ -97,6 +97,7 @@ This copies the 13 rule files and AGENTS.md into the project. It creates DECISIO
 | `rebuild-protocol.mdc` | User says "rebuild" |
 | `redesign-protocol.mdc` | User says "redesign" |
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
+| `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |
 
 ## Updating Rules Across All Projects

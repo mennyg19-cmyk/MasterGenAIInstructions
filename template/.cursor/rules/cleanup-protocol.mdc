@@ -1,0 +1,52 @@
+---
+description: Codebase cleanup protocol. Triggered when the user says "cleanup" or "clean up the codebase". Finds and removes clutter with user confirmation.
+---
+
+# Cleanup Protocol
+
+A full sweep of the codebase to find and remove files that don't belong. This is about removing clutter, not changing code.
+
+## What to Look For
+
+- **Test artifacts** -- leftover test output files, snapshot files from deleted tests, `.pytest_cache`, coverage reports.
+- **Cache files** -- `__pycache__/`, `.pyc` files, `.next/`, `node_modules/.cache/`, `.turbo/`.
+- **Log files** -- `*.log`, debug output files, error dumps.
+- **Build artifacts** -- `dist/`, `build/`, compiled output that shouldn't be committed.
+- **Test exports / debug exports** -- temporary Excel/CSV/JSON files created during testing.
+- **Old versions** -- duplicate directories or files from previous iterations (e.g., `v1/`, `old/`, `backup/`, `_old_*`).
+- **Dead code files** -- files that are no longer imported or referenced anywhere.
+- **IDE / editor files** -- `.vscode/` settings (unless intentional), `.idea/`, editor backups.
+- **OS files** -- `.DS_Store`, `Thumbs.db`, `desktop.ini`.
+- **Temporary files** -- anything with `temp`, `tmp`, `scratch`, `draft` in the name.
+- **Duplicate scripts** -- multiple versions of the same script (e.g., `deploy.sh` and `deploy_old.sh`).
+
+## Questions First
+
+Before scanning, check if there are any ambiguous situations:
+- Multiple versions of the app in the codebase (e.g., `v1/`, `test/`, `v3/`) -- ask which ones the user still needs.
+- Multiple config files for the same thing -- ask which is active.
+- Anything that looks intentional but might be clutter -- ask rather than assume.
+
+## The Deletion Report
+
+After scanning, present a detailed breakdown of EVERY file or directory you plan to delete. For each one:
+
+1. **File/directory path**
+2. **What it is** -- what the file did or contained.
+3. **Why it was created** -- how it got there (test output, build artifact, old version, etc.).
+4. **Why delete it** -- why it's no longer needed (not imported, superseded, should be in .gitignore, etc.).
+
+Group by category (test artifacts, cache, logs, old versions, etc.) for readability.
+
+## User Confirms
+
+- Present the full list and wait for the user to confirm.
+- The user can approve all, approve some, or reject some.
+- Only delete what the user explicitly approves.
+- Never delete without confirmation.
+
+## After Cleanup
+
+- Update `.gitignore` to prevent the same clutter from coming back (e.g., add `__pycache__/`, `*.log`, `dist/` if missing).
+- Commit the deletions and .gitignore update together.
+- Report what was deleted and what was added to .gitignore.

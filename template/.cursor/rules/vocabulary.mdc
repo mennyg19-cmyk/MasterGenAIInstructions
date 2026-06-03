@@ -30,3 +30,4 @@ If the user says "refactor" and you only touch one category (e.g., styles), that
 | **"review"** | Follow `review-protocol.mdc` on the current state. |
 | **"hotfix"** / **"production is broken"** | Follow `hotfix-protocol.mdc`. Fastest path: fix, test, deploy. |
 | **"hand off"** / **"save state"** | Follow `session-handoff.mdc`. Write HANDOFF.md for the next session. |
+| **"cleanup"** / **"clean up the codebase"** | Follow `cleanup-protocol.mdc`. Find and remove clutter: test artifacts, log files, cache files, old versions, dead exports. |
