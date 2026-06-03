@@ -10,57 +10,109 @@ The rebuilt app must be pixel-identical to the current app from the end user's p
 
 **Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. The only constraint is the UX stays identical. If a completely different tech stack would be better, propose it.
 
+---
+
+## How to Spawn Subagents (read this first)
+
+Every time this protocol says "spawn a subagent," it means: **use the Task tool** with these parameters:
+
+- `subagent_type`: `"generalPurpose"` (or `"explore"` for read-only audits)
+- `model`: One of the model slugs listed below. **You MUST set this parameter.** If you omit it, the subagent runs on your own model, which defeats multi-model coverage.
+- `run_in_background`: `true` (so you can spawn multiple in parallel)
+- `prompt`: The full instructions for what the subagent should do. Include ALL context -- the subagent cannot see your conversation.
+
+### Available model slugs (use these exact strings)
+
+| Slug | Family | Cost | Best for |
+|---|---|---|---|
+| `composer-2.5-fast` | Composer | Cheapest | Speed audits, broad sweeps |
+| `claude-opus-4-8-thinking-high` | Claude | Mid-high | Deep analysis, architecture |
+| `gpt-5.5-extra-high` | GPT | High | Alternative perspective |
+
+Use any other slugs available at runtime too (Gemini, etc.). The point is **different families, not expensive models**. Cheaper is fine for auditing.
+
+### The rule
+
+**Every subagent call MUST include the `model` parameter.** No exceptions. If you catch yourself spawning a subagent without explicitly setting `model`, stop and add it.
+
+---
+
 ## Phase 0: Multi-Model Audit + History Mining
 
-1. Main agent reads the codebase for orientation. Identify the major areas (e.g. frontend, backend, database, config, tests, deployment).
+**DO NOT skip this phase. DO NOT do this yourself. You MUST spawn subagents.**
 
-2. **For EACH area, spawn at least 2 subagents using DIFFERENT model families.** Use the `model` parameter on every subagent call to force distinct models. Rotate through as many families as possible. The goal is diversity, not raw power -- cheaper/faster models are fine for auditing. Available model slugs (use these exact strings):
-   - `composer-2.5-fast` (Composer family)
-   - `claude-opus-4-8-thinking-high` (Claude family)
-   - `gpt-5.5-extra-high` (GPT family)
-   - Any other model slugs available at runtime (check what's offered -- Gemini, etc.)
+### Step 1: Orient
 
-   **Rotate families across areas.** Example with 3 areas: Area 1 gets Composer + Claude, Area 2 gets GPT + Composer, Area 3 gets Claude + GPT. Every family should touch multiple areas so no single model's blind spots dominate.
+Read the codebase yourself. Identify the major areas (e.g. frontend, backend, database, config/infra, tests).
 
-3. **NEVER use the same model for two subagents auditing the same area.** Same model twice = same blind spots twice = pointless. The whole reason for multi-model auditing is that each model catches things the others miss.
+### Step 2: Spawn audit subagents
 
-4. Each subagent gets the SAME prompt for its area, but runs independently on a different model.
-5. Each subagent documents every feature, behavior, pattern, and UX detail it finds.
-6. **Mine chat histories.** Spawn subagents to read through past agent transcripts (in the `.cursor/projects/` transcripts folder) for this project. Find:
-   - Bugs that were fixed during the original build (prevent them from recurring).
-   - Features that were added after the initial plan (make sure they're in the inventory).
-   - Pain points and regressions that came up during development.
-   - Workarounds or hacks that were applied under time pressure.
-   - Anything the user had to correct the agent on (the rebuild should get it right the first time).
-7. Produce **BUILD-HISTORY.md** documenting everything learned from the chat histories.
+For EACH area you identified, spawn at least 2 subagents on DIFFERENT model families. Do this by making multiple Task tool calls in a single message with `run_in_background: true`.
+
+**Rotation example** (3 areas, 3 families):
+
+| Area | Subagent 1 | Subagent 2 |
+|---|---|---|
+| Frontend | `composer-2.5-fast` | `claude-opus-4-8-thinking-high` |
+| Backend | `gpt-5.5-extra-high` | `composer-2.5-fast` |
+| Database | `claude-opus-4-8-thinking-high` | `gpt-5.5-extra-high` |
+
+NEVER use the same model slug twice for the same area. Same model = same blind spots = pointless.
+
+Each subagent prompt must say:
+> "You are auditing the [AREA] of this codebase at [PATH]. Document every feature, behavior, pattern, UX detail, route, component, API endpoint, data model, and config you find. Be exhaustive. Write your findings as a structured report. Do not skip anything -- if in doubt, include it."
+
+### Step 3: Mine chat histories
+
+Spawn a separate subagent to read past agent transcripts (in the `.cursor/projects/` transcripts folder) for this project. The prompt must say:
+> "Read through the agent chat transcripts for this project. Find: (1) bugs fixed during the original build, (2) features added after the initial plan, (3) pain points and regressions, (4) workarounds or hacks applied under pressure, (5) anything the user corrected the agent on. Write a structured report."
+
+### Step 4: Wait and collect
+
+Wait for ALL audit subagents to complete. Collect their reports. Produce **BUILD-HISTORY.md** from the chat history mining results.
+
+**DO NOT proceed to Phase 1 until every subagent has returned its report.**
+
+---
 
 ## Phase 1: Feature Inventory + Cross-Reference
 
 1. Collect all audit reports from all models across all areas.
-2. Cross-reference reports to ensure nothing was missed.
+2. Cross-reference reports against each other -- if Model A found something Model B missed, it goes in the inventory.
 3. Cross-reference against **BUILD-HISTORY.md** -- make sure late additions, bug fixes, and post-launch features are all captured.
 4. Reconcile any disagreements between models.
 5. Produce **FEATURE-INVENTORY.md** -- the complete truth of what the app does today.
 6. This includes full UX documentation: every screen, every navigation path, every interaction the end user sees (this is what must NOT change).
 
+**DO NOT proceed to Phase 2 until FEATURE-INVENTORY.md is written and complete.**
+
+---
+
 ## Phase 2: Architecture Proposals
 
-1. Spawn two premier agents:
-   - `claude-opus-4-8-thinking-high`
-   - `gpt-5.5-extra-high`
-2. Each proposes a clean architecture from scratch -- framework, language, hosting, and all technical choices are open.
-3. Old code = reference for WHAT (features/behavior), not HOW (implementation).
-4. If old code already does something the best way possible, say so -- keep it.
-5. Both proposals must preserve the exact same UX (screens, navigation, look and feel).
-6. Each proposal must justify its tech stack choices in plain English: why this framework, why this language, why this hosting.
+Spawn exactly 2 subagents using the Task tool, each on a DIFFERENT premier model:
+
+- Subagent 1: `model: "claude-opus-4-8-thinking-high"`
+- Subagent 2: `model: "gpt-5.5-extra-high"`
+
+Set `run_in_background: true` for both. Spawn both in the same message so they run in parallel.
+
+Each subagent prompt must include the full text of FEATURE-INVENTORY.md and BUILD-HISTORY.md, and say:
+> "Propose a clean architecture for this app from scratch. Framework, language, hosting, and all technical choices are open. The ONLY constraint is that the end-user experience (screens, navigation, look and feel) must be pixel-identical to the current app. Old code is reference for WHAT the app does, not HOW to implement it. If the old way is already the best way for something, say so. Justify every tech stack choice in plain English."
+
+Wait for both subagents to return before proceeding.
+
+**DO NOT proceed to Phase 3 until both proposals are in hand.**
+
+---
 
 ## Phase 3: Debate, Converge, and Plan in Detail
 
-1. Premier agents review each other's proposals.
-2. Debate trade-offs in plain English (tone per `workflow.mdc`).
-3. Converge on a unified **REBUILD-PLAN.md**.
-4. Plan must explicitly confirm: "End-user experience is unchanged."
-5. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps in the plan.
+1. Spawn a premier subagent (`claude-opus-4-8-thinking-high` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
+   > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'End-user experience is unchanged.' The plan must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
+
+2. Plan must explicitly confirm: "End-user experience is unchanged."
+3. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
 
 ### Granular Todos (critical)
 
@@ -75,6 +127,10 @@ The plan MUST be broken into the most granular, detail-oriented todos possible. 
 
 The reason: agents lose focus on long tasks and skip things that were in the plan but described too generally. Granular todos prevent this.
 
+**DO NOT proceed to Phase 4 until REBUILD-PLAN.md is written with numbered todos.**
+
+---
+
 ## Phase 4: Build
 
 1. Main agent executes the plan todo by todo.
@@ -86,13 +142,13 @@ The reason: agents lose focus on long tasks and skip things that were in the pla
 7. No phase advances until review passes.
 8. Before advancing to the next phase, read through every todo in the current phase and confirm each is marked complete (per completion checklist rule in `workflow.mdc`).
 
+---
+
 ## Phase 5: Final Scope Review
 
-1. After the entire build is complete, launch a full review with premier agents.
-2. Compare the finished product against the original FEATURE-INVENTORY.md.
-3. Check: did anything get added that wasn't in scope?
-4. Check: did anything get dropped or degraded?
-5. Check: is the UX still pixel-identical to the original?
-6. Check: do all documented behaviors still work the same way?
-7. Produce **REBUILD-COMPLETION-REPORT.md** with pass/fail for each check.
-8. If anything drifted, fix it before declaring the rebuild done.
+Spawn 2 subagents on different premier models (same as Phase 2: `claude-opus-4-8-thinking-high` and `gpt-5.5-extra-high`). Each gets the finished codebase and the original FEATURE-INVENTORY.md.
+
+Each subagent prompt:
+> "Compare this finished codebase against the FEATURE-INVENTORY.md below. Check: (1) was anything added that wasn't in scope? (2) was anything dropped or degraded? (3) is the UX pixel-identical to the original? (4) do all documented behaviors still work? Write a pass/fail report for each item in the inventory."
+
+Collect both reports. Produce **REBUILD-COMPLETION-REPORT.md** merging their findings. If anything drifted, fix it before declaring the rebuild done.

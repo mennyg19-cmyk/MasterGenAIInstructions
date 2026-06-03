@@ -181,7 +181,11 @@ All communication uses plain English. Target audience: a self-taught programmer 
 
 ## Rebuild Protocol
 
-See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow. Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others available; diversity matters more than power; never the same model twice per area; use the `model` parameter on every subagent call) + chat history mining (find past bugs, late additions, pain points), feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
+See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
+
+**Critical mechanical requirement:** "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and -- most importantly -- the **`model` parameter set explicitly** to a specific model slug. If you omit the `model` parameter, the subagent runs on your own model, which defeats multi-model coverage. Every subagent call MUST have `model` set. Available slugs: `composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime.
+
+Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 
