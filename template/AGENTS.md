@@ -87,6 +87,7 @@ All communication uses plain English. Target audience: a self-taught programmer 
 - Branch naming: `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`.
 - **Never assume `main` is the production branch.** Check deploy config or README first.
 - **Document branch strategy in README on day one**: which branch deploys where, which is for dev, which is for prod.
+- **After every push, verify the builds it triggered passed** (Vercel, GitHub Actions, other CI). A push isn't done until its builds are green. See Deploy Awareness.
 
 ---
 
@@ -226,6 +227,10 @@ See `deploy-awareness.mdc` for full rules. Key points:
 ### Build Verification
 
 Before every commit: run type checker (`tsc --noEmit`), linter, and build command locally. Never push code that doesn't compile. Run the full build at least once per phase.
+
+### Post-Commit Build Verification
+
+After every push, verify the builds it triggered actually went green -- don't assume. Vercel: `vercel ls` + `vercel inspect <url>` (or the Vercel MCP), wait for `READY`, read logs and fix if `ERROR`. GitHub Actions: `gh run list` + `gh run watch <id>` / `gh run view <id> --log-failed`. Other hosts (Azure, Netlify, Expo, Docker): check that platform the same way. A red or unverified build is your problem even if the local build was green -- stop and fix before starting the next task. No CI/host = no-op, but confirm that's actually the case.
 
 ### Database Deploy Rules
 

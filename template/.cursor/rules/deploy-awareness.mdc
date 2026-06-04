@@ -16,6 +16,34 @@ Before committing code that touches anything beyond docs/comments:
 
 **Never push code that doesn't compile.** The retroactive "oh I'll fix the type errors later" pattern has caused multiple stacked deploy failures in past projects.
 
+## Post-Commit Build Verification (after every push)
+
+A commit is not "done" when it's pushed. It's done when every build and check that the push triggered has gone green. Pushing and walking away is how broken deploys sit live for hours.
+
+After every push, identify what the push triggers and verify each one actually succeeded. Don't guess -- check the real status:
+
+### Vercel
+
+- Check the deployment status, don't assume it worked.
+- CLI: `vercel ls` (find the latest deployment) then `vercel inspect <url>` for status, or watch logs with `vercel logs <url>`. The Vercel MCP tools work too if available.
+- Wait for the deployment to reach `READY`. If it's `ERROR` or `CANCELED`, read the build logs and fix it now.
+- Confirm it's the expected target (preview vs production) and the expected branch.
+
+### GitHub Actions / CI
+
+- CLI: `gh run list --limit 5` to see recent runs, then `gh run watch <id>` to follow it live, or `gh run view <id> --log-failed` to read only the failed step.
+- Wait for the run to complete. If any job fails, read the failed logs and fix it before moving on.
+
+### Other platforms
+
+- Whatever the project deploys to (Azure, Netlify, Expo EAS, Docker registry, etc.), check that platform's build/deploy status the same way. Use its CLI or dashboard.
+
+### The rule
+
+- **A failed build after a green local build is still your problem.** CI often has stricter settings, different env vars, or a clean install that surfaces issues your machine hid.
+- **Never start the next task while a triggered build is still red or unverified.** Treat a red build like a broken local build -- stop and fix.
+- If the project has no automated builds (pure local app, no CI, no host), this section is a no-op -- but confirm that's actually the case rather than assuming it.
+
 ## Database Deploy Rules
 
 ### NEVER in a build script
