@@ -32,6 +32,12 @@ A single review pass is never enough. The cycle is:
 
 A phase is reviewed only when the latest pass is clean. "The reviewer found things, I fixed them, moving on" -- without a clean re-review -- is not allowed. The user has been explicit about this: keep reviewing until nothing is found.
 
+### A review must RETURN RESULTS -- never substitute "it compiles" for "it was reviewed"
+
+- "Done" is forbidden until the review subagent has **returned its findings** and every blocker is fixed. A clean typecheck is not a stand-in for a review that never finished.
+- If a review subagent hangs or times out, **re-spawn a smaller, scoped review** (one area at a time) until you get real results. Do NOT conclude "the review timed out, so I'll call it done from the compile check." That exact move shipped a phase with broken API wiring, stub mutations, and security gaps that the (actually-completed) review had caught.
+- While a review runs, do bounded productive work instead of idle-polling 20+ times and then giving up.
+
 ## "Compiles" Is Never the Bar
 
 A review that only confirms the code compiles, typechecks, and lints is not a review -- it's a build check. Those are necessary but not sufficient.

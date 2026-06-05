@@ -247,11 +247,15 @@ See `deploy-awareness.mdc` for full rules. Key points:
 
 ### Build Verification
 
-Before every commit: run type checker (`tsc --noEmit`), linter, and build command locally. Never push code that doesn't compile. Run the full build at least once per phase.
+Before every commit, run the FULL local gate: type checker (`tsc --noEmit`), linter, formatter check (`prettier --check`), and the real production build (`next build`), plus tests. **`tsc` + lint are not enough** -- only `next build`/Turbopack catches server/client boundary violations (a `"use client"` file importing a server-only module), which shipped a red Vercel build; guard server modules with `import "server-only"`. **Re-run the whole gate after every batch of fixes** (including review fixes) -- pushing fixes blind caused stacked CI failures. Never push code that doesn't compile.
 
 ### Post-Commit Build Verification
 
-After every push, verify the builds it triggered actually went green -- don't assume. Vercel: `vercel ls` + `vercel inspect <url>` (or the Vercel MCP), wait for `READY`, read logs and fix if `ERROR`. GitHub Actions: `gh run list` + `gh run watch <id>` / `gh run view <id> --log-failed`. Other hosts (Azure, Netlify, Expo, Docker): check that platform the same way. A red or unverified build is your problem even if the local build was green -- stop and fix before starting the next task. No CI/host = no-op, but confirm that's actually the case.
+After every push, verify the builds it triggered actually went green -- don't assume. Vercel: `vercel ls` + `vercel inspect <url>` (or the Vercel MCP), wait for `READY`, read logs and fix if `ERROR`. GitHub Actions: `gh run list` + `gh run watch <id>` / `gh run view <id> --log-failed`. Other hosts (Azure, Netlify, Expo, Docker): check that platform the same way. A red or unverified build is your problem even if the local build was green -- stop and fix before starting the next task. **"Should pass" is banned** -- observe and quote the real status (CI success AND deploy READY); saying "it should pass" while it was red forced the user to repeat "check yourself." No CI/host = no-op, but confirm that's actually the case.
+
+### "Done" = Visible Online
+
+A milestone is done only when it's **merged into the branch that actually deploys** (often NOT `main` -- check), the deployment reached **READY**, and the **live URL shows the new work with real/seeded data**. A "done" redesign that sat on an unmerged branch and wasn't visible online, and fixes made on a feature branch while prod built `main`, were both false "dones." Committed-to-a-branch is not done.
 
 ### Database Deploy Rules
 
@@ -260,11 +264,14 @@ After every push, verify the builds it triggered actually went green -- don't as
 - **Safe build command**: `prisma generate && next build`.
 - Use `prisma migrate` for production, `db push` for local dev only.
 - Run migrations manually or in a separate CI step, not in the build.
+- **A rebuild gets a fresh, isolated DB branch** -- never point new code at the old project's populated DB (that 500'd `/admin` on first deploy).
+- **Read `schema.prisma` for an entity before writing code against it.** Don't write field/enum names from memory (the model was redesigned). Two schema-mismatch errors in a row = stop and generate a field reference; don't keep guessing.
 
 ### Environment Variables
 
 - Every new env var: add to `.env.example`, add to env validation schema, document which environments need it, flag in commit message.
 - Before deploying: compare `.env.example` against what's set in the deploy target. Missing vars = silent failures.
+- **Check env-var scope, not just presence** -- a Vercel var set only in Production makes every Preview build fail. Preview/Dev scopes must hold the same keys Production needs.
 - After major features: audit env vars across all environments for drift.
 
 ### Auth Framework Completeness
@@ -273,7 +280,11 @@ When adding auth (Clerk, Auth0, etc.), verify ALL of these as a set: provider wr
 
 ### Smoke Deploy
 
-Deploy early, not after 5 phases of local-only development. After the foundation scaffold, do a smoke deploy. Fix any issues before building more features on top.
+Deploy early, not after 5 phases of local-only development. After the foundation scaffold, do a smoke deploy that **loads a real authenticated page against the real DB** (not just the homepage -- that's where a schema-mismatch crash hid). Fix any issues before building more features on top.
+
+### An Empty 200 Is Not "Working"
+
+A data-driven page returning 200 with no data is not verified (an "verified" order builder was actually broken on an empty dev DB). Seed realistic data, then confirm real content renders and the primary action works end to end. "200" and "screenshot of the hero" are not verification.
 
 ### Windows / PowerShell
 

@@ -170,7 +170,7 @@ Wait for both subagents to return before proceeding.
 1. Spawn a premier subagent (`claude-opus-4-8-thinking-xhigh` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
    > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
 
-2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."**
+2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."** It must also restate the scope stance in plain words: **the old app is a reference for WHAT exists, not HOW to build it -- this is not a port and not a pixel copy.** A plan that says "port every page" or "replicate pixel-identical" has the wrong frame (this caused the user to re-scope mid-stream twice); fix the frame before building.
 3. Plan must list the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
 4. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
 
@@ -244,6 +244,14 @@ Execute the plan todos one by one. For EVERY page/UI todo, follow this loop -- n
 7. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
 8. No phase advances until its review loop comes back clean.
 9. Before advancing, read through every todo in the current phase and confirm each is complete WITH its feature checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "every feature works and the screen is built right" is the bar.
+
+### Parallelizing the build (subagent discipline)
+
+Parallel subagents are fine, but with hard limits:
+
+- **One page/screen per subagent, maximum.** Never hand a subagent "Phase 7+8: Products + Inventory" or any multi-page bundle. Bundling pages into a background agent removes the per-page parity gate and is exactly how a past rebuild merged a pile of stub pages and discovered the gaps only at the end.
+- **Parallelize only across genuinely independent pages**, never across "a phase."
+- **The parent verifies every subagent-built page in the running app** (route loads, controls work, seeded data renders) before its todo is checked off. A subagent reporting "done" is a claim to verify, not proof.
 
 ### Mid-build reconciliation (every few phases)
 

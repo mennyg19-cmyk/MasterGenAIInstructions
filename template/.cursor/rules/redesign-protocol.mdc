@@ -18,7 +18,8 @@ Spawning mechanics, the model roster, and the multi-model rules live in **`subag
 
 1. Ask the user: what's bothering you about the current design? (boring, colors off, navigation confusing, looks generic, etc.)
 2. Follow up: which specific pages or sections?
-3. Document the pain points as **REDESIGN-BRIEF.md**.
+3. **Capture a one-paragraph brand/domain brief** -- what this product actually is, who it's for, and the core message. (A past redesign muddled the product's purpose in its copy and the user had to correct it: "you're getting confused a bit.") All generated copy and imagery is validated against this brief.
+4. Document the pain points and the brand brief as **REDESIGN-BRIEF.md**.
 
 ## Phase 1: Current UX Audit
 

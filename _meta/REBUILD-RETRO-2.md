@@ -21,3 +21,18 @@ Mining the Tomche Shabbos rebuild transcript (ebf0b06c, now 2580 lines / 113 sub
 - Harden redesign-protocol mechanically (mirror rebuild's "how to spawn" + "do not do it yourself" + viewable previews).
 - Strengthen post-commit build verification into a self-triggered, mandatory gate (agent checks without being told).
 - Await deep-miner subagents (Claude/GPT/Composer) for the full issue list before finalizing.
+
+## Round 2 — deep-miner findings folded in (Claude miner returned an exhaustive report)
+
+The transcript was not one rebuild but four overlapping attempts, each "missed a lot." Additional recurring root causes and the rules that now address them:
+
+- **Weak local build gate.** `tsc`+lint passed but `next build`/Turbopack failed (a `"use client"` file imported a server-only module) and CI failed on Prettier. Fix landed only on a feature branch while prod built `main`. → deploy-awareness: full gate now requires `prettier --check` + real `next build` + `import "server-only"` guards, and **re-run the whole gate after every batch of fixes**.
+- **"Should pass" without verifying.** Agent declared CI green without checking; user had to say "check yourself"/"check again." → deploy-awareness: "should pass" banned; observe and quote real status.
+- **"Done" ≠ visible online.** A redesign was "done" on an unmerged branch, not deployed, not visible; preview builds dead because env vars were Production-scope only. → deploy-awareness: "Done = merged to deploy branch + READY + live with data"; env-scope parity rule.
+- **DB issues.** Rebuild deployed against the OLD populated DB → `/admin` 500. Empty dev DB read as "page broken" / a falsely "verified" page. Pervasive schema↔code field-name drift (code written from memory of a redesigned schema). → deploy-awareness: fresh isolated DB branch for rebuilds; read schema before coding an entity; "empty 200 is not working" (seed first); smoke deploy must hit an authenticated page against the real DB.
+- **Coarse parallel subagents.** A "phase" covering 2+ pages was handed to one background subagent → stubs merged, parity never checked. → rebuild Phase 4.1: one page per subagent max; parent verifies each in the running app.
+- **Reviews substituted by compile checks.** Agent concluded reviews "timed out," declared done from zero TS errors; the completed reviews had found broken API wiring + stub mutations + security gaps. → review-protocol: a review must RETURN RESULTS; on timeout, re-spawn smaller; never substitute "it compiles"; no idle-poll-then-declare-done.
+- **Committing junk + deferring cleanup.** A 24MB PNG, PDFs, and a temp commit-message file got committed; cleanup deferred against the user's explicit instruction. → git-discipline: never commit temp/build artifacts, keep heavy assets/previews out of the repo, stage explicitly, clean up in real time.
+- **Scope + brand churn.** Plan said "port pixel-identical," forcing two re-scopes; redesign copy drifted from the brand. → rebuild plan must state WHAT-not-HOW (no "port"); redesign Phase 0 captures a brand brief.
+
+## Decisions

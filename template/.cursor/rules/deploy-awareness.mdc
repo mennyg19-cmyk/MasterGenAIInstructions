@@ -7,12 +7,15 @@ alwaysApply: true
 
 ## Build Verification (before every commit)
 
-Before committing code that touches anything beyond docs/comments:
+Before committing code that touches anything beyond docs/comments, run the FULL local gate:
 
 1. Run the type checker (`tsc --noEmit` or framework equivalent). Fix all errors.
 2. Run the linter. Fix all errors.
-3. Run `next build` (or the project's build command) locally at least once per phase. A commit that breaks the build is a failure.
-4. If the project has unit tests, run them. Don't commit code that breaks existing tests.
+3. Run the formatter check (`prettier --check .` or equivalent). CI fails on formatting too -- a green typecheck does not mean a green CI.
+4. Run the real production build (`next build` or the project's build command) locally. **`tsc` + lint are NOT enough.** The production build catches things they miss -- most importantly **server/client boundary violations** (a `"use client"` component importing a server-only module pulls `next/headers`/server SDKs into the client bundle and blows up only at `next build`/Turbopack time, never at `tsc`). This exact issue shipped a red Vercel build. Guard server-only modules with `import "server-only"`.
+5. If the project has tests, run them. Don't commit code that breaks existing tests.
+
+**Re-run the WHOLE gate after every batch of fixes** -- including the fixes a reviewer asked for. Pushing review fixes "blind" (without re-running typecheck/lint/build) caused repeated CI failures; the fix for one error introduced the next.
 
 **Never push code that doesn't compile.** The retroactive "oh I'll fix the type errors later" pattern has caused multiple stacked deploy failures in past projects.
 
@@ -42,7 +45,18 @@ After every push, identify what the push triggers and verify each one actually s
 
 - **A failed build after a green local build is still your problem.** CI often has stricter settings, different env vars, or a clean install that surfaces issues your machine hid.
 - **Never start the next task while a triggered build is still red or unverified.** Treat a red build like a broken local build -- stop and fix.
+- **"Should pass" / "should work" is banned.** Never report a fix as done on the assumption it worked. Observe the real status (CI = success AND deployment = READY) and quote it. Saying "CI should pass now" and moving on -- while the build was actually red -- forced the user to repeatedly say "check yourself" / "check again." Verify, then state what you saw.
 - If the project has no automated builds (pure local app, no CI, no host), this section is a no-op -- but confirm that's actually the case rather than assuming it.
+
+## "Done" Means Visible Online, Not Committed to a Branch
+
+A milestone ("the rebuild is done," "the redesign is live") is NOT done when code is committed to a feature branch. It is done only when:
+
+1. The work is **merged into the branch that actually deploys** (find which branch that is -- see Branch Documentation below; it is often NOT `main`).
+2. The triggered deployment reached **READY** (verified, not assumed).
+3. The live URL **actually shows the new work**, exercised with real/seeded data.
+
+Past failures: a "done" redesign sat only on a `redesign` branch and was never visible online (the user had to ask "is this visible online?"); fixes were made on a feature branch while production kept building `main`, so the fixes never reached the deployed branch. If you've been working on a branch, the job isn't done until it's merged to the deploy branch and you've confirmed the change is live.
 
 ## Database Deploy Rules
 
@@ -65,6 +79,15 @@ After every push, identify what the push triggers and verify each one actually s
 - `db push` is fine for local development only.
 - Integration tests should use an isolated schema/database, not the production one.
 
+### Rebuild database rules
+
+- **A rebuild gets a fresh, isolated database branch/schema** -- never point new code at the old project's populated database. A past rebuild deployed against the old DB; the live tables didn't match the new code and `/admin` 500'd on first load. Provision a new Neon branch (or equivalent) and point `DATABASE_URL` at it.
+
+### Read the schema before writing code for an entity (anti-drift)
+
+- **Before writing any query, server action, or page for an entity, read its current model in `schema.prisma`.** Do not write field/enum names from memory -- especially in a rebuild where the data model was redesigned, so old names (`lat`/`lng`, `goal`, `method`, `seasonYear`, status strings like `"archived"`/`"ready"`) no longer exist.
+- If you hit two or more schema-mismatch type errors in a row, STOP guessing. Generate a short per-entity field/enum reference from the live schema and build against that. Dozens of CI failures in a past project traced to code written against an imagined schema.
+
 ## Environment Variable Discipline
 
 ### On every feature that adds a new env var
@@ -78,6 +101,7 @@ After every push, identify what the push triggers and verify each one actually s
 
 - Compare `.env.example` against what's actually set in the deploy target (Vercel dashboard, Azure config, etc.).
 - Any env var in `.env.example` that's missing from the deploy target = deploy will fail or silently break.
+- **Check env-var SCOPE, not just presence.** On Vercel, a var set only in the Production scope makes every Preview build fail. Every key that Production needs must also exist in the Preview (and Development) scope, or preview deploys are dead on arrival. This silently broke every preview build in a past project.
 - When in doubt, run the app's env validation check (if it has one) against the production env vars.
 
 ### Env var drift
@@ -103,8 +127,13 @@ Missing the middleware file has caused "Something went wrong" crashes on deploy.
 
 - After the foundation/scaffold phase of any build or rebuild, do a smoke deploy to the target platform.
 - The smoke deploy catches: missing env vars, missing middleware, build command issues, database connection problems, platform-specific config gaps.
+- **The smoke test must load a real, authenticated page against the real database** -- not just the marketing homepage. The `/admin` runtime crash from a schema mismatch only showed up on an authenticated page hitting the DB; a green homepage hid it.
 - If the smoke deploy fails, fix it before building more features on top of a broken foundation.
 - Every subsequent phase should end with a deploy verification (even if it's just confirming the build still passes).
+
+## An Empty 200 Is Not "Working"
+
+A page returning HTTP 200 with no data is NOT verified. A past "verified" order builder was actually broken because the dev database had zero products -- the page loaded empty and was called done. To verify any data-driven page (catalog, orders, admin lists, dashboards): **seed realistic data first, then confirm real content renders and the primary action works end to end.** "It returned 200" and "I took a screenshot of the hero" are not verification.
 
 ## Branch + Deploy Target Documentation
 
