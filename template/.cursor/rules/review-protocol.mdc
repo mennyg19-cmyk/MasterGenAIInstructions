@@ -17,9 +17,20 @@ A "phase" = a feature, a module, a protocol step, or any body of work that spans
 
 ## How to Review
 
-- Default review model: `gpt-5.5-extra-high` (readonly subagent).
+- Default review model: `gpt-5.5-extra-high` (readonly subagent). Spawn it per `subagents.mdc` -- `model` set explicitly, never falling back to your own model.
 - The review subagent gets: the changed files, the project context (README, AGENTS.md), and the goal of the phase.
 - Review findings go into DECISION-LOG.md.
+
+## Review Is a Loop, Not One Pass
+
+A single review pass is never enough. The cycle is:
+
+1. Reviewer reports findings.
+2. You fix EVERY finding.
+3. A **fresh** reviewer re-checks -- ideally a different model family from the last one (`subagents.mdc`), with no prior context, so it can't rubber-stamp the previous pass or its own fixes.
+4. Repeat until a review comes back with **zero findings.**
+
+A phase is reviewed only when the latest pass is clean. "The reviewer found things, I fixed them, moving on" -- without a clean re-review -- is not allowed. The user has been explicit about this: keep reviewing until nothing is found.
 
 ## "Compiles" Is Never the Bar
 
@@ -38,9 +49,12 @@ If a review only ever reports type errors and formatting nits and never checks w
 When the goal is to match an existing app, spec, or design, the review is a **feature-parity review**:
 
 - The reviewer gets the FEATURE-INVENTORY.md (or spec) AND the old app's reference (screenshots or source).
-- For every item, the reviewer marks PRESENT / PARTIAL / STUB / MISSING with evidence.
+- **Enumerate, never sample.** The reviewer walks EVERY route in the manifest and EVERY item/ID in the inventory -- all of them, in order. "Checked a few pages, looked good" is the exact failure that let an entire page (the order builder) ship missing while both the builder and the reviewer overlooked it.
+- **Route-coverage diff first.** Before judging individual features, confirm every route/page that exists in the old app has a working equivalent in the new app. A whole missing screen shows up here immediately.
+- For every item, the reviewer marks PRESENT / PARTIAL / STUB / MISSING with evidence (the route opened, the control clicked). Anything the reviewer cannot positively verify is MISSING, not "probably fine."
 - The phase does not pass while anything is PARTIAL, STUB, or MISSING.
 - Verify in the running app, not from code alone.
+- This review loops (see "Review Is a Loop" above): re-review with fresh eyes until a pass returns zero findings.
 
 ## Deviations
 

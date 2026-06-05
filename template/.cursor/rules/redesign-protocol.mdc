@@ -8,6 +8,12 @@ Changes the UI/UX (and adjusts backend where needed to support it). Keeps core l
 
 **Everything is on the table.** CSS framework, component library, design system, layout approach, even the frontend framework itself -- all of it can change unless the user specifically says to keep something. If switching from vanilla CSS to Tailwind or from one component library to another would produce a better result, propose it.
 
+## The core rule: you do NOT design it yourself
+
+A redesign is a **competition between models**, not you picking a look. Multiple subagents on DIFFERENT model families each build a real, viewable proposal; the user looks at them side by side and picks the parts they like. If you find yourself editing the app's actual styling in Phase 2, or producing a single design "for" the user, you have broken the protocol. (This happened: the agent built one homepage itself and the user had to stop it -- "you are supposed to be spinning up multiple subagents with different models... not build this on your own. did you read the protocol?")
+
+Spawning mechanics, the model roster, and the multi-model rules live in **`subagents.mdc`** -- read it. The short version: every subagent uses the Task tool with `model` set explicitly (never fall back to your own model), and the proposal subagents must be on different families (no repeats).
+
 ## Phase 0: Discovery Conversation
 
 1. Ask the user: what's bothering you about the current design? (boring, colors off, navigation confusing, looks generic, etc.)
@@ -21,24 +27,25 @@ Changes the UI/UX (and adjusts backend where needed to support it). Keeps core l
 3. Catalog every screen, component, and interaction.
 4. Note which backend pieces would need adjustment.
 
-## Phase 2: Design Proposals
+## Phase 2: Design Proposals (spawn the models -- do NOT design it yourself)
 
-1. Spawn at least 2 subagents using DIFFERENT model families via the `model` parameter. Rotate through available families (`composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime). Cheaper models are fine here -- diversity matters more than power. Never use the same model twice.
-2. Each proposes a different design direction addressing the pain points.
-3. Proposals include: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
+1. **Spawn one subagent per design direction, each on a DIFFERENT model family** (per `subagents.mdc`): Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet/Opus). Default to at least 3-4 directions; when the user says "more options" or "use more models," spin up one per family across the whole roster. Never use the same model twice -- two proposals from the same model are the same proposal.
+2. Each subagent independently proposes a different design direction addressing the pain points and **builds the actual viewable preview** (see below). You are the coordinator: you spawn them, collect their previews, and present them. You do not produce your own competing design.
+3. Each proposal covers: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
 4. Tone: per `workflow.mdc`.
 
-### Visual Previews
+### Visual Previews (every proposal is something the user can open and look at)
 
-Each proposal MUST include a visual preview the user can see in a browser:
+The whole point is that the user SEES each option and picks from it. Each subagent's proposal MUST include a real preview:
 
 1. Create a `previews/` folder in the project root.
-2. Each proposal gets a standalone HTML file: `previews/proposal-1.html`, `previews/proposal-2.html`, etc.
+2. Each proposal gets its own standalone file: `previews/proposal-1.html`, `previews/proposal-2.html`, etc. (one per model/direction).
 3. Each file is self-contained -- inline CSS, no external dependencies, no build step. Just open in a browser.
-4. Preview the key screens that are changing (the ones from the pain points in Phase 0).
+4. Build the **key screen(s) the user named** (e.g. the homepage) fully styled in that direction -- not a description of a design, an actual rendered page. A written design summary with no viewable page is a failure.
 5. Use real-looking placeholder data, not "Lorem ipsum."
-6. The user compares proposals by opening tabs side by side.
-7. The `previews/` folder is temporary -- delete it after the user picks a direction.
+6. The subagent prompt must explicitly say: "Build a complete, self-contained HTML preview of [the screen] in your proposed direction, saved to `previews/proposal-N.html`. It must open and render standalone in a browser."
+7. The user compares proposals by opening the files side by side.
+8. The `previews/` folder is temporary -- delete it after the user picks a direction.
 
 ## Phase 3: User Review + Iteration
 
@@ -59,6 +66,7 @@ Each proposal MUST include a visual preview the user can see in a browser:
 ## Phase 5: Final Review
 
 1. Compare finished product against REDESIGN-PLAN.md.
-2. Verify all existing functionality still works.
+2. Verify all existing functionality still works -- a redesign must not drop features. Walk the app in the browser, not from code.
 3. Verify the specific pain points from Phase 0 are resolved.
-4. Produce **REDESIGN-COMPLETION-REPORT.md**.
+4. Review loops until clean per `review-protocol.mdc` -- fix findings, re-review with fresh eyes, repeat until zero findings.
+5. Produce **REDESIGN-COMPLETION-REPORT.md**.

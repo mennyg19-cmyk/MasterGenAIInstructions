@@ -1,0 +1,62 @@
+---
+description: How to spawn subagents and which models to use. Single source of truth for the model roster and multi-model rules. Every protocol that spawns subagents references this file.
+alwaysApply: true
+---
+
+# Spawning Subagents (single source of truth)
+
+Several protocols (rebuild, redesign, review) tell you to "spawn a subagent on a different model." This file is the ONE place that defines how. If a model slug ever changes, it changes here and nowhere else.
+
+## What "spawn a subagent" mechanically means
+
+Use the **Task tool** with these parameters:
+
+- `subagent_type`: `"generalPurpose"` for work that writes files, `"explore"` for read-only audits/reviews.
+- `model`: **You MUST set this explicitly.** See the roster below.
+- `run_in_background`: `true` when you're spawning several in parallel (spawn them in one message so they run at once).
+- `prompt`: The COMPLETE instructions. The subagent cannot see your conversation, the user's messages, or your other tool calls. Paste in every file path, every spec, every piece of context it needs.
+
+## The model roster (snapshot — the tool is the real source of truth)
+
+These are the slugs available as of this writing. Treat them as a starting point, not gospel:
+
+| Slug | Family | Notes |
+|---|---|---|
+| `composer-2.5-fast` | Composer | Cheapest/fastest. Great for broad sweeps and audits. |
+| `gpt-5.5-extra-high` | GPT | Strong general reviewer. Default review model. |
+| `gpt-5.2-codex` | GPT (Codex) | Code-focused GPT variant. |
+| `gemini-3.1-pro` | Gemini | Different perspective; good design/UX eye. |
+| `grok-4.3` | Grok | Another independent family. |
+| `grok-build-0.1` | Grok (build) | Build/code-oriented Grok. |
+| `kimi-k2.5` | Kimi | Another independent family. |
+| `claude-4.6-sonnet-medium-thinking` | Claude (Sonnet) | Fast Claude. |
+| `claude-4.5-opus-high-thinking` | Claude (Opus) | Deep analysis. |
+| `claude-4.6-opus-max-thinking` | Claude (Opus, max) | Deepest Claude reasoning. |
+| `claude-opus-4-8-thinking-xhigh` | Claude (Opus) | Deep analysis, architecture. |
+
+Family list the user cares about: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet + Opus).** When the user says "use more models," reach across these families.
+
+## The two rules that actually matter
+
+### 1. Never silently fall back to your own model
+
+If you pass a `model` slug the Task tool doesn't recognize, the tool **rejects the call and returns the current list of valid slugs.** When that happens:
+
+- **Pick a valid slug from the list the tool just gave you and retry.**
+- **NEVER respond by dropping the `model` parameter and re-running on your own model.** A subagent that quietly runs on the parent model gives you the same blind spots as doing it yourself — the entire point of multi-model coverage is gone, and you won't notice. This already happened once: a "multi-model" audit silently ran on one model the whole time.
+- The tool's accepted list is the real source of truth. If this roster is stale, trust the tool and update this file.
+
+### 2. Different jobs that need diversity use DIFFERENT families
+
+When a protocol says to run N subagents on the same task (auditing the same area, reviewing the same work, proposing competing designs):
+
+- Use **N different model families.** Two Opus variants do NOT count as two families — they share blind spots.
+- **Never use the same slug twice for the same job.**
+- **Diversity beats power.** A cheap model from a different family catches more than a second expensive model from the same family. Don't default to the biggest/most expensive models; spread across families.
+
+## Quick self-check before you spawn
+
+- [ ] Did I set `model` explicitly on every Task call?
+- [ ] For a multi-subagent job, are they on different families (no repeats)?
+- [ ] If a slug got rejected, did I pick another valid one (and NOT fall back to my own model)?
+- [ ] Does each prompt contain all the context the subagent needs, since it can't see this chat?

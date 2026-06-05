@@ -144,7 +144,8 @@ All communication uses plain English. Target audience: a self-taught programmer 
 - Review findings go into DECISION-LOG.md.
 - Resolve blockers before committing or advancing.
 - **"Compiles" is never the bar.** A review must check that the work actually does what it was supposed to, end to end -- not just that it typechecks and lints. For a UI page: is every control present and functional, or a read-only stub? For a bug fix: is the bug gone in the running app?
-- **Feature-parity review** (rebuilds / "match the old thing" work): reviewer gets the inventory + old reference, marks every item PRESENT/PARTIAL/STUB/MISSING with evidence, verified in the running app. Phase fails while anything is less than PRESENT.
+- **Review is a LOOP, not one pass.** Reviewer reports findings → you fix every one → a FRESH reviewer (different model family, no prior context, so it can't rubber-stamp) re-checks → repeat until a pass returns ZERO findings. "Found things, fixed them, moved on" without a clean re-review is not allowed (the user has been explicit about this).
+- **Feature-parity review** (rebuilds / "match the old thing" work): reviewer gets the inventory + old reference and **enumerates every route and every ID -- no sampling** (sampling let an entire page ship missing). Route-coverage diff first (every old route has a working new route), then mark every item PRESENT/PARTIAL/STUB/MISSING with evidence, verified in the running app. Anything unverifiable = MISSING. Phase fails while anything is less than PRESENT.
 
 ---
 
@@ -184,6 +185,17 @@ All communication uses plain English. Target audience: a self-taught programmer 
 
 ---
 
+## Subagents & Models
+
+See `subagents.mdc` for the single source of truth. Key points:
+
+- "Spawn a subagent" = **Task tool**, `subagent_type` (`generalPurpose` to write, `explore` for read-only), `run_in_background: true` when parallelizing, and **`model` set explicitly**. The prompt must carry ALL context -- the subagent can't see your chat.
+- **Never silently fall back to your own model.** If a slug is rejected, the tool returns the valid list; pick another valid slug. Dropping `model` and running on the parent model defeats the entire point of multi-model coverage and already burned one "multi-model" audit that was secretly single-model.
+- **Multi-subagent jobs use different families** (Composer, GPT, Codex, Gemini, Grok, Kimi, Claude Sonnet/Opus). Never the same slug twice for the same job. Diversity beats power -- cheap cross-family models are fine for audits/reviews.
+- The roster in `subagents.mdc` is a snapshot; the Task tool's accepted slugs are the real source of truth.
+
+---
+
 ## Rebuild Protocol
 
 See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
@@ -197,15 +209,17 @@ See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
 
 Phase 1 inventory captures both: everything to keep AND a "what's wrong / to fix" list. Plans are organized PAGE BY PAGE with a feature sub-checklist (keep list) plus structural fixes (improve list) -- a coarse phase like "Admin UI" covering 20 pages is how features get lost. Build UI and internals together per feature, not backend-first. Flag significant structural changes for the user. Verify each screen in the running app: features all work, fixes applied, layout clean.
 
-**Critical mechanical requirement:** "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and -- most importantly -- the **`model` parameter set explicitly** to a specific model slug. If you omit the `model` parameter, the subagent runs on your own model, which defeats multi-model coverage. Every subagent call MUST have `model` set. Available slugs: `composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime.
+**Critical mechanical requirement:** see `subagents.mdc` (single source of truth for spawning + the model roster). "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and the **`model` parameter set explicitly**. If you omit `model`, the subagent runs on your own model and multi-model coverage is gone. If a slug is rejected, the tool returns the valid list -- **pick another valid slug; NEVER drop `model` and fall back to your own model** (that silent fallback already defeated one "multi-model" audit). For a multi-subagent job, use different families, never the same slug twice.
 
-Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo with a keep-list + fix-list -- general todos are a failure), **smoke deploy after the foundation scaffold** (catches missing middleware, env vars, build command issues before they stack up), then build todo-by-todo with review gates, final review. Every feature is preserved; the structure/layout gets fixed and improved (not a pixel copy). Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
+**Coverage is mechanical, not vibes.** Phase 1 gives every page/feature a stable ID and puts a complete route manifest at the top of FEATURE-INVENTORY.md. Every ID must be claimed by exactly one plan todo. A todo is "done" only when its route actually loads in the running app and every sub-item is verified -- marking a page done that doesn't render is what silently lost an entire page (the order builder). Re-reconcile every few phases. The final review (Phase 5) builds a reconciliation ledger FIRST: a route diff (every old route has a working new route) and an inventory-ID ledger walked line-by-line (no sampling -- sampling is what let a whole page ship missing while builder AND reviewer overlooked it); anything unverifiable is MISSING. The review then LOOPS -- fix findings, re-review on a fresh/different model, repeat until zero findings -- and a hard done-gate (all routes green, all IDs PRESENT, all fixes applied, last review clean, deploy green) must pass before "done."
+
+Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate across Composer, GPT, Codex, Gemini, Grok, Kimi, Claude; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory (IDs + route manifest) cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo with a keep-list + fix-list, each citing the inventory IDs it covers -- general todos are a failure), **smoke deploy after the foundation scaffold** (catches missing middleware, env vars, build command issues before they stack up), then build todo-by-todo with looped review gates, mid-build reconciliation, and a final enumerated review + done-gate. Every feature is preserved; the structure/layout gets fixed and improved (not a pixel copy). Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 
 ## Redesign Protocol
 
-See `redesign-protocol.mdc` for the full 6-phase workflow. Summary: discovery conversation about pain points, UX audit, multiple design proposals from different models with visual HTML previews the user can open in a browser to compare side by side, user review and iteration, phased build, final review. Everything visual/frontend is on the table (CSS framework, component library, layout approach) unless the user says otherwise.
+See `redesign-protocol.mdc` for the full workflow. **You do NOT design it yourself.** A redesign is a competition between models: spawn one subagent per design direction, each on a DIFFERENT model family (per `subagents.mdc`), and each builds a real, self-contained, viewable HTML preview of the key screen(s) into `previews/`. The user opens them side by side and picks the parts they like -- the main agent coordinates, it does not produce its own competing design (building one homepage yourself instead of spawning the models is a protocol violation the user has had to stop). When the user says "more options / more models," spin up one per family across the whole roster. Summary: discovery about pain points, UX audit, multi-model proposals with viewable previews, user review and iteration, phased build, looped final review (fix → re-review on fresh eyes → repeat until clean; existing functionality must still work). Everything visual/frontend is on the table (CSS framework, component library, layout approach) unless the user says otherwise.
 
 ---
 

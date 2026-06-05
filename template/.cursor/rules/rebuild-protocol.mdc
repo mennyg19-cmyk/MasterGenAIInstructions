@@ -50,26 +50,13 @@ When a layout or grouping change is significant (moving a whole section, merging
 
 ## How to Spawn Subagents (read this first)
 
-Every time this protocol says "spawn a subagent," it means: **use the Task tool** with these parameters:
+The mechanics of spawning subagents, the full model roster, and the multi-model rules live in **`subagents.mdc`**. Read it before this protocol. The short version:
 
-- `subagent_type`: `"generalPurpose"` (or `"explore"` for read-only audits)
-- `model`: One of the model slugs listed below. **You MUST set this parameter.** If you omit it, the subagent runs on your own model, which defeats multi-model coverage.
-- `run_in_background`: `true` (so you can spawn multiple in parallel)
-- `prompt`: The full instructions for what the subagent should do. Include ALL context -- the subagent cannot see your conversation.
+- Every "spawn a subagent" call uses the Task tool with `model` set EXPLICITLY (never omit it -- omitting it runs on your own model and kills multi-model coverage).
+- If a slug gets rejected, pick another valid one the tool returns. **Never drop the `model` param and silently fall back to your own model.**
+- When you spawn several subagents for the same job, use **different model families** -- never the same slug twice for the same job. Diversity beats power; cheap models from different families are fine.
 
-### Available model slugs (use these exact strings)
-
-| Slug | Family | Cost | Best for |
-|---|---|---|---|
-| `composer-2.5-fast` | Composer | Cheapest | Speed audits, broad sweeps |
-| `claude-opus-4-8-thinking-high` | Claude | Mid-high | Deep analysis, architecture |
-| `gpt-5.5-extra-high` | GPT | High | Alternative perspective |
-
-Use any other slugs available at runtime too (Gemini, etc.). The point is **different families, not expensive models**. Cheaper is fine for auditing.
-
-### The rule
-
-**Every subagent call MUST include the `model` parameter.** No exceptions. If you catch yourself spawning a subagent without explicitly setting `model`, stop and add it.
+Whenever this file names specific slugs below (e.g. `claude-opus-4-8-thinking-xhigh`, `gpt-5.5-extra-high`), they're examples from the `subagents.mdc` roster -- swap in whatever valid slugs give you family diversity.
 
 ---
 
@@ -89,9 +76,9 @@ For EACH area you identified, spawn at least 2 subagents on DIFFERENT model fami
 
 | Area | Subagent 1 | Subagent 2 |
 |---|---|---|
-| Frontend | `composer-2.5-fast` | `claude-opus-4-8-thinking-high` |
-| Backend | `gpt-5.5-extra-high` | `composer-2.5-fast` |
-| Database | `claude-opus-4-8-thinking-high` | `gpt-5.5-extra-high` |
+| Frontend | `composer-2.5-fast` | `claude-opus-4-8-thinking-xhigh` |
+| Backend | `gpt-5.5-extra-high` | `gemini-3.1-pro` |
+| Database | `grok-4.3` | `kimi-k2.5` |
 
 NEVER use the same model slug twice for the same area. Same model = same blind spots = pointless.
 
@@ -130,6 +117,13 @@ For every single page/screen in the app, the inventory must list:
 
 This page-by-page structure is what later becomes the build todos. A flat list of features is NOT good enough -- it's how features get lost.
 
+### Every inventory item gets a stable ID + there is a complete route manifest
+
+Two mechanical requirements that make it impossible to silently lose a whole feature:
+
+1. **Stable IDs.** Number every page and every feature/control: `P1` (order builder page), `P1.1` (recipient assign dialog), `P1.2` (ship-to mode selector), etc. These IDs are referenced by the build todos and the final reconciliation ledger. An item with an ID can be tracked; a loose bullet cannot.
+2. **Route manifest.** At the top of FEATURE-INVENTORY.md, list EVERY route/page/screen the old app has (e.g. `/`, `/order`, `/checkout`, `/admin`, `/admin/orders`, ... ). This is the master checklist of pages. The rebuild is not done until every route on this list has a working counterpart in the new app. A whole missing page (e.g. the entire order builder) jumps out instantly from a route diff -- that exact miss happened before because nothing diffed the route lists.
+
 ### Also capture what's WRONG (the rebuild's to-fix list)
 
 The inventory isn't just "what exists" -- it's also "what needs fixing." Add a section that records:
@@ -155,9 +149,9 @@ These screenshots are a **feature-coverage reference, NOT a pixel target.** Use 
 
 ## Phase 2: Architecture Proposals
 
-Spawn exactly 2 subagents using the Task tool, each on a DIFFERENT premier model:
+Spawn exactly 2 subagents using the Task tool, each on a DIFFERENT premier model from a different family:
 
-- Subagent 1: `model: "claude-opus-4-8-thinking-high"`
+- Subagent 1: `model: "claude-opus-4-8-thinking-xhigh"`
 - Subagent 2: `model: "gpt-5.5-extra-high"`
 
 Set `run_in_background: true` for both. Spawn both in the same message so they run in parallel.
@@ -173,7 +167,7 @@ Wait for both subagents to return before proceeding.
 
 ## Phase 3: Debate, Converge, and Plan in Detail
 
-1. Spawn a premier subagent (`claude-opus-4-8-thinking-high` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
+1. Spawn a premier subagent (`claude-opus-4-8-thinking-xhigh` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
    > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
 
 2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."**
@@ -206,6 +200,7 @@ Todo 42: Build the orders screen (old code: src/pages/admin/orders.tsx -- for fe
 Rules for the todo list:
 
 - Every page/screen from the inventory gets its own numbered todo with a full feature sub-checklist (the keep list) AND any structural fixes (the improve list).
+- **Each todo lists the inventory IDs it covers** (e.g. "covers P1, P1.1-P1.6"). Every ID in FEATURE-INVENTORY.md must appear in exactly one todo. Before building, confirm the coverage is total: every inventory ID is claimed by some todo, and every route in the manifest has a todo that builds it. An inventory ID with no todo = a feature you are about to drop.
 - Every API endpoint, every database table, every cron job gets its own todo.
 - Every known bug from BUILD-HISTORY.md gets a todo to verify it doesn't recur.
 - Each todo names the old-code file to read for **feature reference** -- so every capability is found and carried over. It is NOT a layout to copy pixel-for-pixel.
@@ -239,40 +234,70 @@ Execute the plan todos one by one. For EVERY page/UI todo, follow this loop -- n
 2. **Build the screen the RIGHT way:** include every feature from the keep list, wired and working, AND apply the structural fixes from the plan (correct placement, sensible grouping, fixed interactions, clean consistent CSS that lines up). The result should be better organized than the old version, not a clone of it.
 3. **No stubs.** A button that doesn't do anything, a table with no actions, a "coming soon" placeholder -- these are failures. If a feature existed in the old app, it works in the new one.
 4. **Verify before marking the todo done:**
-   - Run the page in the rebuilt app.
-   - Walk the keep list: every feature present and functional? Use the old app/screenshots only to confirm nothing was lost.
+   - **Open the actual route in the running app.** It must load and render -- not 404, not error, not a blank page. A todo marked "done" for a page that doesn't actually render is the exact failure that silently lost an entire page last time. If the route doesn't load, the todo is NOT done.
+   - Walk the keep list (by inventory ID): every feature present and functional? Use the old app/screenshots only to confirm nothing was lost.
    - Walk the structural fixes: each one actually applied?
    - Check the layout: does the CSS line up, is it consistent with the rest of the app, does it work at different widths?
-   - Only check the todo off when the features all work AND the structure is clean.
-5. Follow `review-protocol.mdc` before each commit -- and for rebuilds the review is a **feature-parity review** (every feature present and working), not just a compile check (see review-protocol). Commits can trigger deploys per `deploy-awareness.mdc`.
-6. Only commit and push after review passes -- never push unreviewed code.
+   - Only check the todo off when the route renders, the features all work, AND the structure is clean. Marking a todo done is a claim that you opened it and it works.
+5. Follow `review-protocol.mdc` before each commit -- and for rebuilds the review is a **feature-parity review** (every feature present and working), not just a compile check. The review is a **loop, not one pass**: the reviewer reports findings, you fix them, then a FRESH reviewer (different model) checks again, and you repeat until a review comes back with ZERO findings (see review-protocol). Commits can trigger deploys per `deploy-awareness.mdc`.
+6. Only commit and push after a clean review pass -- never push unreviewed code.
 7. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
-8. No phase advances until its review passes.
+8. No phase advances until its review loop comes back clean.
 9. Before advancing, read through every todo in the current phase and confirm each is complete WITH its feature checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "every feature works and the screen is built right" is the bar.
+
+### Mid-build reconciliation (every few phases)
+
+Don't wait until the very end to discover a whole area is missing. Every few phases, re-open FEATURE-INVENTORY.md and tick off which inventory IDs and which routes from the manifest are now built AND verified-in-app. Anything still unbuilt is a remaining todo. This running tally is what guarantees an entire page can't quietly fall off the list.
 
 ---
 
 ## Phase 5: Final Review
 
-This review answers two questions: **(1) Did every feature survive? (2) Was it actually built better?** It is not a code-quality-only review, and it is not a pixel-match review.
+This review answers two questions: **(1) Did every feature survive? (2) Was it actually built better?** It is not a code-quality-only review, and it is not a pixel-match review. The review here is **exhaustive and looped** -- it does not stop until a clean pass exists. The biggest past failures (an entire page missing, ~75% of features dropped) all slipped through because the final review SAMPLED instead of enumerating, and ran only once.
+
+### Step 0: Build the reconciliation ledger FIRST (no sampling, ever)
+
+Before any subjective review, build a mechanical ledger -- this is the gate that makes a silently-dropped feature impossible:
+
+1. **Route diff.** List every route in the inventory's route manifest. Next to each, write the new app's matching route and whether it loads in the running app (open it -- not from code). Every old route must have a working new route. A blank or missing row here is exactly the "whole page never built" failure.
+2. **Inventory ID ledger.** Go through EVERY ID in FEATURE-INVENTORY.md -- all of them, in order, none skipped. For each, record: built? (which file) and verified-in-running-app? (PRESENT / PARTIAL / STUB / MISSING, with evidence -- the route you opened and what you clicked). "Enumerate every line" is mandatory; "spot-checked a few pages and it looked fine" is the failure mode that lost the order builder.
+
+Write this ledger into **REBUILD-COMPLETION-REPORT.md**. If you cannot account for an ID, it is MISSING, not "probably fine."
 
 ### Step 1: Running-app review
 
-Go through FEATURE-INVENTORY.md in the running app. For each screen:
+Using the ledger, go through every screen in the running app:
 
-- **Feature completeness (the keep list):** walk every feature/control from the inventory. Mark each PRESENT / PARTIAL / STUB / MISSING. Use the old app/screenshots only to confirm nothing was lost. A screen fails if anything is less than PRESENT and functional.
+- **Feature completeness (the keep list):** every feature/control from the inventory is walked -- not a sample. Mark each PRESENT / PARTIAL / STUB / MISSING. A screen fails if anything is less than PRESENT and functional.
 - **Structural improvement (the to-fix list):** confirm each fix from the inventory/plan was applied -- misplaced things moved, related things grouped, clashing interactions resolved.
 - **Layout quality:** click through it. Does the CSS line up? Is it consistent across the app? Does it work at different screen widths? No leftover "stack of cards" messiness.
 
 Verifying from code review alone is NOT allowed. Run it, click it.
 
-### Step 2: Multi-model audit
+### Step 2: Multi-model audit (looped until clean)
 
-Spawn 2 subagents on different premier models (same as Phase 2: `claude-opus-4-8-thinking-high` and `gpt-5.5-extra-high`). Each gets the finished codebase, the FEATURE-INVENTORY.md (including its to-fix list), and the reference screenshots.
+Spawn 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` and `gpt-5.5-extra-high`; rotate families per `subagents.mdc`). Each gets the finished codebase, the full FEATURE-INVENTORY.md (route manifest + every ID + the to-fix list), and the reference screenshots.
 
 Each subagent prompt:
-> "Compare this finished app against the FEATURE-INVENTORY.md below. (1) FEATURE COMPLETENESS: for every feature/control listed (buttons, dialogs, forms, table columns, filters, import/export, row actions, bulk actions), mark PRESENT / PARTIAL / STUB / MISSING with evidence -- nothing may be dropped. (2) STRUCTURAL FIXES: confirm each item on the inventory's to-fix list was actually addressed. (3) Was anything added that wasn't in scope? (4) Is the layout/CSS clean, consistent, and coherent? Don't just check that it compiles -- check that each feature is wired and functional and that the app is genuinely better organized than before."
+> "Compare this finished app against the FEATURE-INVENTORY.md below. Go through EVERY route in the manifest and EVERY numbered ID -- all of them, no sampling. (1) ROUTE COVERAGE: for each route, does a working equivalent exist in the new app? (2) FEATURE COMPLETENESS: for every ID (buttons, dialogs, forms, table columns, filters, import/export, row actions, bulk actions), mark PRESENT / PARTIAL / STUB / MISSING with evidence -- nothing may be dropped. (3) STRUCTURAL FIXES: confirm each to-fix item was actually addressed. (4) Was anything added that wasn't in scope? (5) Is the layout/CSS clean, consistent, and coherent? Don't just check that it compiles -- check each feature is wired and functional. Return a per-ID table; flag anything you could not verify as MISSING."
 
-### Step 3: Report and fix
+### Step 3: The review LOOP -- fix, then re-review until zero findings
 
-Collect both reports plus your running-app review. Produce **REBUILD-COMPLETION-REPORT.md** with: a pass/fail line for every feature (must all be PRESENT) and a pass/fail line for every to-fix item. **Any dropped/PARTIAL/STUB/MISSING feature must be fixed before declaring done. Any unaddressed structural fix must be completed or explicitly deferred with the user's OK.** The rebuild is done when every feature works and the app is built right -- not when it looks like the old one.
+This is a cycle, not a single pass (the user has asked for this explicitly):
+
+1. Collect both audits + your running-app ledger.
+2. Fix EVERY finding -- every MISSING/PARTIAL/STUB feature, every unaddressed to-fix item.
+3. Spawn a **fresh** review subagent (a model that has NOT reviewed this work yet -- a new family, no prior context, so it can't rubber-stamp) and have it re-run the full enumerated check.
+4. Repeat 2-3 until a review pass returns **zero findings**. One clean pass on fresh eyes is required before the rebuild can be called done.
+
+### Step 4: Done gate
+
+The rebuild is done ONLY when ALL of these are true. If any is false, it is not done -- keep working:
+
+- [ ] Every route in the manifest has a working new-app route (route diff fully green).
+- [ ] Every inventory ID is PRESENT and functional in the running app (ledger fully green -- no PARTIAL/STUB/MISSING).
+- [ ] Every to-fix item is addressed (or explicitly deferred with the user's OK).
+- [ ] The most recent review pass came back with zero findings, on a fresh/different model.
+- [ ] The deploy is green per `deploy-awareness.mdc` (builds verified, not assumed).
+
+The rebuild is done when every feature works and the app is built right -- not when it compiles, not when it looks like the old one, and not after a single review.
