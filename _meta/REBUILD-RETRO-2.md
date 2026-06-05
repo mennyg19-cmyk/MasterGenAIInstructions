@@ -35,4 +35,15 @@ The transcript was not one rebuild but four overlapping attempts, each "missed a
 - **Committing junk + deferring cleanup.** A 24MB PNG, PDFs, and a temp commit-message file got committed; cleanup deferred against the user's explicit instruction. → git-discipline: never commit temp/build artifacts, keep heavy assets/previews out of the repo, stage explicitly, clean up in real time.
 - **Scope + brand churn.** Plan said "port pixel-identical," forcing two re-scopes; redesign copy drifted from the brand. → rebuild plan must state WHAT-not-HOW (no "port"); redesign Phase 0 captures a brand brief.
 
+## Round 3 — GPT + Composer miner findings (genuinely new gaps)
+
+All three miners completed. GPT (subagent-log mining) and Composer (keyword sweep) confirmed the above and added:
+
+- **Security reviewed by file, not by trust boundary** → real holes shipped (public checkout marking an order paid by cash/check, setup creating a dev with no secret, permission overrides accepting arbitrary keys, draft creation trusting client-supplied IDs). → review-protocol: mandatory trust-boundary review (actor + auth proof, server-side validation, server-derived money/role/ownership, side effects, abuse test) for anything touching payments/auth/roles/orders.
+- **Domain invariants drifted** (donations, delivery counts) between audit/plan/build. → review-protocol: invariant ledger; reviews cite invariant IDs.
+- **Model diversity unverifiable** — proposals self-labeled their model. → subagents.mdc: orchestrator records the real assigned model on each artifact; self-labels prove nothing.
+- **Plan contradicted the canonical audit** (split finalizePOS the audit said didn't exist). → rebuild Phase 3: contradictions resolved explicitly (canonical wins / intentionally differs / needs approval).
+- **To-fix items weren't gated** like features. → rebuild Phase 1: to-fix items get `F#` IDs, accounted for KEEP/FIX/DROP in the ledger.
+- **Integration DB tests silently skipped / hit the wrong DB** (global prisma singleton → localhost; RUN_DB_IT off by default). → testing-protocol: isolated test DB; flag-gated DB tests must be ON in the gate that decides "done."
+
 ## Decisions

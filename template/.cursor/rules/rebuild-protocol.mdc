@@ -121,7 +121,7 @@ This page-by-page structure is what later becomes the build todos. A flat list o
 
 Two mechanical requirements that make it impossible to silently lose a whole feature:
 
-1. **Stable IDs.** Number every page and every feature/control: `P1` (order builder page), `P1.1` (recipient assign dialog), `P1.2` (ship-to mode selector), etc. These IDs are referenced by the build todos and the final reconciliation ledger. An item with an ID can be tracked; a loose bullet cannot.
+1. **Stable IDs.** Number every page and every feature/control: `P1` (order builder page), `P1.1` (recipient assign dialog), `P1.2` (ship-to mode selector), etc. **Give the to-fix items IDs too** (`F1`, `F2`, ...). Every ID -- keep and fix -- is referenced by the build todos and the final reconciliation ledger and must be accounted for as KEEP / FIX / DROP-with-approval. An item with an ID can be tracked; a loose bullet cannot.
 2. **Route manifest.** At the top of FEATURE-INVENTORY.md, list EVERY route/page/screen the old app has (e.g. `/`, `/order`, `/checkout`, `/admin`, `/admin/orders`, ... ). This is the master checklist of pages. The rebuild is not done until every route on this list has a working counterpart in the new app. A whole missing page (e.g. the entire order builder) jumps out instantly from a route diff -- that exact miss happened before because nothing diffed the route lists.
 
 ### Also capture what's WRONG (the rebuild's to-fix list)
@@ -173,6 +173,7 @@ Wait for both subagents to return before proceeding.
 2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."** It must also restate the scope stance in plain words: **the old app is a reference for WHAT exists, not HOW to build it -- this is not a port and not a pixel copy.** A plan that says "port every page" or "replicate pixel-identical" has the wrong frame (this caused the user to re-scope mid-stream twice); fix the frame before building.
 3. Plan must list the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
 4. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
+5. **The plan must not contradict the canonical audit/inventory.** When converging two architecture proposals, any statement that conflicts with what the audit found (e.g. proposing a separate `finalizePOS()` when the audit says POS and storefront share one finalize path) must be explicitly resolved as: canonical audit wins, OR the rebuild intentionally differs (with the reason), OR needs user approval. Don't let a convergence quietly invent behavior the real app doesn't have.
 
 ### Granular Todos (critical)
 

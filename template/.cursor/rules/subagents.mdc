@@ -54,9 +54,14 @@ When a protocol says to run N subagents on the same task (auditing the same area
 - **Never use the same slug twice for the same job.**
 - **Diversity beats power.** A cheap model from a different family catches more than a second expensive model from the same family. Don't default to the biggest/most expensive models; spread across families.
 
+### 3. Record which model actually produced each artifact
+
+When subagents write deliverables (audit reports, architecture proposals, review findings), the **orchestrator** records the model slug it assigned, in the artifact (e.g. a header line `Model: gpt-5.5-extra-high`). Do NOT rely on a subagent self-labeling its own model -- a file named `ARCHITECTURE-PROPOSAL-CLAUDE.md` or a "by Claude Opus" byline proves nothing about what actually ran. If you can't say which real model produced two "independent" proposals, you don't have two independent proposals.
+
 ## Quick self-check before you spawn
 
 - [ ] Did I set `model` explicitly on every Task call?
 - [ ] For a multi-subagent job, are they on different families (no repeats)?
 - [ ] If a slug got rejected, did I pick another valid one (and NOT fall back to my own model)?
 - [ ] Does each prompt contain all the context the subagent needs, since it can't see this chat?
+- [ ] For deliverables, did I record the real (orchestrator-assigned) model on the artifact rather than trusting a self-label?

@@ -37,3 +37,9 @@ Testing strategy is built ALONGSIDE the code, not after.
 ## Bug Fixes
 
 - Every bug fix gets a regression test that would have caught it.
+
+## Test Database Isolation
+
+- Tests that touch the database use an **isolated test schema/database** -- never the shared dev/prod Prisma singleton. A past suite imported the global `prisma` client and silently hit `localhost` (the dev DB) instead of the test schema, so the tests proved nothing.
+- If DB integration tests are gated behind a flag (e.g. `RUN_DB_IT`), that flag must be ON in the CI gate that decides "done." A test that's skipped by default is not protecting anything -- if it never runs, it's not a gate.
+- Confirm the test DB connection points where you think it does before trusting a green run.
