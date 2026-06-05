@@ -21,7 +21,7 @@ If the user says "refactor" and you only touch one category (e.g., styles), that
 
 | Command | Action |
 |---|---|
-| **"rebuild"** | Follow `rebuild-protocol.mdc`. Changes HOW things work, never how they LOOK. UI stays pixel-identical. |
+| **"rebuild"** | Follow `rebuild-protocol.mdc`. Keeps every feature, then rebuilds the app properly -- fixes messy structure, misplaced features, clashing modules, and misaligned CSS. Not a pixel copy of the old look. |
 | **"redesign"** | Follow `redesign-protocol.mdc`. Changes how the app LOOKS and FEELS. Keeps core logic intact. Starts with a discovery conversation. |
 | **"fix"** | Address a specific bug. Smallest possible change. |
 | **"add"** | New feature. Follow existing patterns. |

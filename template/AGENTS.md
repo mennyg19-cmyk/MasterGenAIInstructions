@@ -13,7 +13,7 @@ These definitions are exact. Do not under-scope or over-scope.
 | **tidy / clean up** | Current file only. Remove dead code, fix naming, inline trivial things. |
 | **refactor** | Whole feature or module. Cover every applicable category. |
 | **aggressive refactor** | Entire codebase. Every applicable category. |
-| **rebuild** | Multi-agent rebuild of internals. UI stays pixel-identical. See Rebuild Protocol. |
+| **rebuild** | Multi-agent rebuild. Keeps every feature, rebuilds the app properly -- fixes structure, layout, and clashing modules. Not a pixel copy. See Rebuild Protocol. |
 | **redesign** | UI/UX overhaul. Keeps core logic intact. Starts with discovery conversation. See Redesign Protocol. |
 | **fix** | Specific bug, smallest possible change. |
 | **add** | New feature, follow existing patterns. |
@@ -188,11 +188,18 @@ All communication uses plain English. Target audience: a self-taught programmer 
 
 See `rebuild-protocol.mdc` for the full 6-phase multi-agent workflow.
 
-**The #1 rule: the old app's UI is the source of truth.** A rebuild is NOT building a new app from a spec -- it is re-implementing the existing app's exact UI with new internals behind it. Do NOT design new pages, reorganize navigation, change menus, or alter dashboard metrics. Before building any page, open the old page's UI code and replicate it control-for-control. "Built the engine, skipped the car" (great backend + read-only skeleton pages) is a FAILURE. Every backend capability must be wired to the exact UI control that existed in the old app. Keep the old codebase accessible the whole time and reference it on every UI todo. The inventory and plan are organized PAGE BY PAGE with a UI sub-checklist per page (a coarse phase like "Admin UI" covering 20 pages is how 75% of features get lost). Build UI and internals together per feature, not backend-first. Verify each page in the running app against the old app's screenshot before marking it done.
+**What a rebuild is:** the app grew by bolting features on top of features until it's a stack of cards -- messy structure, things in the wrong place, clashing modules, misaligned CSS. A rebuild keeps every feature but builds it again the right way.
+
+**The #1 rule has two halves:**
+
+1. **Keep every feature (sacred).** The old app is the source of truth for WHAT it can do. Nothing gets dropped -- every page, button, dialog, form, import/export, filter, bulk/row action. Read the old code for feature reference so nothing is missed. "Built the engine, skipped the car" (great backend + read-only skeleton pages) is a FAILURE -- every capability must be wired to a real working control. A past rebuild dropped ~75% of UI features; never again.
+2. **Improve the look and structure (the point).** This is NOT a pixel-perfect photocopy. Move misplaced things, group related things, fix broken/clashing interactions, and rebuild the CSS so it lines up and is consistent. The app should come out cleaner and more coherent than before. The test is "every feature works AND it's built better," not "it looks identical."
+
+Phase 1 inventory captures both: everything to keep AND a "what's wrong / to fix" list. Plans are organized PAGE BY PAGE with a feature sub-checklist (keep list) plus structural fixes (improve list) -- a coarse phase like "Admin UI" covering 20 pages is how features get lost. Build UI and internals together per feature, not backend-first. Flag significant structural changes for the user. Verify each screen in the running app: features all work, fixes applied, layout clean.
 
 **Critical mechanical requirement:** "Spawn a subagent" means use the **Task tool** with `subagent_type: "generalPurpose"` (or `"explore"` for read-only), `run_in_background: true`, and -- most importantly -- the **`model` parameter set explicitly** to a specific model slug. If you omit the `model` parameter, the subagent runs on your own model, which defeats multi-model coverage. Every subagent call MUST have `model` set. Available slugs: `composer-2.5-fast`, `claude-opus-4-8-thinking-high`, `gpt-5.5-extra-high`, plus any others available at runtime.
 
-Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo -- general todos are a failure), **smoke deploy after the foundation scaffold** (catches missing middleware, env vars, build command issues before they stack up), then build todo-by-todo with review gates, final scope review. UI stays pixel-identical. Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
+Summary: multi-model audit (each area audited by at least 2 DIFFERENT model families -- rotate through Composer, Claude, GPT, and any others; diversity matters more than power; never the same model twice per area) + chat history mining, feature inventory cross-referenced against build history, architecture proposals from premier agents, debate and converge into a granular plan (every screen, route, component, endpoint gets its own todo with a keep-list + fix-list -- general todos are a failure), **smoke deploy after the foundation scaffold** (catches missing middleware, env vars, build command issues before they stack up), then build todo-by-todo with review gates, final review. Every feature is preserved; the structure/layout gets fixed and improved (not a pixel copy). Everything technical is on the table (framework, language, hosting, packages) unless the user says otherwise.
 
 ---
 

@@ -1,31 +1,50 @@
 ---
-description: Multi-agent rebuild workflow. Triggered when the user says "rebuild". Changes HOW things work internally while keeping the UI pixel-identical.
+description: Multi-agent rebuild workflow. Triggered when the user says "rebuild". Keeps every feature, then rebuilds the app properly -- fixing the structure, layout, and broken interactions that piled up over time.
 ---
 
 # Rebuild Protocol
 
-**A rebuild changes HOW things work, never how they LOOK.**
+**A rebuild keeps every feature and rebuilds the app the right way.**
 
-The rebuilt app must be pixel-identical to the current app from the end user's perspective -- same navigation, same screens, same look and feel. The switch must be seamless. Users should never know anything changed. What changes is the code underneath: architecture, patterns, performance, maintainability.
+Here's what a rebuild actually is, in plain terms: you built a site, then bolted a feature on, then bolted another feature on top of that, and another. Eventually it works, but it's a stack of cards -- modules layered on modules that don't fit together, things in the wrong place, features that don't play nicely with each other, CSS that doesn't line up, settings scattered around. A rebuild is: *"Now that I know all the features I actually want, let's build it again from scratch -- with all of those features designed in from the start, organized and built correctly."*
 
-**Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. The only constraint is the UX stays identical. If a completely different tech stack would be better, propose it.
+So two things are true at once:
+
+1. **Every feature survives.** Nothing the app can do today gets lost. This is non-negotiable (a past rebuild silently dropped ~75% of the UI features -- never again).
+2. **The look and structure get FIXED, not copied.** Things that are misplaced get moved to where they belong. Things that should be grouped get grouped. Broken or clashing interactions get fixed. Misaligned CSS gets rebuilt so it lines up and works. The app should come out cleaner, more coherent, and more solid than the pile it replaced.
+
+**Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. If a completely different tech stack would be better, propose it.
 
 ---
 
-## The #1 Rule: The Old App's UI Is the Source of Truth
+## The #1 Rule: Keep Every Feature. Improve the Structure.
 
-This is the rule that has been broken before and caused a failed rebuild. Read it carefully.
+This rule has two halves. The first half is sacred. The second half is the whole point of doing a rebuild.
 
-**A rebuild is NOT building a new app from a spec. It is re-implementing the existing app's exact UI with new internals behind it.**
+### Half 1: No feature gets dropped (sacred)
 
-- The old codebase is the source of truth for everything the user sees: every page, every button, every dialog, every menu item, every form, every import/export action, every settings tab, every column in every table.
-- You do NOT design new pages. You do NOT "improve" the layout. You do NOT reorganize the navigation or add/remove menu categories. You do NOT change which metrics a dashboard shows.
-- Before building any page, you MUST open the old page's actual UI code and read it. Then you replicate it feature-for-feature with the new internals wired behind it.
-- "It compiles and renders a table" is not done. If the old page had an Add button, an Import button, row actions, filters, and bulk actions, the new page has ALL of those, wired and working.
+**The old app is the source of truth for WHAT the app can do.** Every capability the user has today must exist in the rebuilt app:
 
-**The "engine vs car" failure:** Building all the backend logic (data model, pricing, permissions, state machines) and then shipping read-only skeleton pages is a FAILURE, even if the architecture is beautiful. The user cannot use an engine. Every backend capability must be wired to the exact UI control that existed in the old app.
+- Every page, every button, every dialog, every form, every import/export action, every settings option, every filter, every bulk action, every row action, every column of data.
+- Before rebuilding an area, you MUST read the old code for it so you know every feature it contains. Never work "from memory" or from a loose summary when the actual old code is right there.
+- **The "engine vs car" failure:** building all the backend logic and then shipping read-only skeleton pages is a FAILURE, even if the architecture is beautiful. The user cannot use an engine. Every backend capability must be wired to a real, working UI control.
+- "It compiles and renders a table" is not done. If the feature existed before, it exists and works after.
 
-**If the old app's source code is available, it must stay accessible for the entire rebuild.** Note its path in REBUILD-PLAN.md. Reference it on every single UI todo. Never build a page "from memory" or "from the inventory description" when the actual old code is sitting right there.
+**If the old app's source code is available, it must stay accessible for the entire rebuild.** Note its path in REBUILD-PLAN.md and reference it for every feature so nothing slips through the cracks.
+
+### Half 2: The look and structure should get BETTER (the point of the rebuild)
+
+You are NOT making a pixel-perfect photocopy. The old layout is the thing that got messy -- so fix it:
+
+- **Move what's misplaced.** If a feature lives in a weird spot or doesn't belong on a page, put it where it makes sense.
+- **Group what belongs together.** Related settings, related actions, related pages -- bring them together instead of scattered.
+- **Fix broken and clashing interactions.** Features that were bolted on and don't work well together (or step on each other) get redesigned so they work as one coherent system.
+- **Rebuild the CSS properly.** Don't carry over hacky, misaligned styling. Lay it out so it lines up, is consistent, and works across screen sizes.
+- **Fix what was never done right.** If something in the old app is broken, half-finished, or obviously wrong, the rebuild is where it gets done correctly (capture these in the inventory, see Phase 1).
+
+The test is NOT "does it look identical to the old app." The test is "does it have every feature, do they all work, and is it organized and built better than before." A rebuilt app that looks the same but is still a stack of cards has failed.
+
+When a layout or grouping change is significant (moving a whole section, merging pages, restructuring navigation), note it in the inventory and plan so there's a record of what changed and why -- and if a change is a judgment call the user might care about, surface it.
 
 ---
 
@@ -77,7 +96,7 @@ For EACH area you identified, spawn at least 2 subagents on DIFFERENT model fami
 NEVER use the same model slug twice for the same area. Same model = same blind spots = pointless.
 
 Each subagent prompt must say:
-> "You are auditing the [AREA] of this codebase at [PATH]. Document every feature, behavior, pattern, UX detail, route, component, API endpoint, data model, and config you find. Be exhaustive. Write your findings as a structured report. Do not skip anything -- if in doubt, include it."
+> "You are auditing the [AREA] of this codebase at [PATH]. Two jobs: (1) Document every feature, behavior, route, component, API endpoint, data model, and config -- be exhaustive, if in doubt include it (this is the list of things that must NOT be lost in the rebuild). (2) Call out everything that's WRONG or messy: features in the wrong place, things that should be grouped but aren't, modules bolted on that clash or duplicate each other, broken or half-finished features, misaligned/hacky CSS, confusing flows, anything that feels like a 'stack of cards.' Write a structured report with both lists."
 
 ### Step 3: Mine chat histories
 
@@ -107,17 +126,30 @@ For every single page/screen in the app, the inventory must list:
 - The route/path and the file in the old codebase that implements it.
 - Every UI control on that page: buttons, links, dialogs, forms, tables (and their columns), filters, tabs, menus, import/export actions, bulk actions, row actions.
 - Every navigation path into and out of the page.
-- What each control does (the behavior to preserve).
+- What each control does (the behavior that must be preserved).
 
-This page-by-page structure is what later becomes the per-page build todos. A flat list of features is NOT good enough -- it's how features get lost.
+This page-by-page structure is what later becomes the build todos. A flat list of features is NOT good enough -- it's how features get lost.
+
+### Also capture what's WRONG (the rebuild's to-fix list)
+
+The inventory isn't just "what exists" -- it's also "what needs fixing." Add a section that records:
+
+- Features that are in the wrong place or on the wrong page.
+- Things that should be grouped together but are scattered.
+- Modules/features that were bolted on and clash, duplicate, or fight each other.
+- Broken, half-finished, or never-done-right features.
+- Misaligned, hacky, or inconsistent CSS/layout.
+- Confusing flows or navigation.
+
+This list is what the rebuild improves. The inventory is the full picture: everything to keep, plus everything to fix.
 
 ### Capture visual snapshots of the old app
 
-If the old app is runnable, run it and capture a screenshot of every page and every important state (empty, populated, dialogs open). Save them in a `rebuild-reference/` folder. These screenshots are the parity target for Phase 4 and Phase 5 -- you compare the rebuilt pages against them.
+If the old app is runnable, screenshot every page and important state (empty, populated, dialogs open) into a `rebuild-reference/` folder.
 
-If the old app can't be run, the old UI source code is the parity target instead.
+These screenshots are a **feature-coverage reference, NOT a pixel target.** Use them to confirm no feature got lost and to see the starting point -- not to reproduce the exact same layout. The rebuilt app is allowed (and expected) to look cleaner and be organized differently. If the old app can't be run, the old source code is the reference instead.
 
-**DO NOT proceed to Phase 2 until FEATURE-INVENTORY.md is written, organized page-by-page, with each item tied to its old-code file.**
+**DO NOT proceed to Phase 2 until FEATURE-INVENTORY.md is written, organized page-by-page, with each item tied to its old-code file, AND including the "what's wrong / to fix" section.**
 
 ---
 
@@ -131,7 +163,7 @@ Spawn exactly 2 subagents using the Task tool, each on a DIFFERENT premier model
 Set `run_in_background: true` for both. Spawn both in the same message so they run in parallel.
 
 Each subagent prompt must include the full text of FEATURE-INVENTORY.md and BUILD-HISTORY.md, and say:
-> "Propose a clean architecture for this app from scratch. Framework, language, hosting, and all technical choices are open. The ONLY constraint is that the end-user experience (screens, navigation, look and feel) must be pixel-identical to the current app. Old code is reference for WHAT the app does, not HOW to implement it. If the old way is already the best way for something, say so. Justify every tech stack choice in plain English."
+> "Propose a clean architecture AND a clean information/UI structure for this app from scratch. Framework, language, hosting, and all technical choices are open. Hard constraint: EVERY feature in the inventory must be preserved -- nothing gets dropped. But you are expected to FIX the structure: address every item in the inventory's 'what's wrong / to fix' list -- relocate misplaced features, group related things, resolve modules that clash or duplicate, fix broken interactions, and propose clean, consistent layout/CSS. Old code is the reference for WHAT the app does, not for HOW it's built or laid out. Justify your structural and tech choices in plain English."
 
 Wait for both subagents to return before proceeding.
 
@@ -142,19 +174,21 @@ Wait for both subagents to return before proceeding.
 ## Phase 3: Debate, Converge, and Plan in Detail
 
 1. Spawn a premier subagent (`claude-opus-4-8-thinking-high` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
-   > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'End-user experience is unchanged.' The plan must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
+   > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
 
-2. Plan must explicitly confirm: "End-user experience is unchanged."
-3. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
+2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."**
+3. Plan must list the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
+4. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
 
 ### Granular Todos (critical)
 
 The plan MUST be broken into the most granular, detail-oriented todos possible. General todos like "build the auth system" or "Phase 6: Admin UI" are a FAILURE. A coarse phase like "Admin UI" covering 20 pages is exactly how a rebuild ends up with 75% of the features missing.
 
-**One page = one todo (minimum). Big pages get split further.** Each page-level todo must carry a sub-checklist of every UI control from the FEATURE-INVENTORY.md entry for that page. For example:
+**One page/screen = one todo (minimum). Big pages get split further.** Each todo carries a sub-checklist of every feature/control that must be present from the FEATURE-INVENTORY.md -- so nothing is lost -- plus any structural fix that applies. For example:
 
 ```
-Todo 42: Rebuild /admin/orders page (old code: src/pages/admin/orders.tsx)
+Todo 42: Build the orders screen (old code: src/pages/admin/orders.tsx -- for feature reference)
+  Features that must be present and working:
   [ ] Paginated orders table with columns: date, customer, total, status, payment
   [ ] Search box (searches name + order number)
   [ ] Filter presets (unpaid, needs-packing, today)
@@ -163,20 +197,24 @@ Todo 42: Rebuild /admin/orders page (old code: src/pages/admin/orders.tsx)
   [ ] Export CSV button
   [ ] Import CSV button
   [ ] Page-size selector
+  Structural fixes (from inventory's to-fix list):
+  [ ] Move "import" next to "export" (they were on opposite ends for no reason)
+  [ ] Group the filter presets with the search instead of a separate row
+  [ ] Clean, consistent table styling that lines up at all widths
 ```
 
 Rules for the todo list:
 
-- Every page/screen from the inventory gets its own numbered todo with a full UI sub-checklist.
+- Every page/screen from the inventory gets its own numbered todo with a full feature sub-checklist (the keep list) AND any structural fixes (the improve list).
 - Every API endpoint, every database table, every cron job gets its own todo.
 - Every known bug from BUILD-HISTORY.md gets a todo to verify it doesn't recur.
-- Each todo names the old-code file it must match.
+- Each todo names the old-code file to read for **feature reference** -- so every capability is found and carried over. It is NOT a layout to copy pixel-for-pixel.
 - If a todo takes more than ~30 minutes, break it down further.
 - Number every todo so nothing gets skipped.
 
 **Sequencing rule -- UI and internals are built together, not in separate phases.** Do NOT plan "build all the backend, then build all the UI." That ordering is what caused the engine-with-no-car failure. Instead, build feature by feature: for each feature, build its internals AND its full UI in the same todo group, then verify parity before moving on.
 
-**DO NOT proceed to Phase 4 until REBUILD-PLAN.md is written with per-page numbered todos, each with a UI sub-checklist tied to the inventory and the old-code file path.**
+**DO NOT proceed to Phase 4 until REBUILD-PLAN.md is written with per-page numbered todos, each listing the features to preserve (tied to the inventory + old-code file) and the structural fixes to apply.**
 
 ---
 
@@ -197,44 +235,44 @@ This catches missing middleware, missing env vars, wrong build commands, databas
 
 Execute the plan todos one by one. For EVERY page/UI todo, follow this loop -- no shortcuts:
 
-1. **Open the old page's code first.** Read the actual UI file from the old codebase that this todo names. List every control it has.
-2. **Build the new page to match it control-for-control**, with the new internals wired behind each control. Match the layout, the navigation, the menu items, the table columns, the dialogs.
-3. **No stubs.** A button that doesn't do anything, a table with no actions, a "coming soon" placeholder -- these are failures, not progress. If a control existed in the old app, it works in the new one.
-4. **Verify parity before marking the todo done:**
+1. **Open the old code first, for feature reference.** Read the old file this todo names and list every feature/control it has, so none are missed. You're harvesting the feature list -- not copying the layout.
+2. **Build the screen the RIGHT way:** include every feature from the keep list, wired and working, AND apply the structural fixes from the plan (correct placement, sensible grouping, fixed interactions, clean consistent CSS that lines up). The result should be better organized than the old version, not a clone of it.
+3. **No stubs.** A button that doesn't do anything, a table with no actions, a "coming soon" placeholder -- these are failures. If a feature existed in the old app, it works in the new one.
+4. **Verify before marking the todo done:**
    - Run the page in the rebuilt app.
-   - Compare it side-by-side against the old app's screenshot (from `rebuild-reference/`) or the old page running.
-   - Walk the page's UI sub-checklist from the plan. Every item must be present and functional.
-   - Only check the todo off when every sub-item passes.
-5. Follow `review-protocol.mdc` before each commit -- and for rebuilds the review is a **feature-parity review**, not just a compile check (see review-protocol). Commits can trigger deploys per `deploy-awareness.mdc`.
+   - Walk the keep list: every feature present and functional? Use the old app/screenshots only to confirm nothing was lost.
+   - Walk the structural fixes: each one actually applied?
+   - Check the layout: does the CSS line up, is it consistent with the rest of the app, does it work at different widths?
+   - Only check the todo off when the features all work AND the structure is clean.
+5. Follow `review-protocol.mdc` before each commit -- and for rebuilds the review is a **feature-parity review** (every feature present and working), not just a compile check (see review-protocol). Commits can trigger deploys per `deploy-awareness.mdc`.
 6. Only commit and push after review passes -- never push unreviewed code.
-7. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`.
-8. No phase advances until its parity review passes.
-9. Before advancing, read through every todo in the current phase and confirm each is marked complete WITH its UI sub-checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "it matches the old app and every control works" is the bar.
+7. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
+8. No phase advances until its review passes.
+9. Before advancing, read through every todo in the current phase and confirm each is complete WITH its feature checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "every feature works and the screen is built right" is the bar.
 
 ---
 
-## Phase 5: Final Scope Review
+## Phase 5: Final Review
 
-This review checks whether the rebuilt app actually MATCHES the old app -- page by page, control by control. It is not a code-quality review.
+This review answers two questions: **(1) Did every feature survive? (2) Was it actually built better?** It is not a code-quality-only review, and it is not a pixel-match review.
 
-### Step 1: Running-app, page-by-page parity check
+### Step 1: Running-app review
 
-Go through FEATURE-INVENTORY.md page by page. For each page:
+Go through FEATURE-INVENTORY.md in the running app. For each screen:
 
-- Open the rebuilt page in the running app.
-- Compare it side-by-side against the old app's screenshot (`rebuild-reference/`) or the old app running.
-- Walk every control in the inventory entry. Mark each PRESENT / PARTIAL / STUB / MISSING.
-- A page only passes when every control is PRESENT and functional.
+- **Feature completeness (the keep list):** walk every feature/control from the inventory. Mark each PRESENT / PARTIAL / STUB / MISSING. Use the old app/screenshots only to confirm nothing was lost. A screen fails if anything is less than PRESENT and functional.
+- **Structural improvement (the to-fix list):** confirm each fix from the inventory/plan was applied -- misplaced things moved, related things grouped, clashing interactions resolved.
+- **Layout quality:** click through it. Does the CSS line up? Is it consistent across the app? Does it work at different screen widths? No leftover "stack of cards" messiness.
 
-Verifying from code review alone is NOT allowed. The whole point of this phase is to catch the "it compiles but the page is a read-only stub" failure. Run it. Click it. Compare it.
+Verifying from code review alone is NOT allowed. Run it, click it.
 
 ### Step 2: Multi-model audit
 
-Spawn 2 subagents on different premier models (same as Phase 2: `claude-opus-4-8-thinking-high` and `gpt-5.5-extra-high`). Each gets the finished codebase, the original FEATURE-INVENTORY.md, and the reference screenshots.
+Spawn 2 subagents on different premier models (same as Phase 2: `claude-opus-4-8-thinking-high` and `gpt-5.5-extra-high`). Each gets the finished codebase, the FEATURE-INVENTORY.md (including its to-fix list), and the reference screenshots.
 
 Each subagent prompt:
-> "Compare this finished app against the FEATURE-INVENTORY.md below, page by page. For EVERY page, for EVERY control listed (buttons, dialogs, forms, table columns, filters, import/export, row actions, bulk actions, menu items), mark it PRESENT, PARTIAL, STUB, or MISSING with evidence from the code. Also check: (1) was anything added that wasn't in scope? (2) is the navigation/menu structure identical to the old app? (3) do all documented behaviors still work? Do not just check that it compiles -- check that each feature is actually wired and functional."
+> "Compare this finished app against the FEATURE-INVENTORY.md below. (1) FEATURE COMPLETENESS: for every feature/control listed (buttons, dialogs, forms, table columns, filters, import/export, row actions, bulk actions), mark PRESENT / PARTIAL / STUB / MISSING with evidence -- nothing may be dropped. (2) STRUCTURAL FIXES: confirm each item on the inventory's to-fix list was actually addressed. (3) Was anything added that wasn't in scope? (4) Is the layout/CSS clean, consistent, and coherent? Don't just check that it compiles -- check that each feature is wired and functional and that the app is genuinely better organized than before."
 
 ### Step 3: Report and fix
 
-Collect both reports plus your running-app check. Produce **REBUILD-COMPLETION-REPORT.md** with a pass/fail line for every page and every control. **Any PARTIAL, STUB, or MISSING item must be fixed before declaring the rebuild done.** The rebuild is not done until the report is all-green against the inventory.
+Collect both reports plus your running-app review. Produce **REBUILD-COMPLETION-REPORT.md** with: a pass/fail line for every feature (must all be PRESENT) and a pass/fail line for every to-fix item. **Any dropped/PARTIAL/STUB/MISSING feature must be fixed before declaring done. Any unaddressed structural fix must be completed or explicitly deferred with the user's OK.** The rebuild is done when every feature works and the app is built right -- not when it looks like the old one.
