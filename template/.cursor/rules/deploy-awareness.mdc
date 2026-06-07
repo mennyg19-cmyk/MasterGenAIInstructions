@@ -48,6 +48,10 @@ After every push, identify what the push triggers and verify each one actually s
 - **"Should pass" / "should work" is banned.** Never report a fix as done on the assumption it worked. Observe the real status (CI = success AND deployment = READY) and quote it. Saying "CI should pass now" and moving on -- while the build was actually red -- forced the user to repeatedly say "check yourself" / "check again." Verify, then state what you saw.
 - If the project has no automated builds (pure local app, no CI, no host), this section is a no-op -- but confirm that's actually the case rather than assuming it.
 
+## Structure Changes Require Platform-Settings Changes
+
+If you change the project's shape -- drop a monorepo, move the app root, rename or remove packages, switch the build tool -- the deploy platform's settings do NOT update themselves. Before the next deploy, update the platform's **Root Directory, Install Command, and Build Command** to match the new layout. A stale Root Directory fails every build immediately at clone ("The specified Root Directory ... does not exist") even though `next build` passes locally -- a rebuild that dropped its monorepo shipped eight straight ERROR previews this way because only the local build was ever checked. Treat "update the platform settings" as part of the same change that altered the structure, and confirm the next deploy goes GREEN before doing anything else.
+
 ## "Done" Means Visible Online, Not Committed to a Branch
 
 A milestone ("the rebuild is done," "the redesign is live") is NOT done when code is committed to a feature branch. It is done only when:

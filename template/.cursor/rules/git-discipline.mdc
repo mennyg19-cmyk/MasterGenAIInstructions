@@ -24,7 +24,7 @@ alwaysApply: true
 - Honest, concise commit messages referencing what was touched.
 - Never amend pushed commits.
 - If a deploy target was affected, note it in the commit message.
-- **After every push, verify the builds it triggered actually passed** (Vercel deployment, GitHub Actions, other CI). See "Post-Commit Build Verification" in `deploy-awareness.mdc`. A push isn't done until its builds are green.
+- **After every push, verify the builds it triggered actually passed** (Vercel deployment, GitHub Actions, other CI) -- check the platform's ACTUAL status (dashboard/CLI/MCP), not your local build; a green local build is not proof. A deploy in a failed/ERROR state means STOP and fix it before any further work -- repeatedly pushing onto a deploy that has never gone green is building on sand. See "Post-Commit Build Verification" in `deploy-awareness.mdc`. A push isn't done until its builds are green.
 
 ## Don't Commit Junk
 

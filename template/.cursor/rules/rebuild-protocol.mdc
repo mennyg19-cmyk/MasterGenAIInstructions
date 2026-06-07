@@ -237,12 +237,13 @@ Rules for the todo list:
 
 The FIRST batch of todos should be the bare minimum scaffold: project init, config files, database connection, auth setup, a single route that renders. Then:
 
-1. Run `tsc --noEmit` and `next build` (or equivalent). Fix all errors.
-2. **Deploy to the target platform** (Vercel, Azure, etc.).
-3. Verify the smoke deploy works: site loads, health endpoint returns 200, auth flow completes.
-4. If the smoke deploy fails, fix it NOW. Do not build more features on a broken foundation.
+1. **If the rebuild changed the project structure (dropped a monorepo, moved the app root, renamed packages), UPDATE the deploy platform's settings FIRST** -- Root Directory, Install Command, and Build Command must match the NEW layout (see `deploy-awareness.mdc`). Stale settings fail every build at clone time (e.g. "The specified Root Directory `apps/web` does not exist") while your LOCAL build stays green -- a rebuild shipped its entire foundation this way, eight straight ERROR previews, before anyone noticed.
+2. Run `tsc --noEmit` and `next build` (or equivalent) locally. Fix all errors.
+3. **Deploy to the target platform** (Vercel, Azure, etc.) and **confirm on the platform itself that the deploy reached GREEN/READY** -- check the dashboard/CLI/MCP per `deploy-awareness.mdc`. A passing LOCAL build while the platform deploy is ERROR is the exact trap; local green is not deploy green.
+4. Verify the smoke deploy works against the seeded DB: the site loads, an authenticated page renders (not a blank 200), health endpoint returns 200.
+5. **The scaffold todo is NOT done, and NO feature todo may start, until the preview deploy is confirmed GREEN.** A failed smoke deploy blocks the whole build -- fix it now. Never build features on a foundation that has never deployed.
 
-This catches missing middleware, missing env vars, wrong build commands, database connection issues, and platform config gaps -- all of which have caused stacked failures in past projects when left until the end.
+This catches missing middleware, missing env vars, wrong build commands (especially after a structure change), database connection issues, and platform config gaps -- all of which have caused stacked failures in past projects when left until the end.
 
 ### Phase 4.1+: Feature Build
 
