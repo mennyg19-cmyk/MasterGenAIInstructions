@@ -58,6 +58,34 @@ When a protocol says to run N subagents on the same task (auditing the same area
 
 When subagents write deliverables (audit reports, architecture proposals, review findings), the **orchestrator** records the model slug it assigned, in the artifact (e.g. a header line `Model: gpt-5.5-extra-high`). Do NOT rely on a subagent self-labeling its own model -- a file named `ARCHITECTURE-PROPOSAL-CLAUDE.md` or a "by Claude Opus" byline proves nothing about what actually ran. If you can't say which real model produced two "independent" proposals, you don't have two independent proposals.
 
+## Multi-model debate to consensus
+
+Use this whenever two (or more) subagents have each returned a competing proposal for the SAME decision and those proposals must converge into ONE answer (the clearest case is the two architecture proposals in a rebuild). **Do not let a single converger silently pick a winner.** The proposing models argue it out, round by round, until they agree.
+
+Use it for real trade-offs (architecture, structure, tech stack, data model). Do NOT use it to relitigate things that are fixed — e.g. which features to keep is non-negotiable; debate resolves HOW to build, never WHAT exists.
+
+### The same-models exception (important)
+
+This is the ONE place you deliberately **reuse the same model** that wrote each proposal. Each model defends ITS OWN proposal, so every round you re-spawn the same slug for each side — Proposal A is always argued by the model that wrote A, Proposal B by the model that wrote B. ("You said X, the other model said Y" only means something if the original author answers.) Everywhere else you rotate families; here you keep them fixed. Attribution still applies: record which slug argued which side.
+
+### Each round
+
+1. The orchestrator extracts the **open points of disagreement** from the latest proposals/rebuttals — a short, specific list.
+2. For EACH side, spawn its model with: its own latest position, the other side's latest position, the open-points list, and the canonical inventory/audit. Prompt each:
+   > "Here is your position and the other model's position on these open points: [list]. For EACH open point do exactly ONE of: (a) DEFEND your position with concrete reasons (cite the inventory / audit / build history), (b) CONCEDE the other approach is better and say why, or (c) PROPOSE A THIRD OPTION not yet on the table. Be specific. End with two lists: points you now consider RESOLVED, and points still OPEN."
+3. Collect both responses. A point is **closed** when both sides land on the same answer (one conceded, or both adopted a third option). Update the open-points list to only what's still contested.
+
+Repeat, feeding each model the other's newest rebuttal, until one of:
+
+- **Consensus** — the open-points list is empty; both models agree on everything. This is the goal.
+- **Stalemate** — a full round produces no movement (no concession, no new third option, the same two positions). Don't loop forever. The orchestrator resolves each remaining point: the **canonical audit/inventory wins** if one side contradicts it; otherwise pick the option with the stronger stated reasoning and RECORD why; if it's a genuine product/judgment call the user would care about, surface it to the user instead of deciding silently.
+
+**Round cap:** if you hit ~3–4 rounds without consensus, treat it as a stalemate and resolve as above. Endless debate burns tokens without converging.
+
+### Record it
+
+Write the debate to a log (e.g. `DEBATE-LOG.md`, or a section of the plan): every round, what each side did (defend / concede / third option), what closed, what stayed open, and the final consensus (or the orchestrator's tie-break with reasons). Keep model attribution per round. **The converged plan must reflect the consensus — not one model's unilateral pick.** Guardrail: the consensus must not contradict the canonical audit/inventory.
+
 ## Quick self-check before you spawn
 
 - [ ] Did I set `model` explicitly on every Task call?
@@ -65,3 +93,4 @@ When subagents write deliverables (audit reports, architecture proposals, review
 - [ ] If a slug got rejected, did I pick another valid one (and NOT fall back to my own model)?
 - [ ] Does each prompt contain all the context the subagent needs, since it can't see this chat?
 - [ ] For deliverables, did I record the real (orchestrator-assigned) model on the artifact rather than trusting a self-label?
+- [ ] If I'm converging competing proposals, did I run the **debate-to-consensus loop** (same models defend their own proposals, round by round) instead of letting one converger pick a winner?

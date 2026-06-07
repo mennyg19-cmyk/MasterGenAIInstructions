@@ -51,8 +51,8 @@ The whole point is that the user SEES each option and picks from it. Each subage
 ## Phase 3: User Review + Iteration
 
 1. Present all proposals to the user with links to the preview files.
-2. User opens the previews in a browser and compares visually.
-3. User picks elements they like from different proposals.
+2. User opens the previews in a browser and compares visually. **Here the user is the decider** -- unlike a rebuild, you do not force the models to converge; the human picks what they like by looking.
+3. User picks elements they like from different proposals. (Optional: if two proposals make conflicting UX/architecture claims and the user wants the trade-offs argued out, you may run the **debate-to-consensus loop** from `subagents.mdc` -- each model defends its own direction -- to surface a clear recommendation. The user still makes the final call.)
 4. Synthesize the feedback into a refined direction -- generate a new preview if needed.
 5. Iterate until user approves.
 6. Produce **REDESIGN-PLAN.md** with the approved direction.

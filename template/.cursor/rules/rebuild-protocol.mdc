@@ -159,21 +159,38 @@ Set `run_in_background: true` for both. Spawn both in the same message so they r
 Each subagent prompt must include the full text of FEATURE-INVENTORY.md and BUILD-HISTORY.md, and say:
 > "Propose a clean architecture AND a clean information/UI structure for this app from scratch. Framework, language, hosting, and all technical choices are open. Hard constraint: EVERY feature in the inventory must be preserved -- nothing gets dropped. But you are expected to FIX the structure: address every item in the inventory's 'what's wrong / to fix' list -- relocate misplaced features, group related things, resolve modules that clash or duplicate, fix broken interactions, and propose clean, consistent layout/CSS. Old code is the reference for WHAT the app does, not for HOW it's built or laid out. Justify your structural and tech choices in plain English."
 
-Wait for both subagents to return before proceeding.
+Wait for both subagents to return before proceeding. **Record which model wrote which proposal** -- in Phase 3 each model is re-spawned to defend its OWN proposal, so you need to know which slug owns which.
 
 **DO NOT proceed to Phase 3 until both proposals are in hand.**
 
 ---
 
-## Phase 3: Debate, Converge, and Plan in Detail
+## Phase 3: Debate to Consensus, Then Converge into the Plan
 
-1. Spawn a premier subagent (`claude-opus-4-8-thinking-xhigh` or `gpt-5.5-extra-high`) and give it BOTH architecture proposals. Its prompt:
-   > "Review both architecture proposals below. Debate the trade-offs in plain English. Produce a unified REBUILD-PLAN.md that takes the best ideas from both. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
+This phase has two parts and you must do them in order. **First the two proposing models debate their proposals against each other until they reach consensus. Only then do you converge that consensus into the detailed plan.** Do NOT skip the debate and hand both proposals to one converger to pick a winner -- that is the exact step that got skipped before. The models argue it out first.
 
-2. Plan must explicitly confirm: **"Every feature in the inventory is preserved -- nothing dropped."** It must also restate the scope stance in plain words: **the old app is a reference for WHAT exists, not HOW to build it -- this is not a port and not a pixel copy.** A plan that says "port every page" or "replicate pixel-identical" has the wrong frame (this caused the user to re-scope mid-stream twice); fix the frame before building.
-3. Plan must list the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
-4. Plan must reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
-5. **The plan must not contradict the canonical audit/inventory.** When converging two architecture proposals, any statement that conflicts with what the audit found (e.g. proposing a separate `finalizePOS()` when the audit says POS and storefront share one finalize path) must be explicitly resolved as: canonical audit wins, OR the rebuild intentionally differs (with the reason), OR needs user approval. Don't let a convergence quietly invent behavior the real app doesn't have.
+### Step 1: Debate the two proposals to consensus (do NOT skip)
+
+Run the **multi-model debate-to-consensus loop** (defined in `subagents.mdc`) on the two Phase 2 architecture proposals:
+
+- **Re-spawn the SAME two models that wrote the proposals.** This is the one place you intentionally reuse the same models -- each one defends its own proposal. Proposal A is always argued by the model that wrote A; Proposal B by the model that wrote B. (Reusing them is correct here; "you said X, the other model said Y -- defend, concede, or propose a third option" only works if the original author answers.)
+- **Round by round:** give each model its own latest position, the other model's latest position, and the list of open disagreements. Each must, for every open point, do exactly one of: **defend** it with concrete reasons (citing the inventory/audit/build-history), **concede** the other's approach, or **propose a third option** not yet on the table. Collect both, close the points they now agree on, and feed each the other's newest rebuttal.
+- **Keep going back and forth until they reach consensus** -- the open-points list is empty. If a full round produces no movement (a stalemate) or you hit ~3-4 rounds, resolve the remainder per `subagents.mdc` (canonical audit wins on any contradiction; otherwise pick the stronger-reasoned option and record why; surface genuine judgment calls to the user).
+- **Record the entire back-and-forth in DEBATE-LOG.md** -- each round, who defended/conceded/proposed-a-third-option, what closed, what stayed open, and the final agreed architecture/structure. Keep model attribution (which slug argued which side each round).
+
+The output of Step 1 is a single, agreed architecture/structure that both models signed off on (or an orchestrator tie-break with reasons logged).
+
+### Step 2: Converge the consensus into REBUILD-PLAN.md
+
+Spawn a premier subagent (`claude-opus-4-8-thinking-xhigh` or `gpt-5.5-extra-high`) and give it the agreed architecture from DEBATE-LOG.md, plus FEATURE-INVENTORY.md and BUILD-HISTORY.md. Its prompt:
+> "The architecture below is the agreed consensus of a multi-model debate -- implement it, do not re-open settled decisions. Produce a detailed REBUILD-PLAN.md. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
+
+The plan itself must satisfy all of these:
+
+1. Confirm explicitly: **"Every feature in the inventory is preserved -- nothing dropped."** Restate the scope stance in plain words: **the old app is a reference for WHAT exists, not HOW to build it -- this is not a port and not a pixel copy.** A plan that says "port every page" or "replicate pixel-identical" has the wrong frame (this caused the user to re-scope mid-stream twice); fix the frame before building.
+2. List the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
+3. Reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
+4. **Not contradict the canonical audit/inventory or the agreed consensus in DEBATE-LOG.md.** Any statement that conflicts with what the audit found (e.g. proposing a separate `finalizePOS()` when the audit says POS and storefront share one finalize path) must be explicitly resolved as: canonical audit wins, OR the rebuild intentionally differs (with the reason), OR needs user approval. Don't let convergence quietly invent behavior the real app doesn't have or quietly overturn a debated decision.
 
 ### Granular Todos (critical)
 
@@ -210,7 +227,7 @@ Rules for the todo list:
 
 **Sequencing rule -- UI and internals are built together, not in separate phases.** Do NOT plan "build all the backend, then build all the UI." That ordering is what caused the engine-with-no-car failure. Instead, build feature by feature: for each feature, build its internals AND its full UI in the same todo group, then verify parity before moving on.
 
-**DO NOT proceed to Phase 4 until REBUILD-PLAN.md is written with per-page numbered todos, each listing the features to preserve (tied to the inventory + old-code file) and the structural fixes to apply.**
+**DO NOT proceed to Phase 4 until BOTH exist: (1) DEBATE-LOG.md showing the two proposal models actually debated to consensus (defend/concede/third-option, round by round), and (2) REBUILD-PLAN.md with per-page numbered todos, each listing the features to preserve (tied to the inventory + old-code file) and the structural fixes to apply.** A plan produced without the debate is a skipped step -- go back and run it.
 
 ---
 
