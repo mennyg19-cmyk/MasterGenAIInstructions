@@ -71,7 +71,7 @@ This is the ONE place you deliberately **reuse the same model** that wrote each 
 ### Each round
 
 1. The orchestrator extracts the **open points of disagreement** from the latest proposals/rebuttals — a short, specific list.
-2. For EACH side, spawn its model with: its own latest position, the other side's latest position, the open-points list, and the canonical inventory/audit. Prompt each:
+2. For EACH side, spawn its model with the **full running debate context**. Subagents are stateless -- a fresh spawn remembers NOTHING from prior rounds -- so every turn must include: the two original proposals, the **entire DEBATE-LOG so far** (every prior round's defend/concede/third-option exchange), the list of points already RESOLVED *with the agreed answer for each* (so a model can't reopen settled ground or re-propose a rejected option), the current open-points list, and the canonical inventory/audit. Without this, the models lose the thread, repeat themselves, and never converge. (If the log grows large over many rounds, you may compress the RESOLVED section to a tight summary, but pass the open-point exchanges in full.) Prompt each:
    > "Here is your position and the other model's position on these open points: [list]. For EACH open point do exactly ONE of: (a) DEFEND your position with concrete reasons (cite the inventory / audit / build history), (b) CONCEDE the other approach is better and say why, or (c) PROPOSE A THIRD OPTION not yet on the table. Be specific. End with two lists: points you now consider RESOLVED, and points still OPEN."
 3. Collect both responses. A point is **closed** when both sides land on the same answer (one conceded, or both adopted a third option). Update the open-points list to only what's still contested.
 
