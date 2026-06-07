@@ -11,9 +11,13 @@ A "phase" = a feature, a module, a protocol step, or any body of work that spans
 
 ## When to Review
 
-- After completing a phase, launch a readonly review subagent before committing.
-- Commits can trigger deploys (per `deploy-awareness.mdc`), so never push unreviewed code.
-- Resolve blockers from the review before committing or moving to the next phase.
+This section is the single source of truth for review cadence; `git-discipline.mdc` and the individual protocols defer to it.
+
+- **Per commit = fast checks, NOT a review subagent.** Typecheck, lint, and tests must pass before each commit. With those green, commit and push freely on the working/preview branch -- do not block every commit on a review subagent.
+- **Per phase = the full review loop.** A "phase" is a body of work spanning more than one commit (see below). When a phase completes, launch the review subagent and run the loop until **zero findings** BEFORE the phase is marked done or the next phase starts.
+- **Before any merge to the production branch = the full review loop is mandatory.** This is the go-live gate. A working/preview-branch deploy may run on tested-but-not-yet-review-looped code; the **production** branch never may. Never merge unreviewed code to production.
+- Commits can trigger deploys (per `deploy-awareness.mdc`) -- which is exactly why the production branch is review-gated while the preview branch is the place for in-progress work.
+- Resolve every blocker from a review before advancing the phase or merging to production.
 
 ## How to Review
 

@@ -11,6 +11,7 @@ alwaysApply: true
 - At the start of a task/feature/phase, create or switch to a working branch.
 - When a phase or full job is done, merge the working branch into `main`.
 - Branch naming: descriptive and short (e.g. `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`).
+- **Merging the working branch into the production branch is the go-live gate** -- it requires a clean review pass first (the full review loop in `review-protocol.mdc`). Never merge unreviewed code to production.
 - **Never assume `main` is the production branch.** Check the deploy config or README first. Past projects had production deploying from `fresh-start` while `main` was abandoned code.
 - **Document the branch strategy in README** on day one: which branch deploys where, which branch is for development, which is for production. If this isn't documented, figure it out and document it before making changes.
 
@@ -19,6 +20,7 @@ alwaysApply: true
 - Auto-commit and push to the working branch after every completed logical change.
 - One logical change = one commit.
 - Push immediately -- never leave unpushed commits on the branch.
+- **Per-commit gate = fast local checks, not a review subagent.** Before each commit the tree must typecheck, lint, and pass tests. The heavier multi-model **review loop** runs at phase boundaries and before any production merge -- NOT before every commit. `review-protocol.mdc` owns that cadence. (This is the reconciliation: commit/push freely on the working branch; gate the review at phases and go-live, never let unreviewed code reach the production branch.)
 - Honest, concise commit messages referencing what was touched.
 - Never amend pushed commits.
 - If a deploy target was affected, note it in the commit message.

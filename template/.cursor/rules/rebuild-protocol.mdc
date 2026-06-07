@@ -257,10 +257,10 @@ Execute the plan todos one by one. For EVERY page/UI todo, follow this loop -- n
    - Walk the structural fixes: each one actually applied?
    - Check the layout: does the CSS line up, is it consistent with the rest of the app, does it work at different widths?
    - Only check the todo off when the route renders, the features all work, AND the structure is clean. Marking a todo done is a claim that you opened it and it works.
-5. Follow `review-protocol.mdc` before each commit -- and for rebuilds the review is a **feature-parity review** (every feature present and working), not just a compile check. The review is a **loop, not one pass**: the reviewer reports findings, you fix them, then a FRESH reviewer (different model) checks again, and you repeat until a review comes back with ZERO findings (see review-protocol). Commits can trigger deploys per `deploy-awareness.mdc`.
-6. Only commit and push after a clean review pass -- never push unreviewed code.
-7. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
-8. No phase advances until its review loop comes back clean.
+5. **Per commit: fast checks, then commit and push.** Each todo's commit must typecheck, lint, and pass tests before it is committed -- then push it to the working/`rebuild` branch (which deploys to preview, not production). A full review subagent is NOT required per commit; the review loop runs at the phase and merge gates below. (Cadence is owned by `review-protocol.mdc`.)
+6. **Per phase: the feature-parity review loop (gate to advance).** When a phase completes, run the review per `review-protocol.mdc` -- for rebuilds it is a **feature-parity review** (every feature present and working, every inventory ID enumerated, not a compile check). It is a **loop, not one pass**: the reviewer reports findings, you fix them, then a FRESH reviewer (different family, no prior context) re-checks, repeating until a pass returns ZERO findings. **No phase advances until its review loop comes back clean.**
+7. **Before merging `rebuild` into the production branch: the review loop is mandatory (the go-live gate).** Never merge unreviewed code to production. Preview-branch pushes may run on tested-but-not-yet-review-looped code; the production branch never may. Confirm the deploy is green per `deploy-awareness.mdc`.
+8. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
 9. Before advancing, read through every todo in the current phase and confirm each is complete WITH its feature checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "every feature works and the screen is built right" is the bar.
 
 ### Parallelizing the build (subagent discipline)

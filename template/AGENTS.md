@@ -140,9 +140,10 @@ All communication uses plain English. Target audience: a self-taught programmer 
 ## Review Protocol
 
 - A "phase" = work spanning more than one commit.
-- Review with a readonly subagent (default: `gpt-5.5-extra-high`) BEFORE committing.
+- **Cadence:** per commit = fast checks only (typecheck, lint, tests) -- commit/push freely on the working/preview branch. The review-subagent **loop** runs at **phase boundaries** and is **mandatory before any merge to the production branch** (the go-live gate). Never block every commit on a review; never let unreviewed code reach production.
+- Review with a readonly subagent (default: `gpt-5.5-extra-high`).
 - Review findings go into DECISION-LOG.md.
-- Resolve blockers before committing or advancing.
+- Resolve every blocker before advancing the phase or merging to production.
 - **"Compiles" is never the bar.** A review must check that the work actually does what it was supposed to, end to end -- not just that it typechecks and lints. For a UI page: is every control present and functional, or a read-only stub? For a bug fix: is the bug gone in the running app?
 - **Review is a LOOP, not one pass.** Reviewer reports findings → you fix every one → a FRESH reviewer (different model family, no prior context, so it can't rubber-stamp) re-checks → repeat until a pass returns ZERO findings. "Found things, fixed them, moved on" without a clean re-review is not allowed (the user has been explicit about this).
 - **Feature-parity review** (rebuilds / "match the old thing" work): reviewer gets the inventory + old reference and **enumerates every route and every ID -- no sampling** (sampling let an entire page ship missing). Route-coverage diff first (every old route has a working new route), then mark every item PRESENT/PARTIAL/STUB/MISSING with evidence, verified in the running app. Anything unverifiable = MISSING. Phase fails while anything is less than PRESENT.

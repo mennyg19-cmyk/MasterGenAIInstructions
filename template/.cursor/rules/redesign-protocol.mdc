@@ -61,7 +61,7 @@ The whole point is that the user SEES each option and picks from it. Each subage
 ## Phase 4: Build the Redesign
 
 1. Execute phase by phase (theme/colors first, then layout, then navigation, then components).
-2. Follow `review-protocol.mdc` before each commit.
+2. Follow `review-protocol.mdc` cadence: fast checks per commit; the review loop at each phase boundary and mandatory before merging to the production branch.
 3. Adjust backend where needed to support new UI patterns.
 
 ## Phase 5: Final Review
