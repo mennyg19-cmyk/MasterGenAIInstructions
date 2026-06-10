@@ -20,7 +20,9 @@ Before spawning the phase reviewer, re-walk all of the phase's completed expecta
 ## The Independent Loop
 
 - Reviewer: readonly subagent (default `gpt-5.5-extra-high`), spawned per `subagents.mdc` -- `model` set explicitly, never your own model.
-- Give it: the changed file paths, the phase goal, and the PATHS to the completed expectation checklists and README/AGENTS.md -- by reference with the required-reading + proof-of-read instructions per `subagents.mdc`, never pasted.
+- **Phase reviews are DIFF-SCOPED, not whole-project.** Give the reviewer: the phase's diff (`git diff <phase-start>..HEAD` file list), the phase goal, and the PATHS to the completed expectation checklists, the invariant ledger (if one exists), and README/AGENTS.md -- by reference with the required-reading + proof-of-read instructions per `subagents.mdc`, never pasted. Do not hand it the whole codebase to re-read.
+- The two bug classes a diff can't show are covered by targeted guards, not by widening the scope: the **trust-boundary security review** below runs full-context on any phase touching payments/auth/roles/order creation, and every phase reviewer checks the diff against the **invariant ledger** (cross-phase consistency travels in the ledger, not in extra context).
+- **Final/go-live reviews are whole-app** (e.g. a rebuild's Phase 5 enumerated parity review) -- diff-scoping applies to intermediate phase gates only.
 - Findings go in DECISION-LOG.md. Fix EVERY finding, then a **fresh** reviewer (different family, no prior context, so it can't rubber-stamp) re-checks. **Repeat until a pass returns zero findings.** "Found things, fixed them, moving on" without a clean re-review is not allowed.
 - **A review must return results.** A clean typecheck is never a stand-in for a review that didn't finish. If a reviewer hangs/times out, re-spawn smaller scoped reviews until you get real findings.
 - Every review answers: **does the work actually do what it was supposed to, end to end, in the running app?** Type errors and lint nits are not the bar; stubs and read-only pages are findings.
@@ -37,7 +39,7 @@ Review by entry point, not by file. For each public route / authenticated action
 
 ## Invariant Ledger
 
-For domains with hard rules (money, auth/roles, inventory, shipping, order structure), keep numbered invariants; reviews cite invariant IDs, not prose, so they can't drift between audit, plan, and build.
+For domains with hard rules (money, auth/roles, inventory, shipping, order structure), keep numbered invariants; reviews cite invariant IDs, not prose, so they can't drift between audit, plan, and build. The ledger is small by design -- it goes to EVERY phase reviewer, and a diff that violates an invariant is a finding even if the changed files look fine in isolation.
 
 ## Deviations
 
