@@ -21,6 +21,10 @@ This only works if the subagent actually reads them, so every prompt that passes
 
 Exception: small task-specific snippets (an error message, a 10-line spec, the open-points list for a debate round) are cheaper to inline than to write to a file -- inline those.
 
+### Replies are summaries, not deliverables
+
+The subagent's final message lands in YOUR context -- don't pay for the deliverable twice. Every spawn prompt must say: **"Write your deliverable to [file path]. Your final reply must be ≤10 lines: the file path(s) written, the proof-of-read block, and headline findings/counts only. Do NOT repeat the deliverable's content in your reply."** You read the file if you need the detail.
+
 ## Roster (snapshot -- the tool's accepted list is the real source of truth)
 
 | Slug | Family |

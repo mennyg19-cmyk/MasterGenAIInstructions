@@ -22,5 +22,10 @@ Scope the full task, surface ALL foreseeable questions at once, confirm understa
 **Status:** DECIDED / BLOCKED
 ```
 
+## Log rotation (keeps session-start reads cheap)
+- DECISION-LOG.md is **newest-first**.
+- When it grows past ~150 lines: move everything except open BLOCKED entries and the current phase's decisions to **DECISION-LOG-ARCHIVE.md** (append, never trim), and leave a one-line marker at the bottom of the live log: "Older entries: DECISION-LOG-ARCHIVE.md". The archive is reference material -- read it only when a specific old decision matters.
+- Same pattern for any other always-read file that grows without bound (e.g. TESTING-STRATEGY.md): live file stays small, history goes to an `-ARCHIVE` twin.
+
 ## When the user returns
 Summary: what was done, decisions made, what's pending. User reviews the log and approves or overrides.

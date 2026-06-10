@@ -13,6 +13,8 @@ Plain English in all communication, comments, docs, and logs. Audience: a self-t
 
 Read in order before any edit: HANDOFF.md (if present) → README.md → AGENTS.md → DECISION-LOG.md → the files relevant to the task.
 
+DECISION-LOG.md is newest-first; read the entries above the archive marker (recent + anything marked BLOCKED), not the whole history. If it has grown past ~150 lines, rotate it per `autonomous-mode.mdc` before moving on.
+
 ## Core Principles
 
 - Read before edit -- reuse existing helpers, components, and patterns; don't introduce competing ones.
