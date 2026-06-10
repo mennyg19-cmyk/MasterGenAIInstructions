@@ -59,4 +59,4 @@ Read in order: HANDOFF.md (if present) → README.md → this file → DECISION-
 Never commit secrets; `.env*` gitignored; `.env.example` placeholders; sanitize input; never log secrets; rotate leaks immediately; least privilege.
 
 ### Subagents (full rules: subagents.mdc -- read before spawning)
-Set `model` explicitly on every spawn; never silently fall back to your own model; same job × N subagents = N different model families; the orchestrator stamps the real model on every artifact; competing proposals converge through the debate-to-consensus loop, never a silent pick.
+Set `model` explicitly on every spawn; never silently fall back to your own model; same job × N subagents = N different model families; the orchestrator stamps the real model on every artifact; competing proposals converge through the debate-to-consensus loop, never a silent pick. Pass documents as file paths (never pasted) with an explicit "read these IN FULL" order and a proof-of-read summary required at the top of the deliverable -- reject deliverables without it.

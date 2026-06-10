@@ -23,14 +23,20 @@ All spawning mechanics, the roster, family-diversity rules, attribution, and the
 Do NOT do this yourself -- spawn subagents.
 
 1. Orient: read the codebase; identify the major areas.
-2. Per area, spawn **≥2 subagents on DIFFERENT model families** (one message, `run_in_background: true`; never the same slug twice per area). Prompt each:
-   > "You are auditing the [AREA] of this codebase at [PATH]. (1) Document every feature, behavior, route, component, endpoint, data model, and config -- exhaustive; if in doubt, include it (this is the list of what must NOT be lost). (2) Call out everything WRONG or messy: misplaced features, things that should be grouped, clashing/duplicated modules, broken or half-finished features, hacky CSS, confusing flows. Structured report with both lists."
+2. Per area, spawn **2 subagents on DIFFERENT model families with SPLIT ROLES** (one message, `run_in_background: true`; never the same slug twice per area). Two models still cover every area -- different blind spots -- but each reads deeply for ONE concern instead of both duplicating an exhaustive audit:
+   - **Inventory auditor**:
+     > "You are auditing the [AREA] of this codebase at [PATH]. Document every feature, behavior, route, component, endpoint, data model, and config -- exhaustive; if in doubt, include it (this is the list of what must NOT be lost in a rebuild). Structured report."
+   - **Structure auditor** (different family):
+     > "You are auditing the [AREA] of this codebase at [PATH]. Two jobs: (1) Call out everything WRONG or messy: misplaced features, things that should be grouped, clashing/duplicated modules, broken or half-finished features, hacky CSS, confusing flows. (2) Produce a COVERAGE SKELETON: a bare list of every route, screen, endpoint, data model, and job you encountered -- names/paths only, no descriptions. The skeleton is a cross-check against another auditor's report, so completeness matters more than detail."
 3. Spawn a history miner on the project's chat transcripts: bugs fixed, features added after the plan, pain points/regressions, workarounds, user corrections → **BUILD-HISTORY.md**.
 4. Wait for ALL reports before Phase 1.
 
 ## Phase 1: Feature Inventory
 
-Cross-reference all audit reports against each other and BUILD-HISTORY.md (anything one model found goes in; reconcile disagreements) → **FEATURE-INVENTORY.md**, the complete truth of what the app does today.
+Cross-reference everything into **FEATURE-INVENTORY.md**, the complete truth of what the app does today:
+
+1. **Diff each area's coverage skeleton against its inventory report.** Anything in the skeleton missing from the inventory = a gap; spawn a targeted follow-up audit of just those items (cheap model is fine) before continuing. This diff is the dropped-feature catch -- do it mechanically, item by item.
+2. Fold in the structure auditors' to-fix findings and BUILD-HISTORY.md (late additions, bug fixes, post-launch features); reconcile disagreements.
 
 Requirements:
 
@@ -44,9 +50,11 @@ Gate: no Phase 2 until the inventory is page-by-page, ID'd, tied to old-code fil
 
 ## Phase 2: Architecture Proposals
 
-Spawn exactly 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` + `gpt-5.5-extra-high`), in parallel, each given FEATURE-INVENTORY.md + BUILD-HISTORY.md (paths fine):
+Spawn exactly 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` + `gpt-5.5-extra-high`), in parallel, each given the PATHS to FEATURE-INVENTORY.md + BUILD-HISTORY.md with the required-reading + proof-of-read instructions from `subagents.mdc` (do not paste the documents):
 
-> "Propose a clean architecture AND information/UI structure from scratch. All technical choices open. Hard constraint: EVERY inventory feature preserved. Fix the structure: address every to-fix item -- relocate, group, resolve clashes, fix interactions, clean consistent layout. Old code = reference for WHAT, not HOW. Justify choices in plain English."
+> "REQUIRED READING: read FEATURE-INVENTORY.md and BUILD-HISTORY.md at [paths] IN FULL before proposing anything; open your proposal with a 3-5 line proof-of-read summary of each (ID and route counts included). Then: propose a clean architecture AND information/UI structure from scratch. All technical choices open. Hard constraint: EVERY inventory feature preserved. Fix the structure: address every to-fix item -- relocate, group, resolve clashes, fix interactions, clean consistent layout. Old code = reference for WHAT, not HOW. Justify choices in plain English."
+
+Reject any proposal whose proof-of-read block is missing or whose counts don't match the inventory -- that model skimmed; re-spawn it.
 
 **Record which model wrote which proposal** (Phase 3 re-spawns each to defend its own). Gate: both proposals in hand.
 
@@ -54,9 +62,9 @@ Spawn exactly 2 subagents on different premier families (e.g. `claude-opus-4-8-t
 
 **Step 1 -- debate (do NOT skip; do NOT hand both proposals to one converger to pick a winner).** Run the debate-to-consensus loop from `subagents.mdc` on the two proposals: re-spawn the SAME two models, each defending its own; feed the full running DEBATE-LOG every round; defend/concede/third-option per open point; loop to consensus or resolve a stalemate per `subagents.mdc` (~3-4 round cap). Record every round in **DEBATE-LOG.md** with attribution. Output: one agreed architecture both models signed off on (or a logged tie-break).
 
-**Step 2 -- converge into REBUILD-PLAN.md.** A premier subagent gets the agreed architecture + inventory + build history:
+**Step 2 -- converge into REBUILD-PLAN.md.** A premier subagent gets the PATHS to DEBATE-LOG.md (the agreed architecture), FEATURE-INVENTORY.md, and BUILD-HISTORY.md, with the required-reading + proof-of-read instructions per `subagents.mdc`:
 
-> "This architecture is the agreed consensus of a multi-model debate -- implement it, don't re-open settled decisions. Produce a detailed REBUILD-PLAN.md confirming every inventory feature is preserved, listing the structural improvements and why, and including prevention steps for every BUILD-HISTORY bug/workaround/pain point."
+> "REQUIRED READING: read DEBATE-LOG.md, FEATURE-INVENTORY.md, and BUILD-HISTORY.md at [paths] IN FULL first; open the plan with a proof-of-read summary of each. The architecture in DEBATE-LOG.md is the agreed consensus of a multi-model debate -- implement it, don't re-open settled decisions. Produce a detailed REBUILD-PLAN.md confirming every inventory feature is preserved, listing the structural improvements and why, and including prevention steps for every BUILD-HISTORY bug/workaround/pain point."
 
 The plan must: (1) state "every feature preserved -- nothing dropped" AND the frame "old app = WHAT, not HOW; not a port, not a pixel copy"; (2) list structural improvements; (3) give every BUILD-HISTORY item a prevention step; (4) never contradict the canonical audit or DEBATE-LOG consensus -- conflicts resolve as: canonical wins / intentionally differs (reasoned) / needs user approval.
 
@@ -98,7 +106,7 @@ Answers: (1) did every feature survive? (2) was it built better? Exhaustive and 
 
 1. **Reconciliation ledger first** (→ REBUILD-COMPLETION-REPORT.md): route diff (every manifest route → working new route, opened, not from code) + inventory-ID ledger (EVERY ID in order: built where, verified PRESENT/PARTIAL/STUB/MISSING with evidence). Unaccountable = MISSING.
 2. **Running-app review**: walk every screen -- keep list complete, to-fix items applied, layout consistent at different widths. Code-only verification is not allowed.
-3. **Multi-model audit**: 2 subagents, different premier families, each given the codebase + full inventory + reference screenshots, enumerating every route and ID (no sampling), returning a per-ID table; unverifiable = MISSING.
+3. **Multi-model audit**: 2 subagents, different premier families, each given the codebase path + the PATH to the full inventory + reference screenshots (required-reading + proof-of-read per `subagents.mdc`), enumerating every route and ID (no sampling), returning a per-ID table; unverifiable = MISSING.
 4. **Loop**: fix EVERY finding → fresh reviewer (new family, no prior context) re-runs the full check → repeat until a pass returns **zero findings**.
 5. **Done gate** (all must be true): route diff fully green; every ID PRESENT and functional; every to-fix item addressed or user-approved deferred; latest review pass clean on fresh eyes; deploy green per `deploy-awareness.mdc`.
 

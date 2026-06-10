@@ -20,7 +20,7 @@ Before spawning the phase reviewer, re-walk all of the phase's completed expecta
 ## The Independent Loop
 
 - Reviewer: readonly subagent (default `gpt-5.5-extra-high`), spawned per `subagents.mdc` -- `model` set explicitly, never your own model.
-- Give it: the changed files, the phase goal, the completed expectation checklists, and paths to README/AGENTS.md.
+- Give it: the changed file paths, the phase goal, and the PATHS to the completed expectation checklists and README/AGENTS.md -- by reference with the required-reading + proof-of-read instructions per `subagents.mdc`, never pasted.
 - Findings go in DECISION-LOG.md. Fix EVERY finding, then a **fresh** reviewer (different family, no prior context, so it can't rubber-stamp) re-checks. **Repeat until a pass returns zero findings.** "Found things, fixed them, moving on" without a clean re-review is not allowed.
 - **A review must return results.** A clean typecheck is never a stand-in for a review that didn't finish. If a reviewer hangs/times out, re-spawn smaller scoped reviews until you get real findings.
 - Every review answers: **does the work actually do what it was supposed to, end to end, in the running app?** Type errors and lint nits are not the bar; stubs and read-only pages are findings.

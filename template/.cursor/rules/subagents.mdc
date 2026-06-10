@@ -8,7 +8,18 @@ If a model slug ever changes, it changes here and nowhere else.
 
 ## Mechanics
 
-Use the **Task tool**: `subagent_type` = `"generalPurpose"` (writes files) or `"explore"` (read-only); **`model` set explicitly every time**; `run_in_background: true` when parallelizing (spawn them in one message). The prompt must carry ALL context -- subagents cannot see your chat. **Prefer passing file paths + a short orientation over pasting whole documents**; subagents can read files themselves.
+Use the **Task tool**: `subagent_type` = `"generalPurpose"` (writes files) or `"explore"` (read-only); **`model` set explicitly every time**; `run_in_background: true` when parallelizing (spawn them in one message). The prompt must carry ALL context -- subagents cannot see your chat.
+
+### Pass context by reference, not by pasting
+
+**Never paste whole documents (inventory, build history, debate log, proposals) into a prompt.** Pass the FILE PATHS plus a short orientation (what each file is, why it matters to this task). Pasting the same documents into every spawn is the single biggest token waste in multi-agent work.
+
+This only works if the subagent actually reads them, so every prompt that passes paths MUST include both of these, verbatim or equivalent:
+
+1. **"REQUIRED READING: read each of these files IN FULL, top to bottom, before doing anything else. Do not skim, do not stop at headings, do not rely on this prompt's summary -- the files are the source of truth and this prompt is only an orientation."**
+2. **A proof-of-read requirement**: the subagent's deliverable must open with a 3-5 line summary of each required file in its own words (e.g. item counts, route count, the key constraints it found). A deliverable without the proof-of-read block, or with counts that don't match the files, means the subagent skimmed -- reject it and re-spawn.
+
+Exception: small task-specific snippets (an error message, a 10-line spec, the open-points list for a debate round) are cheaper to inline than to write to a file -- inline those.
 
 ## Roster (snapshot -- the tool's accepted list is the real source of truth)
 
@@ -37,7 +48,7 @@ Families: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet+Opus)**. "U
 Use when 2+ subagents return competing proposals for the SAME decision that must converge into one answer (e.g. rebuild architecture proposals). **Never let a single converger silently pick a winner.** Debate real trade-offs (architecture, structure, stack, data model) -- never relitigate fixed things (which features to keep is non-negotiable; debate resolves HOW, never WHAT).
 
 - **Same-models exception**: this is the ONE place you deliberately reuse models -- each model defends its OWN proposal every round (the author must answer). Attribution still applies.
-- **Each round**: (1) extract the open points of disagreement; (2) re-spawn each side with the **full running debate context** -- both original proposals, the entire DEBATE-LOG so far, the RESOLVED points with their agreed answers (so settled ground can't reopen), the current open-points list, and the canonical inventory/audit (paths are fine). Subagents are stateless; without the full log they repeat themselves and never converge. (You may compress RESOLVED to a tight summary; pass open-point exchanges in full.) (3) Each side must, per open point, do exactly one of: **DEFEND** with concrete cited reasons, **CONCEDE**, or **PROPOSE A THIRD OPTION**, ending with its RESOLVED and OPEN lists. (4) Close points where both sides land on the same answer; append the round to DEBATE-LOG.md.
+- **Each round**: (1) extract the open points of disagreement; (2) re-spawn each side with the **full running debate context** -- both original proposals, the entire DEBATE-LOG so far, the RESOLVED points with their agreed answers (so settled ground can't reopen), the current open-points list, and the canonical inventory/audit. Pass the proposals/log/inventory **as file paths with the required-reading + proof-of-read instructions above**; inline only the short open-points list. Subagents are stateless; without the full log they repeat themselves and never converge. (You may compress RESOLVED to a tight summary; open-point exchanges must be read in full.) (3) Each side must, per open point, do exactly one of: **DEFEND** with concrete cited reasons, **CONCEDE**, or **PROPOSE A THIRD OPTION**, ending with its RESOLVED and OPEN lists. (4) Close points where both sides land on the same answer; append the round to DEBATE-LOG.md.
 - **End states**: *Consensus* (open list empty -- the goal) or *stalemate* (a full round with no movement, or ~3-4 rounds hit). On stalemate the orchestrator resolves each remaining point: canonical audit/inventory wins on any contradiction; otherwise the stronger-reasoned option, recorded; genuine product judgment calls go to the user, never decided silently.
 - **Record everything** in DEBATE-LOG.md: per round, who defended/conceded/proposed, what closed, what stayed open, final consensus or tie-break with reasons, model attribution per round. The converged plan must reflect the consensus -- not one model's pick -- and must not contradict the canonical audit/inventory.
 
@@ -47,5 +58,7 @@ Use when 2+ subagents return competing proposals for the SAME decision that must
 - [ ] Multi-subagent job on different families, no repeats?
 - [ ] Rejected slug → picked another valid one (not your own model)?
 - [ ] Prompt self-contained (paths + orientation; subagent can't see this chat)?
+- [ ] Documents passed as paths with the REQUIRED READING + proof-of-read instructions (not pasted)?
+- [ ] Deliverable checked for the proof-of-read block before accepting it?
 - [ ] Orchestrator-assigned model recorded on each deliverable?
 - [ ] Competing proposals → debate-to-consensus loop, not a silent pick?
