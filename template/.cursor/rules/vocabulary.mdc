@@ -1,33 +1,33 @@
 ---
-description: Command vocabulary -- defines what every instruction word means and which protocol to follow.
+description: Command vocabulary and protocol index -- what every instruction word means and which rule file to load before acting.
 alwaysApply: true
 ---
 
-# Vocabulary
+# Vocabulary + Protocol Index
 
-These definitions are exact. Do not under-scope or over-scope.
+Definitions are exact. Do not under-scope or over-scope.
 
-## Scope Commands
-
-| Command | Scope |
+| Command | Meaning / Action |
 |---|---|
-| **"tidy"** / **"clean up"** | Current file only. Remove dead code, fix naming, inline trivial things. |
-| **"refactor"** | Whole feature or module. Helpers, components, styles, structure, dedupe, file splits -- everything applicable. |
-| **"aggressive refactor"** / **"deep refactor"** | Entire codebase. Every applicable category in `clean-code.mdc`. Still follow discipline rules. |
+| **"tidy" / "clean up"** (a file) | Current file only: dead code, naming, inline trivial things. |
+| **"refactor"** | Whole feature/module, EVERY applicable clean-code category. Touching only one category is a failure. |
+| **"aggressive/deep refactor"** | Entire codebase, every category. |
+| **"rebuild"** | Read and follow `rebuild-protocol.mdc`. Keep every feature, rebuild the structure properly. Not a pixel copy. |
+| **"redesign"** | Read and follow `redesign-protocol.mdc`. Look/feel changes, core logic intact, starts with discovery. |
+| **"fix"** | Specific bug, smallest possible change. |
+| **"add"** | New feature, follow existing patterns. |
+| **"update" / "enhance"** | Extend an existing feature. |
+| **"run autonomously"** | Read and follow `autonomous-mode.mdc`. |
+| **"review"** | Read and follow `review-protocol.mdc`. |
+| **"hotfix" / "production is broken"** | Read and follow `hotfix-protocol.mdc`. Speed over ceremony. |
+| **"hand off" / "save state"** | Read `session-handoff.mdc`; write HANDOFF.md. |
+| **"cleanup"** (codebase) | Read and follow `cleanup-protocol.mdc`. |
 
-If the user says "refactor" and you only touch one category (e.g., styles), that is a failure. Cover every applicable category.
+## Load-on-demand rules
 
-## Protocol Triggers
+Read the rule file BEFORE starting the activity -- not from memory:
 
-| Command | Action |
-|---|---|
-| **"rebuild"** | Follow `rebuild-protocol.mdc`. Keeps every feature, then rebuilds the app properly -- fixes messy structure, misplaced features, clashing modules, and misaligned CSS. Not a pixel copy of the old look. |
-| **"redesign"** | Follow `redesign-protocol.mdc`. Changes how the app LOOKS and FEELS. Keeps core logic intact. Starts with a discovery conversation. |
-| **"fix"** | Address a specific bug. Smallest possible change. |
-| **"add"** | New feature. Follow existing patterns. |
-| **"update"** / **"enhance"** | Extend an existing feature. |
-| **"run autonomously"** | Follow `autonomous-mode.mdc`. |
-| **"review"** | Follow `review-protocol.mdc` on the current state. |
-| **"hotfix"** / **"production is broken"** | Follow `hotfix-protocol.mdc`. Fastest path: fix, test, deploy. |
-| **"hand off"** / **"save state"** | Follow `session-handoff.mdc`. Write HANDOFF.md for the next session. |
-| **"cleanup"** / **"clean up the codebase"** | Follow `cleanup-protocol.mdc`. Find and remove clutter: test artifacts, log files, cache files, old versions, dead exports. |
+- **Spawning ANY subagent** → `subagents.mdc` (mechanics, model roster, family diversity, attribution, debate loop).
+- **Finishing a phase / reviewing / merging to production** → `review-protocol.mdc` (owns review cadence).
+- **Writing tests or planning testing** → `testing-protocol.mdc`.
+- **Working unattended** → `autonomous-mode.mdc` (owns the DECISION-LOG.md format).

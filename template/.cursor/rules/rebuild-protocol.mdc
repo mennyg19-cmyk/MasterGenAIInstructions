@@ -1,330 +1,105 @@
 ---
-description: Multi-agent rebuild workflow. Triggered when the user says "rebuild". Keeps every feature, then rebuilds the app properly -- fixing the structure, layout, and broken interactions that piled up over time.
+description: Multi-agent rebuild workflow. Triggered when the user says "rebuild". Keeps every feature, then rebuilds the app properly -- fixing structure, layout, and broken interactions.
 ---
 
 # Rebuild Protocol
 
-**A rebuild keeps every feature and rebuilds the app the right way.**
+A rebuild = "now that I know all the features I actually want, build it again from scratch -- all of them designed in from the start, organized and built correctly." The old app grew by bolting features onto features until it became a stack of cards; the rebuild keeps everything it can do and fixes how it's built.
 
-Here's what a rebuild actually is, in plain terms: you built a site, then bolted a feature on, then bolted another feature on top of that, and another. Eventually it works, but it's a stack of cards -- modules layered on modules that don't fit together, things in the wrong place, features that don't play nicely with each other, CSS that doesn't line up, settings scattered around. A rebuild is: *"Now that I know all the features I actually want, let's build it again from scratch -- with all of those features designed in from the start, organized and built correctly."*
-
-So two things are true at once:
-
-1. **Every feature survives.** Nothing the app can do today gets lost. This is non-negotiable (a past rebuild silently dropped ~75% of the UI features -- never again).
-2. **The look and structure get FIXED, not copied.** Things that are misplaced get moved to where they belong. Things that should be grouped get grouped. Broken or clashing interactions get fixed. Misaligned CSS gets rebuilt so it lines up and works. The app should come out cleaner, more coherent, and more solid than the pile it replaced.
-
-**Everything is on the table.** Framework, packages, language, hosting, database, build tools -- all of it can change unless the user specifically says to keep something. If a completely different tech stack would be better, propose it.
-
----
+**Everything technical is on the table** (framework, language, hosting, DB, packages) unless the user says to keep something.
 
 ## The #1 Rule: Keep Every Feature. Improve the Structure.
 
-This rule has two halves. The first half is sacred. The second half is the whole point of doing a rebuild.
+**Half 1 (sacred): no feature gets dropped.** The old app is the source of truth for WHAT it can do -- every page, button, dialog, form, filter, import/export, bulk/row action, settings option, data column. Read the old code for each area before rebuilding it; never work from memory. Backend capability with no working UI control ("engine with no car") is a FAILURE. "It compiles and renders" is not done. Keep the old source accessible all rebuild long; note its path in REBUILD-PLAN.md.
 
-### Half 1: No feature gets dropped (sacred)
+**Half 2 (the point): the structure gets FIXED, not copied.** Not a pixel photocopy. Move what's misplaced, group what belongs together, fix broken/clashing interactions, rebuild CSS so it lines up and is consistent, finish what was never done right. The test: every feature works AND it's organized better -- not "looks identical." Significant layout/grouping changes get recorded; judgment calls the user might care about get surfaced.
 
-**The old app is the source of truth for WHAT the app can do.** Every capability the user has today must exist in the rebuilt app:
+## Subagents
 
-- Every page, every button, every dialog, every form, every import/export action, every settings option, every filter, every bulk action, every row action, every column of data.
-- Before rebuilding an area, you MUST read the old code for it so you know every feature it contains. Never work "from memory" or from a loose summary when the actual old code is right there.
-- **The "engine vs car" failure:** building all the backend logic and then shipping read-only skeleton pages is a FAILURE, even if the architecture is beautiful. The user cannot use an engine. Every backend capability must be wired to a real, working UI control.
-- "It compiles and renders a table" is not done. If the feature existed before, it exists and works after.
-
-**If the old app's source code is available, it must stay accessible for the entire rebuild.** Note its path in REBUILD-PLAN.md and reference it for every feature so nothing slips through the cracks.
-
-### Half 2: The look and structure should get BETTER (the point of the rebuild)
-
-You are NOT making a pixel-perfect photocopy. The old layout is the thing that got messy -- so fix it:
-
-- **Move what's misplaced.** If a feature lives in a weird spot or doesn't belong on a page, put it where it makes sense.
-- **Group what belongs together.** Related settings, related actions, related pages -- bring them together instead of scattered.
-- **Fix broken and clashing interactions.** Features that were bolted on and don't work well together (or step on each other) get redesigned so they work as one coherent system.
-- **Rebuild the CSS properly.** Don't carry over hacky, misaligned styling. Lay it out so it lines up, is consistent, and works across screen sizes.
-- **Fix what was never done right.** If something in the old app is broken, half-finished, or obviously wrong, the rebuild is where it gets done correctly (capture these in the inventory, see Phase 1).
-
-The test is NOT "does it look identical to the old app." The test is "does it have every feature, do they all work, and is it organized and built better than before." A rebuilt app that looks the same but is still a stack of cards has failed.
-
-When a layout or grouping change is significant (moving a whole section, merging pages, restructuring navigation), note it in the inventory and plan so there's a record of what changed and why -- and if a change is a judgment call the user might care about, surface it.
-
----
-
-## How to Spawn Subagents (read this first)
-
-The mechanics of spawning subagents, the full model roster, and the multi-model rules live in **`subagents.mdc`**. Read it before this protocol. The short version:
-
-- Every "spawn a subagent" call uses the Task tool with `model` set EXPLICITLY (never omit it -- omitting it runs on your own model and kills multi-model coverage).
-- If a slug gets rejected, pick another valid one the tool returns. **Never drop the `model` param and silently fall back to your own model.**
-- When you spawn several subagents for the same job, use **different model families** -- never the same slug twice for the same job. Diversity beats power; cheap models from different families are fine.
-
-Whenever this file names specific slugs below (e.g. `claude-opus-4-8-thinking-xhigh`, `gpt-5.5-extra-high`), they're examples from the `subagents.mdc` roster -- swap in whatever valid slugs give you family diversity.
-
----
+All spawning mechanics, the roster, family-diversity rules, attribution, and the debate loop live in **`subagents.mdc` -- read it before Phase 0.** Slugs named below are examples; swap any valid slugs that preserve family diversity.
 
 ## Phase 0: Multi-Model Audit + History Mining
 
-**DO NOT skip this phase. DO NOT do this yourself. You MUST spawn subagents.**
+Do NOT do this yourself -- spawn subagents.
 
-### Step 1: Orient
+1. Orient: read the codebase; identify the major areas.
+2. Per area, spawn **≥2 subagents on DIFFERENT model families** (one message, `run_in_background: true`; never the same slug twice per area). Prompt each:
+   > "You are auditing the [AREA] of this codebase at [PATH]. (1) Document every feature, behavior, route, component, endpoint, data model, and config -- exhaustive; if in doubt, include it (this is the list of what must NOT be lost). (2) Call out everything WRONG or messy: misplaced features, things that should be grouped, clashing/duplicated modules, broken or half-finished features, hacky CSS, confusing flows. Structured report with both lists."
+3. Spawn a history miner on the project's chat transcripts: bugs fixed, features added after the plan, pain points/regressions, workarounds, user corrections → **BUILD-HISTORY.md**.
+4. Wait for ALL reports before Phase 1.
 
-Read the codebase yourself. Identify the major areas (e.g. frontend, backend, database, config/infra, tests).
+## Phase 1: Feature Inventory
 
-### Step 2: Spawn audit subagents
+Cross-reference all audit reports against each other and BUILD-HISTORY.md (anything one model found goes in; reconcile disagreements) → **FEATURE-INVENTORY.md**, the complete truth of what the app does today.
 
-For EACH area you identified, spawn at least 2 subagents on DIFFERENT model families. Do this by making multiple Task tool calls in a single message with `run_in_background: true`.
+Requirements:
 
-**Rotation example** (3 areas, 3 families):
+- **Page-by-page, not a flat list**: per page -- route + old file, every UI control and what it does, navigation in/out. (This structure becomes the build todos; flat lists are how features get lost.)
+- **Stable IDs on everything**: pages/features `P1`, `P1.1`...; to-fix items `F1`...; every ID later maps to exactly one todo and is accounted for as KEEP / FIX / DROP-with-approval.
+- **Route manifest at the top**: every route/screen the old app has. The rebuild isn't done until each has a working counterpart -- a route diff makes a missing page jump out.
+- **The to-fix list**: misplaced features, scatter, clashing/bolted-on modules, broken/half-finished features, bad CSS/flows. This is what the rebuild improves.
+- **Visual snapshots** if the old app runs: screenshot every page/state into `rebuild-reference/` -- a feature-coverage reference, NOT a pixel target. If it can't run, the source is the reference.
 
-| Area | Subagent 1 | Subagent 2 |
-|---|---|---|
-| Frontend | `composer-2.5-fast` | `claude-opus-4-8-thinking-xhigh` |
-| Backend | `gpt-5.5-extra-high` | `gemini-3.1-pro` |
-| Database | `grok-4.3` | `kimi-k2.5` |
-
-NEVER use the same model slug twice for the same area. Same model = same blind spots = pointless.
-
-Each subagent prompt must say:
-> "You are auditing the [AREA] of this codebase at [PATH]. Two jobs: (1) Document every feature, behavior, route, component, API endpoint, data model, and config -- be exhaustive, if in doubt include it (this is the list of things that must NOT be lost in the rebuild). (2) Call out everything that's WRONG or messy: features in the wrong place, things that should be grouped but aren't, modules bolted on that clash or duplicate each other, broken or half-finished features, misaligned/hacky CSS, confusing flows, anything that feels like a 'stack of cards.' Write a structured report with both lists."
-
-### Step 3: Mine chat histories
-
-Spawn a separate subagent to read past agent transcripts (in the `.cursor/projects/` transcripts folder) for this project. The prompt must say:
-> "Read through the agent chat transcripts for this project. Find: (1) bugs fixed during the original build, (2) features added after the initial plan, (3) pain points and regressions, (4) workarounds or hacks applied under pressure, (5) anything the user corrected the agent on. Write a structured report."
-
-### Step 4: Wait and collect
-
-Wait for ALL audit subagents to complete. Collect their reports. Produce **BUILD-HISTORY.md** from the chat history mining results.
-
-**DO NOT proceed to Phase 1 until every subagent has returned its report.**
-
----
-
-## Phase 1: Feature Inventory + Cross-Reference
-
-1. Collect all audit reports from all models across all areas.
-2. Cross-reference reports against each other -- if Model A found something Model B missed, it goes in the inventory.
-3. Cross-reference against **BUILD-HISTORY.md** -- make sure late additions, bug fixes, and post-launch features are all captured.
-4. Reconcile any disagreements between models.
-5. Produce **FEATURE-INVENTORY.md** -- the complete truth of what the app does today.
-
-### The inventory is organized PAGE BY PAGE, not as a loose feature list
-
-For every single page/screen in the app, the inventory must list:
-
-- The route/path and the file in the old codebase that implements it.
-- Every UI control on that page: buttons, links, dialogs, forms, tables (and their columns), filters, tabs, menus, import/export actions, bulk actions, row actions.
-- Every navigation path into and out of the page.
-- What each control does (the behavior that must be preserved).
-
-This page-by-page structure is what later becomes the build todos. A flat list of features is NOT good enough -- it's how features get lost.
-
-### Every inventory item gets a stable ID + there is a complete route manifest
-
-Two mechanical requirements that make it impossible to silently lose a whole feature:
-
-1. **Stable IDs.** Number every page and every feature/control: `P1` (order builder page), `P1.1` (recipient assign dialog), `P1.2` (ship-to mode selector), etc. **Give the to-fix items IDs too** (`F1`, `F2`, ...). Every ID -- keep and fix -- is referenced by the build todos and the final reconciliation ledger and must be accounted for as KEEP / FIX / DROP-with-approval. An item with an ID can be tracked; a loose bullet cannot.
-2. **Route manifest.** At the top of FEATURE-INVENTORY.md, list EVERY route/page/screen the old app has (e.g. `/`, `/order`, `/checkout`, `/admin`, `/admin/orders`, ... ). This is the master checklist of pages. The rebuild is not done until every route on this list has a working counterpart in the new app. A whole missing page (e.g. the entire order builder) jumps out instantly from a route diff -- that exact miss happened before because nothing diffed the route lists.
-
-### Also capture what's WRONG (the rebuild's to-fix list)
-
-The inventory isn't just "what exists" -- it's also "what needs fixing." Add a section that records:
-
-- Features that are in the wrong place or on the wrong page.
-- Things that should be grouped together but are scattered.
-- Modules/features that were bolted on and clash, duplicate, or fight each other.
-- Broken, half-finished, or never-done-right features.
-- Misaligned, hacky, or inconsistent CSS/layout.
-- Confusing flows or navigation.
-
-This list is what the rebuild improves. The inventory is the full picture: everything to keep, plus everything to fix.
-
-### Capture visual snapshots of the old app
-
-If the old app is runnable, screenshot every page and important state (empty, populated, dialogs open) into a `rebuild-reference/` folder.
-
-These screenshots are a **feature-coverage reference, NOT a pixel target.** Use them to confirm no feature got lost and to see the starting point -- not to reproduce the exact same layout. The rebuilt app is allowed (and expected) to look cleaner and be organized differently. If the old app can't be run, the old source code is the reference instead.
-
-**DO NOT proceed to Phase 2 until FEATURE-INVENTORY.md is written, organized page-by-page, with each item tied to its old-code file, AND including the "what's wrong / to fix" section.**
-
----
+Gate: no Phase 2 until the inventory is page-by-page, ID'd, tied to old-code files, with the to-fix section.
 
 ## Phase 2: Architecture Proposals
 
-Spawn exactly 2 subagents using the Task tool, each on a DIFFERENT premier model from a different family:
+Spawn exactly 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` + `gpt-5.5-extra-high`), in parallel, each given FEATURE-INVENTORY.md + BUILD-HISTORY.md (paths fine):
 
-- Subagent 1: `model: "claude-opus-4-8-thinking-xhigh"`
-- Subagent 2: `model: "gpt-5.5-extra-high"`
+> "Propose a clean architecture AND information/UI structure from scratch. All technical choices open. Hard constraint: EVERY inventory feature preserved. Fix the structure: address every to-fix item -- relocate, group, resolve clashes, fix interactions, clean consistent layout. Old code = reference for WHAT, not HOW. Justify choices in plain English."
 
-Set `run_in_background: true` for both. Spawn both in the same message so they run in parallel.
+**Record which model wrote which proposal** (Phase 3 re-spawns each to defend its own). Gate: both proposals in hand.
 
-Each subagent prompt must include the full text of FEATURE-INVENTORY.md and BUILD-HISTORY.md, and say:
-> "Propose a clean architecture AND a clean information/UI structure for this app from scratch. Framework, language, hosting, and all technical choices are open. Hard constraint: EVERY feature in the inventory must be preserved -- nothing gets dropped. But you are expected to FIX the structure: address every item in the inventory's 'what's wrong / to fix' list -- relocate misplaced features, group related things, resolve modules that clash or duplicate, fix broken interactions, and propose clean, consistent layout/CSS. Old code is the reference for WHAT the app does, not for HOW it's built or laid out. Justify your structural and tech choices in plain English."
+## Phase 3: Debate to Consensus, Then the Plan
 
-Wait for both subagents to return before proceeding. **Record which model wrote which proposal** -- in Phase 3 each model is re-spawned to defend its OWN proposal, so you need to know which slug owns which.
+**Step 1 -- debate (do NOT skip; do NOT hand both proposals to one converger to pick a winner).** Run the debate-to-consensus loop from `subagents.mdc` on the two proposals: re-spawn the SAME two models, each defending its own; feed the full running DEBATE-LOG every round; defend/concede/third-option per open point; loop to consensus or resolve a stalemate per `subagents.mdc` (~3-4 round cap). Record every round in **DEBATE-LOG.md** with attribution. Output: one agreed architecture both models signed off on (or a logged tie-break).
 
-**DO NOT proceed to Phase 3 until both proposals are in hand.**
+**Step 2 -- converge into REBUILD-PLAN.md.** A premier subagent gets the agreed architecture + inventory + build history:
 
----
+> "This architecture is the agreed consensus of a multi-model debate -- implement it, don't re-open settled decisions. Produce a detailed REBUILD-PLAN.md confirming every inventory feature is preserved, listing the structural improvements and why, and including prevention steps for every BUILD-HISTORY bug/workaround/pain point."
 
-## Phase 3: Debate to Consensus, Then Converge into the Plan
+The plan must: (1) state "every feature preserved -- nothing dropped" AND the frame "old app = WHAT, not HOW; not a port, not a pixel copy"; (2) list structural improvements; (3) give every BUILD-HISTORY item a prevention step; (4) never contradict the canonical audit or DEBATE-LOG consensus -- conflicts resolve as: canonical wins / intentionally differs (reasoned) / needs user approval.
 
-This phase has two parts and you must do them in order. **First the two proposing models debate their proposals against each other until they reach consensus. Only then do you converge that consensus into the detailed plan.** Do NOT skip the debate and hand both proposals to one converger to pick a winner -- that is the exact step that got skipped before. The models argue it out first.
+**Granular todos (critical).** One page/screen = one todo minimum; big pages split. Each todo: the old-code file (feature reference only), a keep-list sub-checklist of every control, the structural fixes, and **the inventory IDs it covers**. Every ID claimed by exactly one todo; every route in the manifest has a todo; an ID with no todo = a feature about to be dropped. Every endpoint/table/cron its own todo; every BUILD-HISTORY bug a verify-todo; >30min todos get split; number everything. **UI and internals are built together per feature** -- never "all backend, then all UI."
 
-### Step 1: Debate the two proposals to consensus (do NOT skip)
-
-Run the **multi-model debate-to-consensus loop** (defined in `subagents.mdc`) on the two Phase 2 architecture proposals:
-
-- **Re-spawn the SAME two models that wrote the proposals.** This is the one place you intentionally reuse the same models -- each one defends its own proposal. Proposal A is always argued by the model that wrote A; Proposal B by the model that wrote B. (Reusing them is correct here; "you said X, the other model said Y -- defend, concede, or propose a third option" only works if the original author answers.)
-- **Round by round:** because subagents are stateless (a fresh spawn remembers nothing), feed each model the **full running DEBATE-LOG every turn** -- both original proposals, all prior rounds, the points already resolved with their agreed answers, and the current open-points list -- not just the last reply. Each must, for every open point, do exactly one of: **defend** it with concrete reasons (citing the inventory/audit/build-history), **concede** the other's approach, or **propose a third option** not yet on the table. Collect both, close the points they now agree on, append the round to DEBATE-LOG.md, and spawn the next round with the updated log.
-- **Keep going back and forth until they reach consensus** -- the open-points list is empty. If a full round produces no movement (a stalemate) or you hit ~3-4 rounds, resolve the remainder per `subagents.mdc` (canonical audit wins on any contradiction; otherwise pick the stronger-reasoned option and record why; surface genuine judgment calls to the user).
-- **Record the entire back-and-forth in DEBATE-LOG.md** -- each round, who defended/conceded/proposed-a-third-option, what closed, what stayed open, and the final agreed architecture/structure. Keep model attribution (which slug argued which side each round).
-
-The output of Step 1 is a single, agreed architecture/structure that both models signed off on (or an orchestrator tie-break with reasons logged).
-
-### Step 2: Converge the consensus into REBUILD-PLAN.md
-
-Spawn a premier subagent (`claude-opus-4-8-thinking-xhigh` or `gpt-5.5-extra-high`) and give it the agreed architecture from DEBATE-LOG.md, plus FEATURE-INVENTORY.md and BUILD-HISTORY.md. Its prompt:
-> "The architecture below is the agreed consensus of a multi-model debate -- implement it, do not re-open settled decisions. Produce a detailed REBUILD-PLAN.md. The plan must explicitly confirm: 'Every feature in the inventory is preserved.' It must list the structural improvements being made (what moves, what gets grouped, what gets fixed) and why. It must reference BUILD-HISTORY.md and include prevention steps for every known bug, workaround, and pain point."
-
-The plan itself must satisfy all of these:
-
-1. Confirm explicitly: **"Every feature in the inventory is preserved -- nothing dropped."** Restate the scope stance in plain words: **the old app is a reference for WHAT exists, not HOW to build it -- this is not a port and not a pixel copy.** A plan that says "port every page" or "replicate pixel-identical" has the wrong frame (this caused the user to re-scope mid-stream twice); fix the frame before building.
-2. List the **structural improvements**: what's being relocated, regrouped, merged, or fixed, and the reasoning. This is the "build it right" part.
-3. Reference BUILD-HISTORY.md: known bugs, workarounds, and pain points must have explicit prevention steps.
-4. **Not contradict the canonical audit/inventory or the agreed consensus in DEBATE-LOG.md.** Any statement that conflicts with what the audit found (e.g. proposing a separate `finalizePOS()` when the audit says POS and storefront share one finalize path) must be explicitly resolved as: canonical audit wins, OR the rebuild intentionally differs (with the reason), OR needs user approval. Don't let convergence quietly invent behavior the real app doesn't have or quietly overturn a debated decision.
-
-### Granular Todos (critical)
-
-The plan MUST be broken into the most granular, detail-oriented todos possible. General todos like "build the auth system" or "Phase 6: Admin UI" are a FAILURE. A coarse phase like "Admin UI" covering 20 pages is exactly how a rebuild ends up with 75% of the features missing.
-
-**One page/screen = one todo (minimum). Big pages get split further.** Each todo carries a sub-checklist of every feature/control that must be present from the FEATURE-INVENTORY.md -- so nothing is lost -- plus any structural fix that applies. For example:
-
-```
-Todo 42: Build the orders screen (old code: src/pages/admin/orders.tsx -- for feature reference)
-  Features that must be present and working:
-  [ ] Paginated orders table with columns: date, customer, total, status, payment
-  [ ] Search box (searches name + order number)
-  [ ] Filter presets (unpaid, needs-packing, today)
-  [ ] Quick "mark paid" row action
-  [ ] Bulk select + bulk actions
-  [ ] Export CSV button
-  [ ] Import CSV button
-  [ ] Page-size selector
-  Structural fixes (from inventory's to-fix list):
-  [ ] Move "import" next to "export" (they were on opposite ends for no reason)
-  [ ] Group the filter presets with the search instead of a separate row
-  [ ] Clean, consistent table styling that lines up at all widths
-```
-
-Rules for the todo list:
-
-- Every page/screen from the inventory gets its own numbered todo with a full feature sub-checklist (the keep list) AND any structural fixes (the improve list).
-- **Each todo lists the inventory IDs it covers** (e.g. "covers P1, P1.1-P1.6"). Every ID in FEATURE-INVENTORY.md must appear in exactly one todo. Before building, confirm the coverage is total: every inventory ID is claimed by some todo, and every route in the manifest has a todo that builds it. An inventory ID with no todo = a feature you are about to drop.
-- Every API endpoint, every database table, every cron job gets its own todo.
-- Every known bug from BUILD-HISTORY.md gets a todo to verify it doesn't recur.
-- Each todo names the old-code file to read for **feature reference** -- so every capability is found and carried over. It is NOT a layout to copy pixel-for-pixel.
-- If a todo takes more than ~30 minutes, break it down further.
-- Number every todo so nothing gets skipped.
-
-**Sequencing rule -- UI and internals are built together, not in separate phases.** Do NOT plan "build all the backend, then build all the UI." That ordering is what caused the engine-with-no-car failure. Instead, build feature by feature: for each feature, build its internals AND its full UI in the same todo group, then verify parity before moving on.
-
-**DO NOT proceed to Phase 4 until BOTH exist: (1) DEBATE-LOG.md showing the two proposal models actually debated to consensus (defend/concede/third-option, round by round), and (2) REBUILD-PLAN.md with per-page numbered todos, each listing the features to preserve (tied to the inventory + old-code file) and the structural fixes to apply.** A plan produced without the debate is a skipped step -- go back and run it.
-
----
+Gate: DEBATE-LOG.md (real rounds) AND REBUILD-PLAN.md (per-page todos + total ID coverage) both exist.
 
 ## Phase 4: Build
 
-### Phase 4.0: Foundation + Smoke Deploy
+### 4.0 Foundation + Smoke Deploy
 
-The FIRST batch of todos should be the bare minimum scaffold: project init, config files, database connection, auth setup, a single route that renders. Then:
+Scaffold the bare minimum (init, config, DB connection, auth, one rendering route), then:
 
-1. **If the rebuild changed the project structure (dropped a monorepo, moved the app root, renamed packages), UPDATE the deploy platform's settings FIRST** -- Root Directory, Install Command, and Build Command must match the NEW layout (see `deploy-awareness.mdc`). Stale settings fail every build at clone time (e.g. "The specified Root Directory `apps/web` does not exist") while your LOCAL build stays green -- a rebuild shipped its entire foundation this way, eight straight ERROR previews, before anyone noticed.
-2. Run `tsc --noEmit` and `next build` (or equivalent) locally. Fix all errors.
-3. **Deploy to the target platform** (Vercel, Azure, etc.) and **confirm on the platform itself that the deploy reached GREEN/READY** -- check the dashboard/CLI/MCP per `deploy-awareness.mdc`. A passing LOCAL build while the platform deploy is ERROR is the exact trap; local green is not deploy green.
-4. Verify the smoke deploy works against the seeded DB: the site loads, an authenticated page renders (not a blank 200), health endpoint returns 200.
-5. **The scaffold todo is NOT done, and NO feature todo may start, until the preview deploy is confirmed GREEN.** A failed smoke deploy blocks the whole build -- fix it now. Never build features on a foundation that has never deployed.
+1. **Structure changed vs the old app (monorepo dropped, root moved)? Update the deploy platform's Root Directory / Install / Build commands FIRST** (`deploy-awareness.mdc`). Stale settings fail every build at clone while local builds stay green.
+2. Local gate (`tsc --noEmit`, `next build`), then deploy and **confirm GREEN/READY on the platform itself** -- local green ≠ deploy green.
+3. Smoke test against the seeded DB: site loads, an authenticated page renders (not a blank 200).
+4. **No feature todo starts until the preview deploy is confirmed GREEN.** A failed smoke deploy blocks everything -- fix it now.
 
-This catches missing middleware, missing env vars, wrong build commands (especially after a structure change), database connection issues, and platform config gaps -- all of which have caused stacked failures in past projects when left until the end.
+### 4.1+ Feature Build
 
-### Phase 4.1+: Feature Build
+Per page/UI todo -- no shortcuts:
 
-Execute the plan todos one by one. For EVERY page/UI todo, follow this loop -- no shortcuts:
+1. Write the todo's EXPECTED block first (expectation file per `workflow.mdc`): the route, every control from the keep list (by inventory ID), the structural fixes.
+2. Read the old file for the feature list (harvest features, don't copy layout).
+3. Build it right: every keep-list feature wired and working + structural fixes applied + clean consistent CSS. **No stubs** -- a dead button or "coming soon" is a failure.
+4. Verify before checkoff by walking the EXPECTED checklist with evidence: route loads in the running app (not 404/blank), every feature functional, fixes applied, layout holds at different widths. A todo marked done is a claim you opened it and it works.
+5. Per commit: fast checks (typecheck/lint/tests), commit, push to the working branch; verify the preview deploy went green per `git-discipline.mdc`.
+6. Per phase: the **feature-parity review loop** per `review-protocol.mdc` (self-review the checklists first, then independent fresh-family passes until ZERO findings). No phase advances unclean.
+7. Production merge: review loop mandatory + deploy green (`review-protocol.mdc`, `deploy-awareness.mdc`).
+8. Log judgment calls in DECISION-LOG.md; flag structural changes the user might care about.
 
-1. **Open the old code first, for feature reference.** Read the old file this todo names and list every feature/control it has, so none are missed. You're harvesting the feature list -- not copying the layout.
-2. **Build the screen the RIGHT way:** include every feature from the keep list, wired and working, AND apply the structural fixes from the plan (correct placement, sensible grouping, fixed interactions, clean consistent CSS that lines up). The result should be better organized than the old version, not a clone of it.
-3. **No stubs.** A button that doesn't do anything, a table with no actions, a "coming soon" placeholder -- these are failures. If a feature existed in the old app, it works in the new one.
-4. **Verify before marking the todo done:**
-   - **Open the actual route in the running app.** It must load and render -- not 404, not error, not a blank page. A todo marked "done" for a page that doesn't actually render is the exact failure that silently lost an entire page last time. If the route doesn't load, the todo is NOT done.
-   - Walk the keep list (by inventory ID): every feature present and functional? Use the old app/screenshots only to confirm nothing was lost.
-   - Walk the structural fixes: each one actually applied?
-   - Check the layout: does the CSS line up, is it consistent with the rest of the app, does it work at different widths?
-   - Only check the todo off when the route renders, the features all work, AND the structure is clean. Marking a todo done is a claim that you opened it and it works.
-5. **Per commit: fast checks, then commit and push.** Each todo's commit must typecheck, lint, and pass tests before it is committed -- then push it to the working/`rebuild` branch (which deploys to preview, not production). A full review subagent is NOT required per commit; the review loop runs at the phase and merge gates below. (Cadence is owned by `review-protocol.mdc`.)
-6. **Per phase: the feature-parity review loop (gate to advance).** When a phase completes, run the review per `review-protocol.mdc` -- for rebuilds it is a **feature-parity review** (every feature present and working, every inventory ID enumerated, not a compile check). It is a **loop, not one pass**: the reviewer reports findings, you fix them, then a FRESH reviewer (different family, no prior context) re-checks, repeating until a pass returns ZERO findings. **No phase advances until its review loop comes back clean.**
-7. **Before merging `rebuild` into the production branch: the review loop is mandatory (the go-live gate).** Never merge unreviewed code to production. Preview-branch pushes may run on tested-but-not-yet-review-looped code; the production branch never may. Confirm the deploy is green per `deploy-awareness.mdc`.
-8. Log ambiguous choices in DECISION-LOG.md per `autonomous-mode.mdc`. If a structural change is a judgment call the user might disagree with, flag it.
-9. Before advancing, read through every todo in the current phase and confirm each is complete WITH its feature checklist fully checked (per completion checklist rule in `workflow.mdc`). "It compiles" is never the bar -- "every feature works and the screen is built right" is the bar.
+**Parallel subagents**: one page/screen per subagent MAX (bundles remove the per-page parity gate); only genuinely independent pages; the parent verifies every subagent-built page in the running app before checkoff -- a subagent's "done" is a claim, not proof.
 
-### Parallelizing the build (subagent discipline)
-
-Parallel subagents are fine, but with hard limits:
-
-- **One page/screen per subagent, maximum.** Never hand a subagent "Phase 7+8: Products + Inventory" or any multi-page bundle. Bundling pages into a background agent removes the per-page parity gate and is exactly how a past rebuild merged a pile of stub pages and discovered the gaps only at the end.
-- **Parallelize only across genuinely independent pages**, never across "a phase."
-- **The parent verifies every subagent-built page in the running app** (route loads, controls work, seeded data renders) before its todo is checked off. A subagent reporting "done" is a claim to verify, not proof.
-
-### Mid-build reconciliation (every few phases)
-
-Don't wait until the very end to discover a whole area is missing. Every few phases, re-open FEATURE-INVENTORY.md and tick off which inventory IDs and which routes from the manifest are now built AND verified-in-app. Anything still unbuilt is a remaining todo. This running tally is what guarantees an entire page can't quietly fall off the list.
-
----
+**Mid-build reconciliation** every few phases: re-open FEATURE-INVENTORY.md, tick off IDs/routes built AND verified-in-app; anything unbuilt is a remaining todo.
 
 ## Phase 5: Final Review
 
-This review answers two questions: **(1) Did every feature survive? (2) Was it actually built better?** It is not a code-quality-only review, and it is not a pixel-match review. The review here is **exhaustive and looped** -- it does not stop until a clean pass exists. The biggest past failures (an entire page missing, ~75% of features dropped) all slipped through because the final review SAMPLED instead of enumerating, and ran only once.
+Answers: (1) did every feature survive? (2) was it built better? Exhaustive and LOOPED -- past disasters all came from sampling and single passes.
 
-### Step 0: Build the reconciliation ledger FIRST (no sampling, ever)
+1. **Reconciliation ledger first** (→ REBUILD-COMPLETION-REPORT.md): route diff (every manifest route → working new route, opened, not from code) + inventory-ID ledger (EVERY ID in order: built where, verified PRESENT/PARTIAL/STUB/MISSING with evidence). Unaccountable = MISSING.
+2. **Running-app review**: walk every screen -- keep list complete, to-fix items applied, layout consistent at different widths. Code-only verification is not allowed.
+3. **Multi-model audit**: 2 subagents, different premier families, each given the codebase + full inventory + reference screenshots, enumerating every route and ID (no sampling), returning a per-ID table; unverifiable = MISSING.
+4. **Loop**: fix EVERY finding → fresh reviewer (new family, no prior context) re-runs the full check → repeat until a pass returns **zero findings**.
+5. **Done gate** (all must be true): route diff fully green; every ID PRESENT and functional; every to-fix item addressed or user-approved deferred; latest review pass clean on fresh eyes; deploy green per `deploy-awareness.mdc`.
 
-Before any subjective review, build a mechanical ledger -- this is the gate that makes a silently-dropped feature impossible:
-
-1. **Route diff.** List every route in the inventory's route manifest. Next to each, write the new app's matching route and whether it loads in the running app (open it -- not from code). Every old route must have a working new route. A blank or missing row here is exactly the "whole page never built" failure.
-2. **Inventory ID ledger.** Go through EVERY ID in FEATURE-INVENTORY.md -- all of them, in order, none skipped. For each, record: built? (which file) and verified-in-running-app? (PRESENT / PARTIAL / STUB / MISSING, with evidence -- the route you opened and what you clicked). "Enumerate every line" is mandatory; "spot-checked a few pages and it looked fine" is the failure mode that lost the order builder.
-
-Write this ledger into **REBUILD-COMPLETION-REPORT.md**. If you cannot account for an ID, it is MISSING, not "probably fine."
-
-### Step 1: Running-app review
-
-Using the ledger, go through every screen in the running app:
-
-- **Feature completeness (the keep list):** every feature/control from the inventory is walked -- not a sample. Mark each PRESENT / PARTIAL / STUB / MISSING. A screen fails if anything is less than PRESENT and functional.
-- **Structural improvement (the to-fix list):** confirm each fix from the inventory/plan was applied -- misplaced things moved, related things grouped, clashing interactions resolved.
-- **Layout quality:** click through it. Does the CSS line up? Is it consistent across the app? Does it work at different screen widths? No leftover "stack of cards" messiness.
-
-Verifying from code review alone is NOT allowed. Run it, click it.
-
-### Step 2: Multi-model audit (looped until clean)
-
-Spawn 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` and `gpt-5.5-extra-high`; rotate families per `subagents.mdc`). Each gets the finished codebase, the full FEATURE-INVENTORY.md (route manifest + every ID + the to-fix list), and the reference screenshots.
-
-Each subagent prompt:
-> "Compare this finished app against the FEATURE-INVENTORY.md below. Go through EVERY route in the manifest and EVERY numbered ID -- all of them, no sampling. (1) ROUTE COVERAGE: for each route, does a working equivalent exist in the new app? (2) FEATURE COMPLETENESS: for every ID (buttons, dialogs, forms, table columns, filters, import/export, row actions, bulk actions), mark PRESENT / PARTIAL / STUB / MISSING with evidence -- nothing may be dropped. (3) STRUCTURAL FIXES: confirm each to-fix item was actually addressed. (4) Was anything added that wasn't in scope? (5) Is the layout/CSS clean, consistent, and coherent? Don't just check that it compiles -- check each feature is wired and functional. Return a per-ID table; flag anything you could not verify as MISSING."
-
-### Step 3: The review LOOP -- fix, then re-review until zero findings
-
-This is a cycle, not a single pass (the user has asked for this explicitly):
-
-1. Collect both audits + your running-app ledger.
-2. Fix EVERY finding -- every MISSING/PARTIAL/STUB feature, every unaddressed to-fix item.
-3. Spawn a **fresh** review subagent (a model that has NOT reviewed this work yet -- a new family, no prior context, so it can't rubber-stamp) and have it re-run the full enumerated check.
-4. Repeat 2-3 until a review pass returns **zero findings**. One clean pass on fresh eyes is required before the rebuild can be called done.
-
-### Step 4: Done gate
-
-The rebuild is done ONLY when ALL of these are true. If any is false, it is not done -- keep working:
-
-- [ ] Every route in the manifest has a working new-app route (route diff fully green).
-- [ ] Every inventory ID is PRESENT and functional in the running app (ledger fully green -- no PARTIAL/STUB/MISSING).
-- [ ] Every to-fix item is addressed (or explicitly deferred with the user's OK).
-- [ ] The most recent review pass came back with zero findings, on a fresh/different model.
-- [ ] The deploy is green per `deploy-awareness.mdc` (builds verified, not assumed).
-
-The rebuild is done when every feature works and the app is built right -- not when it compiles, not when it looks like the old one, and not after a single review.
+Done = every feature works and the app is built right. Not "it compiles," not "it looks like the old one," not "one review passed."

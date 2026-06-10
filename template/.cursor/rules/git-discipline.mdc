@@ -1,5 +1,5 @@
 ---
-description: Commit, push, and branching rules. This file owns ALL git behavior. Other files reference it, stating only their deviations.
+description: Commit, push, and branching rules. Owns ALL git behavior; other files state only their deviations.
 alwaysApply: true
 ---
 
@@ -7,28 +7,20 @@ alwaysApply: true
 
 ## Branching
 
-- Never work directly on `main`. Main stays clean and deployable.
-- At the start of a task/feature/phase, create or switch to a working branch.
-- When a phase or full job is done, merge the working branch into `main`.
-- Branch naming: descriptive and short (e.g. `rebuild-auth`, `fix-invoice-calc`, `redesign-dashboard`).
-- **Merging the working branch into the production branch is the go-live gate** -- it requires a clean review pass first (the full review loop in `review-protocol.mdc`). Never merge unreviewed code to production.
-- **Never assume `main` is the production branch.** Check the deploy config or README first. Past projects had production deploying from `fresh-start` while `main` was abandoned code.
-- **Document the branch strategy in README** on day one: which branch deploys where, which branch is for development, which is for production. If this isn't documented, figure it out and document it before making changes.
+- Never work directly on `main`/production. Use a short, descriptive working branch per task/phase (`rebuild-auth`, `fix-invoice-calc`).
+- **Merging working branch → production branch is the go-live gate**: requires a clean review loop per `review-protocol.mdc` first. Never merge unreviewed code to production.
+- **Never assume `main` is the production branch** -- check deploy config/README. Document the branch strategy (which branch deploys where) in README on day one; if undocumented, figure it out and write it down before changing anything.
 
 ## Commits
 
-- Auto-commit and push to the working branch after every completed logical change.
-- One logical change = one commit.
-- Push immediately -- never leave unpushed commits on the branch.
-- **Per-commit gate = fast local checks, not a review subagent.** Before each commit the tree must typecheck, lint, and pass tests. The heavier multi-model **review loop** runs at phase boundaries and before any production merge -- NOT before every commit. `review-protocol.mdc` owns that cadence. (This is the reconciliation: commit/push freely on the working branch; gate the review at phases and go-live, never let unreviewed code reach the production branch.)
-- Honest, concise commit messages referencing what was touched.
-- Never amend pushed commits.
-- If a deploy target was affected, note it in the commit message.
-- **After every push, verify the builds it triggered actually passed** (Vercel deployment, GitHub Actions, other CI) -- check the platform's ACTUAL status (dashboard/CLI/MCP), not your local build; a green local build is not proof. A deploy in a failed/ERROR state means STOP and fix it before any further work -- repeatedly pushing onto a deploy that has never gone green is building on sand. See "Post-Commit Build Verification" in `deploy-awareness.mdc`. A push isn't done until its builds are green.
+- One logical change = one commit. Commit and push after every completed change; never leave unpushed commits.
+- **Per-commit gate = fast local checks** (typecheck, lint, tests). The review-subagent loop runs at phase boundaries and before production merges per `review-protocol.mdc` -- NOT per commit.
+- Honest, concise messages. Never amend pushed commits. Note affected deploy targets in the message.
+- **After every push, verify the triggered builds on the PLATFORM** (Vercel/CI actual status -- a green local build is not proof). An ERROR/red deploy = STOP and fix before any further work. A push isn't done until its builds are green. Details in `deploy-awareness.mdc`.
 
 ## Don't Commit Junk
 
-- **Never commit temp/scratch files** -- analysis scripts, `.tmp` commit-message files, log dumps, `_scratch.*`. Delete them before staging, or `.gitignore` them. (A temp commit-message file got committed into the app repo once.)
-- **Keep heavy build/design artifacts out of the app repo.** Oversized images (a 24MB PNG got merged once), generated PDFs, and the redesign protocol's `previews/` HTML all belong outside the repo or in a gitignored folder. Optimize/resize images for the web before committing, and `.gitignore` scratch/preview folders so they can't be added by accident.
-- **Stage explicitly, never blanket `git add -A`** when unrelated work is in the tree -- commit only the files this logical change touched.
-- **Clean up in real time.** If the user asked for cleanup (or your own clean-code rules apply), do it now -- never "leave cleanup for later." Deferred cleanup that was explicitly requested is a failure.
+- No temp/scratch files, log dumps, or analysis scripts. `.scratch/` is the standard gitignored scratch home (including expectation files per `workflow.mdc`).
+- Heavy artifacts (oversized images, generated PDFs, `previews/`) stay out of the repo; optimize images before committing.
+- **Stage explicitly** -- never blanket `git add -A` when unrelated work is in the tree.
+- Requested cleanup happens now, never "later."
