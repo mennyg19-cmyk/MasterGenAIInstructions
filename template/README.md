@@ -20,6 +20,16 @@
 
 <!-- How to set up and run the project -->
 
+### Optional CI guardrails (language-agnostic)
+
+This template includes `.github/workflows/agent-guardrails.yml` with:
+
+- `gitleaks` (secrets)
+- `semgrep` (static scan)
+- `zizmor` (GitHub Actions workflow lint)
+
+Keep or remove jobs based on project needs. Add your stack-specific build/test jobs separately.
+
 ## Patterns and Conventions
 
 <!-- Document the patterns chosen for this project in the first session:

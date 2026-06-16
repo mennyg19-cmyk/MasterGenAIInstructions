@@ -71,6 +71,7 @@ If the user says "why isn't this working," run this flow first before broad refa
 - `gitleaks` for secret scanning (pre-commit or CI).
 - `semgrep` for static security checks on app code.
 - `zizmor` when adding/changing GitHub Actions workflows.
+- Language-agnostic starter workflow: `.github/workflows/agent-guardrails.yml` (tune per project).
 
 ---
 

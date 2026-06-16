@@ -172,7 +172,26 @@ This copies the 17 rule files and AGENTS.md into the project. It creates DECISIO
 
 1. Open the new project in Cursor.
 2. Fill in `deploy-awareness.mdc` with your deploy targets.
-3. Start building -- agents already know your workflow.
+3. Optional: enable `.github/workflows/agent-guardrails.yml` (gitleaks + semgrep + zizmor).
+4. Start building -- agents already know your workflow.
+
+## Optional language-agnostic CI guardrails
+
+Template now includes:
+
+`template/.github/workflows/agent-guardrails.yml`
+
+It is intentionally stack-agnostic (no Node/Python/Go build assumptions). It runs:
+
+- **gitleaks** -- secret scanning in git history and current tree.
+- **semgrep** (`p/default`) -- language-agnostic static rules.
+- **zizmor** -- security lint for GitHub Actions workflows.
+
+Tune per project:
+
+- Remove a job if you don't need it.
+- Pin semgrep rulesets to your domain (`p/default`, `p/security-audit`, etc.).
+- Add language build/test jobs separately; this file is just safety rails.
 
 ## Rule Files
 
