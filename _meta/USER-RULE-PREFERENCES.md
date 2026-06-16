@@ -6,6 +6,7 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph). Copied into each
 |---|---|
 | **Unknown conflict** | Default protocol-safe, keep building, tell user + offer to record in README § Rule Preferences |
 | **Ponytail intensity** | **full** (always on every session) |
+| **Anti-slop** | **Always on** (Tier 1 in `ponytail.mdc` — unslop patterns, no CLI/plugin). Chat, comments, commits, HANDOFF, DECISION-LOG. Code logic exact; precision beats voice on security/runbooks/legal |
 | **CodeGraph lookup** | **Hybrid** — codegraph_* when `.codegraph/` exists; Read/grep for literals/configs; run `codegraph init` if missing (don't only ask) |
 | **CodeGraph deterministic** | Same query + index = same facts any model; multi-model value is **judgment**, not re-reading files |
 | **Rebuild Phase 0** | **A+B hybrid** — parent writes graph-backbone digests; 2 families/area interpret + audit; subagents use MCP if available, else parent runs queries |
@@ -17,7 +18,7 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph). Copied into each
 | **Dependencies** | Ponytail ladder — no new package unless stdlib + native + existing deps fail |
 | **Testing** | Hybrid — testing-protocol floor, ponytail-shaped minimal tests |
 | **Walkthrough headers** | **Off** (archived; `enable walkthroughs` to restore) |
-| **Chat style** | Split — terse routine edits; full prose for explain/decisions/conflicts |
+| **Chat style** | Terse routine + full explain; **anti-slop always on** (ponytail) |
 | **Reviews** | Hybrid + **strong ponytail-review** mandatory at every phase gate |
 | **Complex requests** | Fix-don't-suggest — build what was asked |
 | **God files** | Split on refactor or >500 lines / mixed concerns — token-aware |

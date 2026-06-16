@@ -48,13 +48,14 @@ Menny's standing resolutions. Agents check here before re-asking.
 
 - **Unknown conflict:** Default protocol-safe, keep building; tell user and offer to add the resolution here.
 - **Ponytail intensity:** full (always on).
+- **Anti-slop:** always on, baked into ponytail — no CLI; chat, comments, commits, HANDOFF, DECISION-LOG; code logic exact.
 - **CodeGraph:** Hybrid lookup; run `codegraph init` if missing; parent graph-backbone + subagents use MCP if available else parent fills gaps. Rebuild: init reference app path too. `codegraph_impact` mandatory before refactor/rename/delete.
 - **Rebuild Phase 0:** A+B hybrid -- parent deterministic graph backbone, then 2 model families per area for judgment (not six blind file walks).
 - **Rebuild scope:** Ask when a feature feels speculative; never auto-drop inventory IDs.
 - **Dependencies:** Ponytail ladder — no new package unless stdlib + native + existing deps fail.
 - **Testing:** Hybrid — testing-protocol floor, ponytail-minimal tests (no fixture forests).
 - **Walkthrough headers:** Off (saves tokens). Say `enable walkthroughs` to restore archived rule.
-- **Chat:** Terse for routine edits; full prose for explain / decisions / conflicts.
+- **Chat:** Terse routine; full explain when needed; anti-slop always (no sycophancy/stock vocab/hedging).
 - **Reviews:** Mandatory ponytail-review at every phase gate + correctness/security loop.
 - **Complex requests:** Fix-don't-suggest — build what was asked.
 - **God files:** Split on refactor or >500 lines / mixed concerns.

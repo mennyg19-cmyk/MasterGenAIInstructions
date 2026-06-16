@@ -19,4 +19,5 @@ Write a HANDOFF.md at the project root with:
 ## Rules
 
 - HANDOFF.md is overwritten each time (current state, not a log).
+- **Anti-slop:** bullet facts only — no recap prose, no "In this session we comprehensively...". Same standard as `ponytail.mdc` chat rules.
 - The next session picks it up via the onboarding sequence in `workflow.mdc`.

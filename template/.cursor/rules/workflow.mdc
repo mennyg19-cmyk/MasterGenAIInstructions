@@ -9,6 +9,8 @@ alwaysApply: true
 
 Plain English in all communication, comments, docs, and logs. Audience: a self-taught programmer who reads code fine but hates jargon. "Retry up to 3 times because the API sometimes drops the first request" -- not "exponential backoff with jitter," and not dumbed down either.
 
+**Anti-slop always on** (`ponytail.mdc`): drop AI-isms, subtract don't add, no sycophancy openers — saves tokens and reads human. Applies to chat, comments, commits, HANDOFF, DECISION-LOG. Code logic stays exact; precision beats voice on security/runbooks/legal.
+
 ## Session Start
 
 Read in order before any edit: HANDOFF.md (if present) → README.md → AGENTS.md → DECISION-LOG.md → the files relevant to the task.

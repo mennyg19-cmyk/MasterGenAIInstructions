@@ -4,7 +4,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 
 ## How the rules stack
 
-1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat.
+1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat, **anti-slop always on** (no CLI).
 2. **CodeGraph (always on when MCP configured)** -- `codegraph.mdc`: deterministic structural index; hybrid with Read/grep.
 3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `deploy-awareness.mdc`, `vocabulary.mdc`.
 4. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
@@ -33,5 +33,5 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 ## Absolutes
 
 - Orient: HANDOFF → README (Rule Preferences) → this file → DECISION-LOG (recent). Init codegraph if missing.
-- Ponytail full; tiered verification; production review loop; platform green after push.
+- Ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
 - Subagents: explicit model, paths not pastes, proof-of-read, codegraph_status first, terse replies.

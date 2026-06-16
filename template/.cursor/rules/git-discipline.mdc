@@ -15,7 +15,7 @@ alwaysApply: true
 
 - One logical change = one commit. Commit and push after every completed change; never leave unpushed commits.
 - **Per-commit gate = fast local checks** (typecheck, lint, tests). The review-subagent loop runs at phase boundaries and before production merges per `review-protocol.mdc` -- NOT per commit.
-- Honest, concise messages. Never amend pushed commits. Note affected deploy targets in the message.
+- Honest, concise messages — no slop ("This commit comprehensively addresses..."). State what changed and why. Never amend pushed commits. Note affected deploy targets in the message.
 - **After every push, verify the triggered builds on the PLATFORM** (Vercel/CI actual status -- a green local build is not proof). An ERROR/red deploy = STOP and fix before any further work. A push isn't done until its builds are green. Details in `deploy-awareness.mdc`.
 
 ## Don't Commit Junk

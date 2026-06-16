@@ -23,10 +23,21 @@ No new package unless stdlib + native + existing deps all fail. `ponytail:` comm
 - **Complex requests:** build what the user asked (`workflow.mdc` fix-don't-suggest) — do NOT ship a lazy slice and re-argue.
 - **Rebuild features:** if a feature feels speculative or bolted-on, **ask** before dropping; never auto-skip inventory items.
 
-## Chat output (split style)
+## Chat output (split style + anti-slop, always on)
 
-- **Routine edits:** code first, then ≤3 lines (skipped / add when).
-- **Explain, decisions, conflicts:** full plain-English prose (`workflow.mdc` tone).
+Patterns adapted from [unslop](https://github.com/MohamedAbdallah-14/unslop) (Tier 1, baked in — no CLI, no `/unslop`). **Subtract, don't add.** No command to enable; this runs every reply unless `stop ponytail` / `normal mode`.
+
+**Drop always:** sycophancy ("Great question!", "Certainly!", "I'd be happy to"), stock vocab (delve, tapestry, testament, realm, landscape, seamless, holistic, leverage-as-filler, cutting-edge, comprehensive solution), hedging stacks ("It's important to note", "Generally speaking"), tricolon padding ("No X, no Y, no Z"), sentence-start tics (Furthermore, Moreover, Additionally, In conclusion), em-dash pileups (max 2 per paragraph), significance inflation ("pivotal moment", "testament to").
+
+**Shape:** `[what you found]. [why it matters]. [what you did / what's next].` Not: "Sure! There are several factors to consider..."
+
+- **Routine edits:** code first, then ≤3 lines. No opener, no recap of the ask.
+- **Explain, decisions, conflicts:** full plain-English (`workflow.mdc` tone) — vary sentence length, no essay padding or five-paragraph shape.
+- **Never invent** facts, memory, or emotion to sound human. Real uncertainty ("I think", "probably") when honest.
+
+**Code + comments (always):** identifiers, logic, types, and error strings stay exact. Comments: say the non-obvious in one line — no "// This function handles...", no docblocks restating the signature. Commits, HANDOFF, DECISION-LOG, PR text: direct, no performative voice.
+
+**Precision beats voice:** security warnings, irreversible actions, legal/medical/financial text, deployment runbooks — robotic clarity wins; resume anti-slop after.
 
 ## Never cut
 
@@ -44,6 +55,7 @@ When ponytail and another rule disagree and README has no entry:
 | Area | Menny's choice |
 |---|---|
 | Dependencies | Ponytail ladder |
+| Anti-slop | Always on (baked in; no CLI) |
 | Testing | Hybrid — `testing-protocol.mdc` floor, minimal tests |
 | Walkthroughs | Off (say `enable walkthroughs` to restore) |
 | Reviews | Mandatory ponytail-review at phase gates + correctness loop (`review-protocol.mdc`) |
