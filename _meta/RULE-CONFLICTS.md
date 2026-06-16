@@ -1,128 +1,115 @@
-# Rule Conflicts: Ponytail vs MasterGenAI Instructions
+# Rule Conflicts: Integrated Stack Playbook
 
 Reference for humans and for agents when surfacing options. Not auto-loaded into every session (saves tokens). Agents use the conflict protocol in `ponytail.mdc`; this file is the expanded playbook.
 
 Standing resolutions belong in each project's **README § Rule Preferences** so agents stop re-asking.
 
+Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
+
 ---
 
 ## How the stack works
 
-| Layer | What it owns | Always on? |
-|---|---|---|
-| **Ponytail** | *How* to implement: ladder, anti-bloat, terse chat output, `ponytail:` comments | Yes |
-| **Clean-code** | Naming, anti-slop, UI consistency, one-pattern-per-concern, Rule of 2 | Yes |
-| **Workflow** | Orientation, execution discipline, expectation files, security basics | Yes |
-| **Protocols** | *What* to do and *when*: rebuild inventory, review loops, deploy gates, autonomous BLOCKED | On demand |
-| **On conflict** | Explain both sides → options → README preferences → ask or protocol-safe default | Yes |
+| Layer | Source | What it owns | Always on? |
+|---|---|---|---|
+| **Ponytail** | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | Ladder, YAGNI, anti-bloat, terse chat, conflict protocol | Yes |
+| **Anti-slop** | [unslop](https://github.com/MohamedAbdallah-14/unslop) Tier 1 in `ponytail.mdc` | Drop AI-isms; human voice in chat, comments, commits, HANDOFF | Yes |
+| **CodeGraph** | [codegraph](https://github.com/colbymchenry/codegraph) in `codegraph.mdc` | Deterministic structural lookup; hybrid with Read/grep; A+B rebuild backbone | Yes |
+| **Gate discipline** | [babysitter](https://github.com/a5c-ai/babysitter) Tier 1 in `workflow.mdc` | Mandatory stop at gates; command output discipline; `.scratch/run-state.md` | Yes |
+| **Clean-code** | Original | Naming, code anti-tics, UI consistency, Rule of 2 | Yes |
+| **Workflow** | Original | Orientation, execution discipline, expectation files, security | Yes |
+| **Protocols** | Original | Rebuild inventory, review loops, deploy gates, autonomous BLOCKED | On demand |
+| **On conflict** | `ponytail.mdc` | Explain → options → README preferences → protocol-safe default | Yes |
 
-**Design intent:** Your workflow stays in control of scope, quality gates, and multi-agent rigor. Ponytail keeps day-to-day coding lean -- less token burn, less AI slop, fewer deps -- without quietly dropping features or skipping reviews.
+**Design intent:** Protocols own scope and quality gates. Ponytail + integrations keep day-to-day work lean — fewer tokens, less slop, fewer deps — without quietly dropping features or skipping reviews.
+
+**Integrated repos:** Tier 1 only (patterns baked into rules). No unslop CLI, no babysitter npm, no codegraph as a project dependency — external CLI/MCP tools are fine.
 
 ---
 
-## Conflict matrix (with resolution options)
+## Resolved standing preferences (do not re-ask)
+
+| Conflict | Menny's choice |
+|---|---|
+| Rebuild scope vs YAGNI | Protocol wins scope; ponytail wins how. Ask before DROP-with-approval. |
+| Walkthrough headers vs brevity | **Walkthroughs off** (`code-walkthrough.mdc` disabled). Clear naming + codegraph for navigation. |
+| Testing depth vs minimal | Hybrid — `testing-protocol.mdc` floor, ponytail-shaped minimal tests. |
+| God files vs fewest files | Split on refactor, >500 lines, or mixed concerns. |
+| Multi-model vs minimal process | Rebuild/redesign only unless "use more models." |
+| Fix-don't-suggest vs question | Build what was asked. |
+| Artifacts vs terse chat | Artifacts follow protocol formats; anti-slop = direct facts, not padding. |
+| CodeGraph vs grep | Hybrid — codegraph for structure when indexed; Read/grep for literals. |
+| Gate discipline vs hotfix | Hotfix skips multi-agent review loop; single self-review per `hotfix-protocol.mdc` / `review-protocol.mdc` deviations. |
+| Don't stop until done vs mandatory stop | Finish the whole run; **do not skip gates** on the way (`workflow.mdc`). |
+
+---
+
+## Conflict matrix (open options — only if README has no entry)
 
 ### 1. Rebuild / inventory scope vs YAGNI
 
-| | Ponytail | Your rule |
+| | Ponytail | Protocol |
 |---|---|---|
-| **Says** | Skip speculative features; question whether work needs to exist | Every inventory ID and route must ship; nothing dropped |
-| **Tension** | Ultra ponytail may want to challenge a feature | Rebuild treats inventory as sacred |
+| **Says** | Question speculative work | Every inventory ID and route must ship |
 
-**Options:**
-- **A (recommended default): Protocol wins scope, ponytail wins implementation.** Build every required ID; use the ladder for *how* (stdlib, no extra deps, minimal UI wiring).
-- **B: Ponytail wins on speculative extras.** Ship inventory only; defer nice-to-haves with user approval logged as DROP-with-approval.
-- **C: User re-scopes.** Pause rebuild; user trims inventory explicitly.
+**Resolved default:** A — protocol wins scope, ponytail wins implementation.
 
 ---
 
 ### 2. Walkthrough headers vs chat brevity
 
-| | Ponytail | Your rule |
-|---|---|---|
-| **Says** | ≤3 lines after code; cut long explanations | Every file gets a plain-English walkthrough block at top |
-
-**Options:**
-- **A (recommended default): Split surfaces.** Walkthrough headers stay in files; ponytail brevity applies to agent chat and inline code comments only.
-- **B: Shorter walkthroughs.** One-line file purpose + function list only (still present, trimmed).
-- **C: No walkthroughs.** Ponytail wins; rely on clear code only (loses your readability goal).
+**Resolved:** Walkthroughs **off**. Say `enable walkthroughs` to restore archived rule.
 
 ---
 
-### 3. Testing depth vs ponytail one-check minimum
+### 3. Testing depth vs ponytail minimum
 
-| | Ponytail | Your rule |
-|---|---|---|
-| **Says** | One runnable smoke check for non-trivial logic | Tests alongside code; regression test per bug fix; TESTING-STRATEGY entries |
-
-**Options:**
-- **A (recommended default): Protocol floor, ponytail shape.** Meet testing-protocol requirements; keep each test minimal (no fixture forests).
-- **B: Ponytail minimum only.** One check per module until user asks for more (faster, weaker gate).
-- **C: Full suite as today.** Protocol wins entirely; ponytail only affects production code, not test count.
+**Resolved default:** A — protocol floor, ponytail-shaped tests.
 
 ---
 
 ### 4. God-file split vs fewest files
 
-| | Ponytail | Your rule |
-|---|---|---|
-| **Says** | Fewest files possible | Split god files by concern; refactor covers structure |
-
-**Options:**
-- **A (recommended default): Concern split when commanded.** Default to fewest files; split when file is >500 lines, mixed concerns, or user said refactor.
-- **B: Never split.** Ponytail wins; one file until unbearable.
-- **C: Aggressive split.** Clean-code wins; ponytail applies inside each resulting file.
+**Resolved default:** A — split when >500 lines, mixed concerns, or refactor command.
 
 ---
 
-### 5. Multi-model review / subagents vs minimal process
+### 5. Multi-model review vs minimal process
 
-| | Ponytail | Your rule |
-|---|---|---|
-| **Says** | Shortest path; avoid redundant work | Multi-family reviews, debate loops, proof-of-read -- non-negotiable at phase gates |
-
-**Options:**
-- **A (recommended default): Gates stay; ponytail between gates.** Full review loop at phase/production merge; ponytail ladder for all implementation between gates.
-- **B: Lighter reviews.** Self-review + one independent pass (faster, weaker).
-- **C: Full protocol always.** No ponytail influence on process (coding style only).
+**Resolved default:** A — full gates at phase/production merge; ponytail between gates.
 
 ---
 
 ### 6. "Fix don't suggest" vs questioning complex requests
 
-| | Ponytail | Your rule |
-|---|---|---|
-| **Says** | Ship lazy version and ask if full version needed | Implement direct instructions; don't offer alternatives unless asked |
-
-**Options:**
-- **A (recommended default): Implement + one-line lazy note.** Do what user asked; append single line if a simpler path existed (lite ponytail behavior) without stalling.
-- **B: Ponytail questions first.** Pause and ask before building complex asks (conflicts with fix-don't-suggest).
-- **C: Strict fix-don't-suggest.** No lazy alternatives mentioned unless user asks.
+**Resolved default:** C — strict fix-don't-suggest; no lazy slice and re-argue.
 
 ---
 
 ### 7. Decision logs / expectation files vs minimal prose
 
-| | Ponytail | Your rule |
+**Resolved default:** A — artifacts not subject to chat brevity; anti-slop still applies (no slop, complete facts).
+
+---
+
+### 8. CodeGraph always-on vs no MCP configured
+
+| | Codegraph rule | Reality |
 |---|---|---|
-| **Says** | Terse output | DECISION-LOG format, expectation checklists with evidence |
+| **Says** | Load every session; init if missing | MCP may not be wired on every machine |
 
 **Options:**
-- **A (recommended default): Not in scope for ponytail brevity.** Artifacts follow workflow/autonomous formats; ponytail applies to code and casual chat only.
-- **B: Terse logs.** Shorter DECISION-LOG entries (risk: loses audit trail).
+- **A (current):** Rule always loaded; if no MCP, fall back to Read/grep; run `codegraph init` when CLI present.
+- **B:** Make `codegraph.mdc` on-demand only (saves ~60 lines/session; agents must remember to load for structural work).
+
+---
+
+### 9. Anti-slop in ponytail vs clean-code Anti-AI-Tics
+
+**Not a conflict.** Ponytail/unslop = prose voice (chat, commits, HANDOFF). Clean-code = code patterns (nesting, try/catch, verbosity). Both apply.
 
 ---
 
 ## Recording a standing preference
 
-In the project README:
-
-```markdown
-## Rule Preferences
-
-- **Rebuild scope vs YAGNI:** A -- protocol wins scope, ponytail wins how.
-- **Walkthrough vs brevity:** A -- headers stay, chat stays terse.
-- **Testing:** A -- protocol floor, ponytail-shaped tests.
-```
-
-Agents check this section before re-asking on the same conflict.
+In the project README § Rule Preferences. Agents check before re-asking on the same conflict.

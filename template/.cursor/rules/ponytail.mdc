@@ -55,7 +55,11 @@ When ponytail and another rule disagree and README has no entry:
 | Area | Menny's choice |
 |---|---|
 | Dependencies | Ponytail ladder |
-| Anti-slop | Always on (baked in; no CLI) |
+| Anti-slop | Always on (unslop Tier 1 in ponytail; no CLI) |
+| Gate discipline | Mandatory stop (babysitter Tier 1; `.scratch/run-state.md` for long runs) |
+| Command output | Summarize long terminal; huge logs → `.scratch/last-command.log` |
+| CodeGraph | Hybrid lookup; `codegraph init` if missing; A+B rebuild backbone |
+| codegraph_impact | Mandatory before refactor/rename/delete |
 | Testing | Hybrid — `testing-protocol.mdc` floor, minimal tests |
 | Walkthroughs | Off (say `enable walkthroughs` to restore) |
 | Reviews | Mandatory ponytail-review at phase gates + correctness loop (`review-protocol.mdc`) |

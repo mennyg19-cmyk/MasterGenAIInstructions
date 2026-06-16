@@ -14,7 +14,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 15 Cursor rule files (ponytail always on)
+|   |-- .cursor/rules/   # 17 Cursor rule files (7 always-on)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -60,7 +60,7 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **14 Cursor rule files** covering vocabulary, workflow, ponytail (always-on minimalism), git discipline, clean code, review gates, autonomous mode, testing, code walkthroughs, rebuild/redesign/hotfix protocols, deploy awareness, and session handoff.
+- **17 Cursor rule files** — 7 always-on, 10 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), and [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1) — rules only, no extra npm.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
 - Proper `.gitignore`.
@@ -77,7 +77,7 @@ A new project directory with:
 ./apply.sh /path/to/existing/project
 ```
 
-This copies the 14 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
+This copies the 17 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
 
 ### After Bootstrapping or Applying
 
@@ -92,15 +92,14 @@ This copies the 14 rule files and AGENTS.md into the project. It creates DECISIO
 | File | Purpose |
 |---|---|
 | `vocabulary.mdc` | Command words + protocol index |
-| `workflow.mdc` | Core principles, tone, onboarding, security |
-| `ponytail.mdc` | Always-on lazy senior-dev posture (YAGNI, ladder, anti-bloat, anti-slop); conflict protocol vs other rules |
-| `codegraph.mdc` | Always-on CodeGraph MCP usage (deterministic graph; hybrid A+B parent/subagent pattern) |
+| `workflow.mdc` | Core principles, gate discipline, command output, expectation files, security |
+| `ponytail.mdc` | Ladder, anti-bloat, anti-slop (unslop Tier 1), conflict protocol |
+| `codegraph.mdc` | CodeGraph MCP — hybrid structural lookup; A+B parent/subagent pattern |
 | `git-discipline.mdc` | Branching, commits, push behavior |
-| `clean-code.mdc` | Code quality, naming, anti-AI-slop, dependencies |
-| `code-walkthrough.mdc` | File-level plain-English documentation |
-| `deploy-awareness.mdc` | Project-specific deploy config (template) |
+| `clean-code.mdc` | Code quality, naming, anti-AI-tics, dependencies |
+| `deploy-awareness.mdc` | Project-specific deploy config (fill in per project) |
 
-### Load on Demand
+### Load on Demand (10 files)
 
 | File | Trigger |
 |---|---|
@@ -113,6 +112,7 @@ This copies the 14 rule files and AGENTS.md into the project. It creates DECISIO
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |
+| `code-walkthrough.mdc` | **Disabled** (saves tokens). Say `enable walkthroughs` to restore |
 
 Conflict playbook (human reference, not auto-loaded): `_meta/RULE-CONFLICTS.md`.
 

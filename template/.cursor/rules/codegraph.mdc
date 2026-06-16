@@ -25,6 +25,7 @@ Requires: `codegraph install` (MCP wiring) + per-project `codegraph init` (build
 | Question | Tool |
 |---|---|
 | Find symbol X | `codegraph_search` |
+| Project / area file tree | `codegraph_files` |
 | What calls Y? | `codegraph_callers` |
 | What does Y call? | `codegraph_callees` |
 | Flow X → Y | `codegraph_trace` |

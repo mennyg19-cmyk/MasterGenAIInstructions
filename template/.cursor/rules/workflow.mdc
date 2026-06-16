@@ -34,7 +34,7 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 ## Execution Discipline
 
 - **Fix, don't suggest** -- implement direct instructions; offer options only when asked or when a standing Rule Preference says to surface a conflict.
-- **Don't stop until done** -- all phases, todos, steps. Stopping early requires saying why and getting permission.
+- **Don't stop until done** -- all phases, todos, steps of the **overall run**. This does not mean skip gates: complete each gate before advancing (`Gate discipline` below). Stopping the whole run early requires saying why and getting permission.
 - **Verify in the running app** -- never mark done from code alone. An empty 200 is not working: seed data, exercise the real flow.
 - **Implement attached plans verbatim** -- don't edit the plan file or re-create existing todos.
 - **User screenshots are ground truth** over what you think the code says.
@@ -56,6 +56,10 @@ A gate is **incomplete** if any of these are true:
 - A push left a platform build red (`deploy-awareness.mdc`).
 
 Stopping early requires user permission or a logged **BLOCKED**. Crossing a gate → update `.scratch/run-state.md` (below).
+
+**Exceptions (lighter gates, not no gates):**
+- **Hotfix** (`hotfix-protocol.mdc`): skip multi-agent review loop; single self-review only (`review-protocol.mdc` deviations). Still verify fix, push, confirm platform green.
+- **Single-file tidy** (`vocabulary.mdc`): no phase gate unless part of a larger phase.
 
 ## Command output discipline
 
