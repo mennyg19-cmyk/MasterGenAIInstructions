@@ -127,8 +127,8 @@ Not Cursor rules — a **GitHub Actions workflow** that complements `deploy-awar
 | **Workflow file** | `template/.github/workflows/agent-guardrails.yml` |
 | **When it runs** | PR, push to `main`, manual `workflow_dispatch` |
 | **Bootstrap** | Copied with the full template — new projects get it automatically |
-| **apply.ps1** | Does **not** copy workflows — copy the file manually if adding guardrails to an existing repo |
-| **update-all.ps1** | Does **not** propagate workflows — only `.cursor/rules/` and `AGENTS.md` |
+| **apply.ps1** | Use `-Guardrails` flag to copy the workflow (skips if already present): `.\apply.ps1 -TargetDir path -Guardrails` |
+| **update-all.ps1** | Use `-Guardrails` flag to push the workflow to all registered projects: `.\update-all.ps1 -Guardrails -AutoCommit` |
 
 Agents catch many issues in rules; CI catches what slips through (secrets in commits, common vulns, unsafe workflow YAML). Add language-specific build/test jobs separately — this file is safety rails only.
 

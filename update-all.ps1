@@ -4,13 +4,16 @@
 # to each one (PRESERVING each project's own deploy-awareness.mdc), then commits.
 #
 # Usage:
-#   .\update-all.ps1              # prompts whether to commit in each project
-#   .\update-all.ps1 -AutoCommit  # commits + pushes in each project without prompting
-#   .\update-all.ps1 -NoCommit    # copies only, never commits
+#   .\update-all.ps1                        # prompts whether to commit in each project
+#   .\update-all.ps1 -AutoCommit            # commits + pushes in each project without prompting
+#   .\update-all.ps1 -NoCommit              # copies only, never commits
+#   .\update-all.ps1 -Guardrails            # also copy agent-guardrails.yml (skips if already present)
+#   .\update-all.ps1 -Guardrails -AutoCommit
 
 param(
     [switch]$AutoCommit,
-    [switch]$NoCommit
+    [switch]$NoCommit,
+    [switch]$Guardrails
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -35,6 +38,7 @@ Write-Host ""
 
 $RulesSource = Join-Path $TemplateDir ".cursor\rules"
 $AgentsSource = Join-Path $TemplateDir "AGENTS.md"
+$WorkflowSrc = Join-Path $TemplateDir ".github\workflows\agent-guardrails.yml"
 $updated = @()
 $skipped = @()
 
@@ -54,6 +58,16 @@ foreach ($projectPath in $registry) {
     New-Item -ItemType Directory -Path $rulesDest -Force | Out-Null
     Copy-Item -Path "$RulesSource\*" -Destination $rulesDest -Force -Exclude $ProjectOwnedFiles
     Copy-Item -Path $AgentsSource -Destination $projectPath -Force
+
+    if ($Guardrails) {
+        $WorkflowDestDir = Join-Path $projectPath ".github\workflows"
+        $WorkflowDest = Join-Path $WorkflowDestDir "agent-guardrails.yml"
+        if (-not (Test-Path $WorkflowDest)) {
+            New-Item -ItemType Directory -Path $WorkflowDestDir -Force | Out-Null
+            Copy-Item -Path $WorkflowSrc -Destination $WorkflowDest
+            Write-Host "  [guardrails added] $projectPath"
+        }
+    }
 
     Write-Host "  [updated]  $projectPath  (preserved: $($ProjectOwnedFiles -join ', '))"
     $updated += $projectPath
@@ -83,10 +97,12 @@ if ($updated.Count -gt 0) {
     if ($doCommit) {
         foreach ($projectPath in $updated) {
             Push-Location $projectPath
-            # Scope status/add to rules + AGENTS only -- never touch a project's in-flight work.
-            $hasChanges = git status --porcelain -- .cursor/rules/ AGENTS.md
+            # Scope status/add to rules + AGENTS (+ workflow if -Guardrails) -- never touch a project's in-flight work.
+            $trackPaths = @(".cursor/rules/", "AGENTS.md")
+            if ($Guardrails) { $trackPaths += ".github/workflows/agent-guardrails.yml" }
+            $hasChanges = git status --porcelain -- $trackPaths
             if ($hasChanges) {
-                git add .cursor/rules/ AGENTS.md
+                git add $trackPaths
                 git commit -m "Update rules from MasterGenAIInstructions" | Out-Null
                 git push 2>$null
                 Write-Host "  [committed] $projectPath"
