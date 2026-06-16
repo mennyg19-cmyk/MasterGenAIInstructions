@@ -25,6 +25,8 @@ MasterGenAIInstructions/
 |   |-- HANDOFF.md
 |   |-- .gitignore
 |   |-- README.md        # Project README template
+|   |-- .github/workflows/
+|       |-- agent-guardrails.yml  # Optional CI: gitleaks + semgrep + zizmor
 |-- _meta/
     |-- PHILOSOPHY.md    # Why this exists, credits, how layers fit
     |-- USER-RULE-PREFERENCES.md  # Canonical standing conflict resolutions
@@ -48,6 +50,8 @@ Rules are **layered**. Protocols own scope and quality gates; integrations make 
 ├─────────────────────────────────────────────────────────┤
 │  Babysitter Tier 1  — gates, cmd output, run-state      │  ← a5c-ai/babysitter (rules only)
 ├─────────────────────────────────────────────────────────┤
+│  CI guardrails (optional)  — gitleaks · semgrep · zizmor│  ← language-agnostic workflow
+├─────────────────────────────────────────────────────────┤
 │  genAITemplate  — bootstrap + “one place for agent rules”│  ← EvanPokroy (foundation)
 └─────────────────────────────────────────────────────────┘
 ```
@@ -60,7 +64,7 @@ Rules are **layered**. Protocols own scope and quality gates; integrations make 
 | **Menny's fork** | [mennyg19-cmyk/genAITemplate](https://github.com/mennyg19-cmyk/genAITemplate) |
 | **What Evan built** | A lightweight **meta-prompt / agent project template**: bash bootstrap (`deploy-new-project.sh`), a documentation operating system (`MASTER-INSTRUCTIONS.md`, `_meta/PRINCIPLES.md`, trace journals, ADR wiki), and the core idea that new projects should ship with agent instructions pre-loaded — not pasted from chat every session. |
 | **What carries forward here** | Bootstrap-and-apply workflow (`bootstrap.ps1`, `apply.ps1`, `update-all.ps1`, `registry.json`), “stamp rules into every repo,” portable agent docs (`AGENTS.md`), and the goal of not repeating yourself to agents. |
-| **What Menny replaced** | Evan's stack was security/SDL- and SonarQube-centric and not Cursor-native. MasterGenAIInstructions is `.cursor/rules/*.mdc`, vibe-coding workflows (rebuild, multi-model review, deploy verification), and Menny's own protocols — built on Evan's scaffolding idea, not a port of his rule content. |
+| **What Menny replaced** | Evan's stack was security/SDL- and SonarQube-centric and not Cursor-native. MasterGenAIInstructions is `.cursor/rules/*.mdc`, vibe-coding workflows (rebuild, multi-model review, deploy verification), optional lightweight CI (`agent-guardrails.yml`: gitleaks + semgrep + zizmor instead of SonarQube), and Menny's own protocols — built on Evan's scaffolding idea, not a port of his rule content. |
 
 ### Menny's protocols (this repo — evolved from genAITemplate)
 
@@ -108,6 +112,26 @@ Multi-agent workflows built from real session corrections: sacred rebuild invent
 | **Integration** | Ideas in `workflow.mdc` + cross-refs — **no** `@a5c-ai/babysitter-sdk`, **no** npm plugin |
 | **Exception** | Hotfix uses lighter gates per `hotfix-protocol.mdc` |
 
+### CI guardrails — automated safety outside the agent (optional)
+
+Not Cursor rules — a **GitHub Actions workflow** that complements `deploy-awareness.mdc` and `review-protocol.mdc` trust-boundary checks. Ships in every bootstrapped project; tune or disable per repo.
+
+| Tool | Repo | What it does |
+|---|---|---|
+| **gitleaks** | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) | Scans git history and the working tree for leaked secrets (API keys, tokens, credentials). |
+| **semgrep** | [semgrep/semgrep](https://github.com/semgrep/semgrep) | Static analysis with `p/default` — language-agnostic security and bug patterns without assuming Node/Python/Go. |
+| **zizmor** | [zizmor/zizmor](https://github.com/zizmor/zizmor) | Security linter for `.github/workflows/*` (permissions, dangerous patterns, pinned actions). |
+
+| | |
+|---|---|
+| **Workflow file** | `template/.github/workflows/agent-guardrails.yml` |
+| **When it runs** | PR, push to `main`, manual `workflow_dispatch` |
+| **Bootstrap** | Copied with the full template — new projects get it automatically |
+| **apply.ps1** | Does **not** copy workflows — copy the file manually if adding guardrails to an existing repo |
+| **update-all.ps1** | Does **not** propagate workflows — only `.cursor/rules/` and `AGENTS.md` |
+
+Agents catch many issues in rules; CI catches what slips through (secrets in commits, common vulns, unsafe workflow YAML). Add language-specific build/test jobs separately — this file is safety rails only.
+
 ### Conflict resolution
 
 - **At runtime:** `ponytail.mdc` conflict protocol → README § Rule Preferences
@@ -150,6 +174,7 @@ It copies the template files, replaces placeholders, initializes git, and option
 
 A new project directory with:
 - **17 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 10 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), and [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1) — rules only, no extra npm.
+- **`.github/workflows/agent-guardrails.yml`** — optional CI: [gitleaks](https://github.com/gitleaks/gitleaks) + [semgrep](https://github.com/semgrep/semgrep) + [zizmor](https://github.com/zizmor/zizmor). Language-agnostic; tune per project.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
 - Proper `.gitignore`.
@@ -172,26 +197,10 @@ This copies the 17 rule files and AGENTS.md into the project. It creates DECISIO
 
 1. Open the new project in Cursor.
 2. Fill in `deploy-awareness.mdc` with your deploy targets.
-3. Optional: enable `.github/workflows/agent-guardrails.yml` (gitleaks + semgrep + zizmor).
-4. Start building -- agents already know your workflow.
+3. Review `.github/workflows/agent-guardrails.yml` — enabled by default on new repos; remove jobs or pin semgrep rulesets (`p/security-audit`, etc.) as needed. Org repos may need a `GITLEAKS_LICENSE` secret.
+4. Start building — agents already know your workflow.
 
-## Optional language-agnostic CI guardrails
-
-Template now includes:
-
-`template/.github/workflows/agent-guardrails.yml`
-
-It is intentionally stack-agnostic (no Node/Python/Go build assumptions). It runs:
-
-- **gitleaks** -- secret scanning in git history and current tree.
-- **semgrep** (`p/default`) -- language-agnostic static rules.
-- **zizmor** -- security lint for GitHub Actions workflows.
-
-Tune per project:
-
-- Remove a job if you don't need it.
-- Pin semgrep rulesets to your domain (`p/default`, `p/security-audit`, etc.).
-- Add language build/test jobs separately; this file is just safety rails.
+**Tuning CI guardrails:** drop jobs you don't need; add language build/test workflows separately. See **CI guardrails** in the rule stack section above.
 
 ## Rule Files
 

@@ -6,7 +6,7 @@ Every project, every session, I'd say the same things: commit and push after eve
 
 So I built **MasterGenAIInstructions** — one place where all my rules live. One bootstrap script stamps them into every new project. Agents follow my workflow from the first commit.
 
-**Foundation:** This repo started as a fork of [Evan Pokroy's genAITemplate](https://github.com/EvanPokroy/genAITemplate) — Evan's idea of a lightweight bootstrap + documentation operating system for agent-assisted projects. I kept the scaffolding (bootstrap scripts, registry, portable instructions). I replaced the security-first SonarQube stack with Cursor-native rules and my own vibe-coding workflows.
+**Foundation:** This repo started as a fork of [Evan Pokroy's genAITemplate](https://github.com/EvanPokroy/genAITemplate) — Evan's idea of a lightweight bootstrap + documentation operating system for agent-assisted projects. I kept the scaffolding (bootstrap scripts, registry, portable instructions). I replaced the security-first SonarQube/SDL stack with Cursor-native rules, optional lightweight CI guardrails (gitleaks + semgrep + zizmor), and my own vibe-coding workflows.
 
 The core protocols grew from real experience on top of that foundation: hundreds of hours of AI-assisted development across Python/Flask, React Native, Next.js, and more. They evolved from corrections in actual sessions, patterns in chat histories, and mistakes I got tired of seeing.
 
@@ -26,12 +26,13 @@ Different tools solve different problems. They are **layered**, not merged into 
 | **CodeGraph** | *How to navigate* code — deterministic structure, not guessing from grep | The map |
 | **Unslop** (Tier 1) | *How replies sound* — drop AI-isms, save tokens on chat | The editor |
 | **Babysitter** (Tier 1) | *When to stop* — gates, checkpoints, don't flood context with logs | The stage manager |
+| **CI guardrails** (optional) | *What CI catches* — secrets, static bugs, unsafe workflow YAML | The second pair of eyes (not in the chat) |
 
-**Protocols stay in charge of scope and quality.** Integrations make day-to-day work leaner without quietly dropping features or skipping reviews.
+**Protocols stay in charge of scope and quality.** Integrations make day-to-day work leaner without quietly dropping features or skipping reviews. CI guardrails run outside the agent — zero token cost, catches slips after push.
 
 When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name it, offer options, default protocol-safe, tell me, offer to record in README § Rule Preferences. Expanded playbook: `_meta/RULE-CONFLICTS.md`. Canonical choices: `_meta/USER-RULE-PREFERENCES.md`.
 
-**Integration style:** External repos are mostly **Tier 1** — ideas and patterns baked into `.mdc` rule files. No competing plugin stacks, no extra npm in every project. CodeGraph is the exception: it's an optional external CLI/MCP you install once per machine and init per repo.
+**Integration style:** External repos are mostly **Tier 1** — ideas and patterns baked into `.mdc` rule files. No competing plugin stacks, no extra npm in every project. CodeGraph is the exception: it's an optional external CLI/MCP you install once per machine and init per repo. **CI guardrails** are the other exception: a template workflow (`.github/workflows/agent-guardrails.yml`), not an always-on rule — agents reference it from `deploy-awareness.mdc`; GitHub runs it on PR/push.
 
 ---
 
@@ -42,7 +43,7 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
 - **Credit:** [EvanPokroy/genAITemplate](https://github.com/EvanPokroy/genAITemplate). Menny's fork: [mennyg19-cmyk/genAITemplate](https://github.com/mennyg19-cmyk/genAITemplate).
 - **What Evan built:** A small, language-agnostic **agent project starter** — bash bootstrap (`deploy-new-project.sh`), `MASTER-INSTRUCTIONS.md`, `_meta/` principles and glossary, numbered trace/wiki folders, and a guided bootstrap agent. The point: every new project ships with a documentation OS and meta-prompts so agents aren't trained from scratch each time.
 - **What survived the fork:** The *pattern* — bootstrap → stamp template → git init → optional remote → work with agents who already know the house rules. Menny's `bootstrap.ps1`, `apply.ps1`, `update-all.ps1`, and `registry.json` are the Windows/Cursor evolution of that idea.
-- **What Menny changed:** Replaced Evan's security-first / SonarQube-centric SDL with Cursor `.mdc` rules, `AGENTS.md`, rebuild/redesign multi-agent protocols, plain-English DECISION-LOG (not formal ADR wiki), deploy verification, and later integrations (ponytail, codegraph, unslop, babysitter Tier 1). Evan's setup wasn't wrong — it targets a different workflow (compliance-heavy, non-Cursor). This repo is vibe-coding for personal and app projects.
+- **What Menny changed:** Replaced Evan's security-first / SonarQube-centric SDL with Cursor `.mdc` rules, `AGENTS.md`, rebuild/redesign multi-agent protocols, plain-English DECISION-LOG (not formal ADR wiki), deploy verification, optional CI guardrails (`agent-guardrails.yml`: gitleaks, semgrep, zizmor), and later integrations (ponytail, codegraph, unslop, babysitter Tier 1). Evan's setup wasn't wrong — it targets a different workflow (compliance-heavy, non-Cursor). This repo is vibe-coding for personal and app projects.
 
 ---
 
@@ -99,6 +100,23 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
 
 ---
 
+### CI guardrails — automated safety (optional workflow)
+
+Not an agent rule layer — **infrastructure** that backs up what agents and protocols already say about secrets, trust boundaries, and deploy safety.
+
+| Tool | Credit | Role |
+|---|---|---|
+| **gitleaks** | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) | Secret scanning across history and current tree — catches `.env` leaks, committed API keys, tokens in diffs. |
+| **semgrep** | [semgrep/semgrep](https://github.com/semgrep/semgrep) | Static analysis with `p/default` — language-agnostic patterns for common security bugs without tying CI to one stack. |
+| **zizmor** | [zizmor/zizmor](https://github.com/zizmor/zizmor) | Lints GitHub Actions workflows — minimal permissions, dangerous `pull_request_target` patterns, unpinned actions. |
+
+- **Where it lives:** `template/.github/workflows/agent-guardrails.yml`. Copied on **bootstrap**; not propagated by `update-all.ps1` or `apply.ps1`.
+- **Why it exists:** Agents can follow `workflow.mdc` and `deploy-awareness.mdc` and still miss things — especially secrets in a rushed commit or a footgun in new workflow YAML. CI is the backstop Evan's SonarQube/SDL used to provide; this version is lighter and stack-agnostic.
+- **How it fits:** Complements review-protocol trust-boundary checks and deploy-awareness pre-push discipline. Does **not** replace phase reviews or platform verification — add language build/test jobs per project separately.
+- **Tuning:** Drop jobs you don't need; swap semgrep config (`p/security-audit`, custom rulesets); org repos may need `GITLEAKS_LICENSE` in GitHub secrets.
+
+---
+
 ## Token strategy
 
 Rules are expensive — every always-on file loads every session. This system optimizes deliberately:
@@ -110,6 +128,7 @@ Rules are expensive — every always-on file loads every session. This system op
 - **Command output discipline** — don't burn context on test logs.
 - **DECISION-LOG rotation** — keep session-start reads cheap.
 - **Human meta** (`RULE-CONFLICTS.md`, `USER-RULE-PREFERENCES.md`) not auto-loaded into agents.
+- **CI guardrails** run in GitHub Actions — no session tokens; agents only need to know when to mention or tune the workflow (`deploy-awareness.mdc`).
 
 ---
 
@@ -122,5 +141,6 @@ An agent following this stack should:
 3. Navigate structure with codegraph when indexed.
 4. Complete gates before advancing; log decisions; verify in the running app.
 5. Review at phase boundaries until clean; platform green after push.
+6. On push/PR, CI guardrails (when enabled) scan for secrets, static issues, and workflow YAML problems.
 
 That's the operating system. Everything else is vocabulary for triggering the right protocol on demand.
