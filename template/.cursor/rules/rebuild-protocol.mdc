@@ -18,6 +18,8 @@ A rebuild = "now that I know all the features I actually want, build it again fr
 
 All spawning mechanics, the roster, family-diversity rules, attribution, and the debate loop live in **`subagents.mdc` -- read it before Phase 0.** Slugs named below are examples; swap any valid slugs that preserve family diversity.
 
+**Phase gates:** mandatory stop per `workflow.mdc` — no Phase N+1 until Phase N gate passes (inventory complete, debate done, review loop clean, etc.). Track progress in `.scratch/run-state.md`.
+
 ## Phase 0: Multi-Model Audit + History Mining (CodeGraph A+B hybrid)
 
 Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep the whole tree either. **CodeGraph is deterministic; models differ in judgment, not in graph facts.**

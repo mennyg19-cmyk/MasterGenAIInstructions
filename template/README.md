@@ -49,6 +49,8 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Unknown conflict:** Default protocol-safe, keep building; tell user and offer to add the resolution here.
 - **Ponytail intensity:** full (always on).
 - **Anti-slop:** always on, baked into ponytail — no CLI; chat, comments, commits, HANDOFF, DECISION-LOG; code logic exact.
+- **Gate discipline:** mandatory stop at every gate (babysitter Tier 1, rules only — no npm). `.scratch/run-state.md` for long runs.
+- **Command output:** summarize long terminal output; full logs to `.scratch/last-command.log`.
 - **CodeGraph:** Hybrid lookup; run `codegraph init` if missing; parent graph-backbone + subagents use MCP if available else parent fills gaps. Rebuild: init reference app path too. `codegraph_impact` mandatory before refactor/rename/delete.
 - **Rebuild Phase 0:** A+B hybrid -- parent deterministic graph backbone, then 2 model families per area for judgment (not six blind file walks).
 - **Rebuild scope:** Ask when a feature feels speculative; never auto-drop inventory IDs.

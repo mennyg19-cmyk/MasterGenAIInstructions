@@ -6,6 +6,10 @@ description: Review rules -- self-review against expectation files, then the ind
 
 A "phase" = a feature, module, or protocol step spanning more than one commit.
 
+## Mandatory stop (gate discipline)
+
+Per `workflow.mdc`: no phase marked done, no production merge, no next-phase work until — self-review complete, ponytail-review clean (where required), correctness loop at **zero findings** (where required), platform green after push, no open **BLOCKED** entries, and `.scratch/run-state.md` updated if the run uses it.
+
 ## Cadence (single source of truth -- other files defer to this)
 
 1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent.

@@ -10,6 +10,8 @@ Scope the full task, surface ALL foreseeable questions at once, confirm understa
 ## While away
 - Decide ambiguous items and log every one to DECISION-LOG.md (format below).
 - Commits per `git-discipline.mdc` (push each step so progress is visible remotely). Reviews per `review-protocol.mdc` at phase boundaries.
+- **Gate discipline** per `workflow.mdc` — no next phase while a gate is incomplete.
+- Maintain `.scratch/run-state.md` (protocol, phase, last_gate_passed, open_blocked, last_commit, next_action); update on every gate pass.
 - **High-risk decisions** (data loss, security, breaking changes, business logic): log with status **BLOCKED**, commit + push the log, and do NOT proceed past that point.
 
 ## DECISION-LOG.md format

@@ -32,6 +32,6 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 
 ## Absolutes
 
-- Orient: HANDOFF → README (Rule Preferences) → this file → DECISION-LOG (recent). Init codegraph if missing.
-- Ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
+- Orient: HANDOFF → run-state (if present) → README (Rule Preferences) → this file → DECISION-LOG (recent). Init codegraph if missing.
+- Gate discipline + command output discipline (`workflow.mdc`); ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
 - Subagents: explicit model, paths not pastes, proof-of-read, codegraph_status first, terse replies.
