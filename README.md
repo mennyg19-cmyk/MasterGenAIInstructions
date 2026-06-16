@@ -38,22 +38,22 @@ MasterGenAIInstructions/
 Rules are **layered**. Protocols own scope and quality gates; integrations make daily work leaner without dropping features or skipping reviews.
 
 ```
-┌─────────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────────┐
 │  README § Rule Preferences  — your standing choices      │
-├─────────────────────────────────────────────────────────┤
-│  Protocols (on demand)  — rebuild, review, subagents…  │  ← Menny (evolved from Evan's template)
-├─────────────────────────────────────────────────────────┤
-│  Ponytail  — how to implement (ladder, YAGNI, brevity) │  ← DietrichGebert/ponytail
-│  + Unslop Tier 1  — anti-slop voice in ponytail.mdc    │  ← MohamedAbdallah-14/unslop
-├─────────────────────────────────────────────────────────┤
-│  CodeGraph  — structural navigation (MCP + CLI)         │  ← colbymchenry/codegraph
-├─────────────────────────────────────────────────────────┤
-│  Babysitter Tier 1  — gates, cmd output, run-state      │  ← a5c-ai/babysitter (rules only)
-├─────────────────────────────────────────────────────────┤
-│  CI guardrails (optional)  — gitleaks · semgrep · zizmor│  ← language-agnostic workflow
-├─────────────────────────────────────────────────────────┤
+├──────────────────────────────────────────────────────────┤
+│  Protocols (on demand)  — rebuild, review, subagents…    │  ← Menny (evolved from Evan's template)
+├──────────────────────────────────────────────────────────┤
+│  Ponytail  — how to implement (ladder, YAGNI, brevity)   │  ← DietrichGebert/ponytail
+│  + Unslop Tier 1  — anti-slop voice in ponytail.mdc      │  ← MohamedAbdallah-14/unslop
+├──────────────────────────────────────────────────────────┤
+│  CodeGraph  — structural navigation (MCP + CLI)          │  ← colbymchenry/codegraph
+├──────────────────────────────────────────────────────────┤
+│  Babysitter Tier 1  — gates, cmd output, run-state       │  ← a5c-ai/babysitter (rules only)
+├──────────────────────────────────────────────────────────┤
+│  CI guardrails (optional)  — gitleaks · semgrep · zizmor │  ← language-agnostic workflow
+├──────────────────────────────────────────────────────────┤
 │  genAITemplate  — bootstrap + “one place for agent rules”│  ← EvanPokroy (foundation)
-└─────────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────────┘
 ```
 
 ### [Evan Pokroy / genAITemplate](https://github.com/EvanPokroy/genAITemplate) — foundation
