@@ -103,7 +103,7 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
 
 Rules are expensive — every always-on file loads every session. This system optimizes deliberately:
 
-- **~7 always-on files**, ~10 on demand (rebuild, review, subagents load only when triggered).
+- **~6 always-on files + 1 auto-attach deploy rule**, ~10 on demand (rebuild, review, subagents load only when triggered).
 - **Walkthrough headers off** — archived `code-walkthrough.mdc`; codegraph + clear naming replace file-navigation overhead.
 - **Subagents:** pass paths, not pasted documents; ≤10-line replies; graph-backbone instead of six blind tree walks.
 - **Anti-slop + terse routine chat** — shorter outputs.

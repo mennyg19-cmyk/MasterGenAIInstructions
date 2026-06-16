@@ -6,7 +6,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 
 1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat, **anti-slop always on** (no CLI).
 2. **CodeGraph (always on when MCP configured)** -- `codegraph.mdc`: deterministic structural index; hybrid with Read/grep.
-3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `deploy-awareness.mdc`, `vocabulary.mdc`.
+3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `vocabulary.mdc` (+ `deploy-awareness.mdc` auto-attached on deploy/env/workflow files).
 4. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
 5. **README § Rule Preferences** -- standing choices when rules disagree.
 

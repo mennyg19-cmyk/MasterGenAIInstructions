@@ -39,13 +39,7 @@ Requires: `codegraph install` (MCP wiring) + per-project `codegraph init` (build
 
 ## Parent + subagent pattern (A+B hybrid)
 
-**CodeGraph output does not vary by model** -- parent pre-fetch is the shared factual backbone; subagents add *different-model judgment* on top.
-
-1. **Parent (orchestrator)** runs the baseline scan, writes per-area digests to `rebuild-audit/graph-backbone/` (routes, symbols, entry points -- facts only).
-2. **Each subagent** starts with `codegraph_status` (or equivalent MCP check):
-   - **MCP works:** use `codegraph_*` for drill-down; do NOT re-Read the whole tree. Still write its own audit (interpretation differs by model).
-   - **MCP unavailable:** read parent's digest files (proof-of-read required per `subagents.mdc`); ask parent to run any missing `codegraph_*` query and append to the digest.
-3. Parent never blocks on subagent MCP failure -- fill gaps with parent-run codegraph, then re-spawn if needed.
+Runtime mechanics live in `subagents.mdc` and `rebuild-protocol.mdc` Phase 0. Keep this file focused on deterministic graph behavior + tool choice.
 
 ## Rebuild reference app (Rule Preference)
 
@@ -59,4 +53,4 @@ When REBUILD-PLAN.md names an old reference path: offer/run `codegraph init` in 
 
 ## Not initialized
 
-If tools return "not initialized": run `codegraph init` (install CLI first if missing). Bootstrap/apply offers init on new projects when CLI is present.
+If tools return "not initialized": run `codegraph init` once (install CLI first if missing). If MCP/CLI still unavailable after that attempt, stop retrying and use Read/grep fallback for this run.

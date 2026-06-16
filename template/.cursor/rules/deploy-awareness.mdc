@@ -1,6 +1,13 @@
 ---
 description: Deployment discipline -- build verification, deploy safety, env vars, database deploy rules, and this project's deploy targets.
-alwaysApply: true
+alwaysApply: false
+globs:
+  - "**/.github/workflows/**"
+  - "**/vercel.json"
+  - "**/next.config.*"
+  - "**/prisma/**"
+  - "**/.env*"
+  - "**/package.json"
 ---
 
 # Deploy Awareness
@@ -47,11 +54,23 @@ Adding auth (Clerk/Auth0/NextAuth/...)? All five must exist as a set or deploys 
 
 Deploy after the foundation scaffold, not after 5 phases of local work. The smoke test must load a **real authenticated page against the seeded DB** -- a green homepage hides schema crashes, and **an empty 200 is not "working"** (seed realistic data, confirm real content renders and the primary action works). Fix smoke failures before building more. Every later phase ends with a deploy verification.
 
+## End-to-end Verification Pattern
+
+Before declaring deploy fixes done, verify the full flow: **browser/UI → API route → data layer → rendered response**. Confirm with seeded or real data, not empty placeholders.
+
+If the user says "why isn't this working," run this flow first before broad refactors.
+
 ## Windows / PowerShell
 
 - `Out-File` adds a UTF-8 BOM that breaks Prisma/JSON parsers -- write UTF-8 no-BOM (`[System.IO.File]::WriteAllText()`).
 - Capture build output to a file (`2>&1 | Out-File build.log`) and read it; piping through `Select-String` loses errors.
 - A stray `package-lock.json` in a parent directory can break Turbopack workspace-root detection.
+
+## Optional CI Hardening (when ready)
+
+- `gitleaks` for secret scanning (pre-commit or CI).
+- `semgrep` for static security checks on app code.
+- `zizmor` when adding/changing GitHub Actions workflows.
 
 ---
 

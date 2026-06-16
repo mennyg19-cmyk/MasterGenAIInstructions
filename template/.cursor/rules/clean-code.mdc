@@ -45,6 +45,14 @@ alwaysApply: true
 - No copy-paste patterns with minor variations -- extract the pattern.
 - If a function has more than 3 levels of nesting, refactor it.
 
+## Anti-Hallucination (verify-before-claim)
+
+- Do not invent library APIs, config keys, flags, or function signatures from memory.
+- Before using a third-party symbol, verify it exists in current docs or local types/source.
+- If verification is missing, say so explicitly and choose a safe fallback.
+- Do not claim "fixed/passed/working" without tool output or running-app evidence.
+- For factual claims, prefer source-backed statements (command output, file content, or docs).
+
 ## UI Consistency
 
 - New screens must reuse existing header, theme, and navigation patterns.

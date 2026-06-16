@@ -99,9 +99,7 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 |---|---|---|
 | **Says** | Load every session; init if missing | MCP may not be wired on every machine |
 
-**Options:**
-- **A (current):** Rule always loaded; if no MCP, fall back to Read/grep; run `codegraph init` when CLI present.
-- **B:** Make `codegraph.mdc` on-demand only (saves ~60 lines/session; agents must remember to load for structural work).
+**Resolved default:** Keep CodeGraph rule loaded. If MCP/CLI is missing, run one init attempt, then stop retrying and use Read/grep fallback for that run.
 
 ---
 

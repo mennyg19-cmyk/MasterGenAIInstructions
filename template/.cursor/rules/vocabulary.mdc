@@ -27,6 +27,12 @@ Definitions are exact. Do not under-scope or over-scope.
 | **"stop ponytail" / "normal mode"** | Suspend lazy posture until `ponytail` is said again. |
 | **"review for over-engineering" / "ponytail-review"** | `ponytail.mdc` on-demand review section. Complements `review-protocol.mdc`. |
 | **"audit for over-engineering" / "ponytail-audit"** | `ponytail.mdc` on-demand audit section. One-shot; does not apply fixes. |
+| **"security review" / "trust boundary review"** | Run the trust-boundary checklist in `review-protocol.mdc`. |
+| **"run bugbot" / "automated code review"** | Launch Bugbot-style review (readonly) on current diff. |
+| **"verify end to end" / "why isn't this working"** | Apply end-to-end verification flow (`deploy-awareness.mdc` + verification skill pattern). |
+| **"split this PR" / "too big to review"** | Use split-to-prs workflow/skill to create reviewable chunks. |
+| **"use canvas" / "show this visually"** | Use canvas for analytical/visual artifacts instead of large markdown dumps. |
+| **"use context7" / "check latest docs"** | Use Context7 MCP/docs lookup before using unfamiliar library APIs. |
 
 ## Load-on-demand rules
 

@@ -18,7 +18,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 17 Cursor rule files (7 always-on)
+|   |-- .cursor/rules/   # 17 Cursor rule files (6 always-on + 1 auto-attach)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -149,7 +149,7 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **17 Cursor rule files** — 7 always-on, 10 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), and [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1) — rules only, no extra npm.
+- **17 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 10 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), and [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1) — rules only, no extra npm.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
 - Proper `.gitignore`.
@@ -176,7 +176,7 @@ This copies the 17 rule files and AGENTS.md into the project. It creates DECISIO
 
 ## Rule Files
 
-### Always-On (7 files, loaded every session)
+### Always-On (6 files, loaded every session)
 
 | File | Purpose |
 |---|---|
@@ -186,7 +186,12 @@ This copies the 17 rule files and AGENTS.md into the project. It creates DECISIO
 | `codegraph.mdc` | CodeGraph MCP — hybrid structural lookup; A+B parent/subagent pattern |
 | `git-discipline.mdc` | Branching, commits, push behavior |
 | `clean-code.mdc` | Code quality, naming, anti-AI-tics, dependencies |
-| `deploy-awareness.mdc` | Project-specific deploy config (fill in per project) |
+
+### Auto-Attach (1 file, via globs)
+
+| File | Purpose |
+|---|---|
+| `deploy-awareness.mdc` | Deploy/env/workflow safety; auto-attaches on deploy-related files |
 
 ### Load on Demand (10 files)
 
