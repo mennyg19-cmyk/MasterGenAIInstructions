@@ -94,6 +94,7 @@ This copies the 14 rule files and AGENTS.md into the project. It creates DECISIO
 | `vocabulary.mdc` | Command words + protocol index |
 | `workflow.mdc` | Core principles, tone, onboarding, security |
 | `ponytail.mdc` | Always-on lazy senior-dev posture (YAGNI, ladder, anti-bloat); conflict protocol vs other rules |
+| `codegraph.mdc` | Always-on CodeGraph MCP usage (deterministic graph; hybrid A+B parent/subagent pattern) |
 | `git-discipline.mdc` | Branching, commits, push behavior |
 | `clean-code.mdc` | Code quality, naming, anti-AI-slop, dependencies |
 | `code-walkthrough.mdc` | File-level plain-English documentation |

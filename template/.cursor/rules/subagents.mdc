@@ -25,6 +25,18 @@ Exception: small task-specific snippets (an error message, a 10-line spec, the o
 
 The subagent's final message lands in YOUR context -- don't pay for the deliverable twice. Every spawn prompt must say: **"Write your deliverable to [file path]. Your final reply must be ≤10 lines: the file path(s) written, the proof-of-read block, and headline findings/counts only. Do NOT repeat the deliverable's content in your reply."** You read the file if you need the detail.
 
+### CodeGraph in subagents (A+B hybrid)
+
+CodeGraph results are **deterministic** -- same query, same index, same output for any model. Multi-model audits need different *judgments*, not six copies of the same graph read.
+
+Every subagent prompt for codebase exploration must say:
+
+1. **Check CodeGraph first:** call `codegraph_status`. If healthy, use `codegraph_*` for all structural lookups (`codegraph.mdc` tool map). Do not grep-for-symbol or Read whole trees when the graph works.
+2. **If MCP unavailable:** read the parent's graph-backbone digest files (proof-of-read required). List any extra `codegraph_*` queries needed; parent runs them and updates the digest before you continue.
+3. **Parent responsibility:** before spawning, run the baseline graph scan and write digests. If a subagent reports MCP unavailable, parent runs requested queries -- never leave the audit blind.
+
+Review/audit subagents: same rule -- try codegraph on the phase diff's symbols first; Read only for non-indexed or stale-banner files.
+
 ## Roster (snapshot -- the tool's accepted list is the real source of truth)
 
 | Slug | Family |

@@ -107,4 +107,16 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Open $Destination in Cursor"
 Write-Host "  2. Fill in .cursor/rules/deploy-awareness.mdc with your deploy targets"
-Write-Host "  3. Start building -- agents already know your workflow"
+$cgCli = Get-Command codegraph -ErrorAction SilentlyContinue
+if ($cgCli) {
+    $cgInit = Read-Host "Run codegraph init in this project? (y/n, default: y)"
+    if ($cgInit -ne "n") {
+        Push-Location $Destination
+        codegraph init
+        Pop-Location
+        Write-Host "  [codegraph] Index built at .codegraph/"
+    }
+} else {
+    Write-Host "  3. Optional: install CodeGraph (https://github.com/colbymchenry/codegraph) then run codegraph install && codegraph init"
+}
+Write-Host "  4. Start building -- agents already know your workflow"

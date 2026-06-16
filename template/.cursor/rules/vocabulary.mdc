@@ -10,7 +10,7 @@ Definitions are exact. Do not under-scope or over-scope.
 | Command | Meaning / Action |
 |---|---|
 | **"tidy" / "clean up"** (a file) | Current file only: dead code, naming, inline trivial things. |
-| **"refactor"** | Whole feature/module, EVERY applicable clean-code category. Touching only one category is a failure. |
+| **"refactor"** | Whole feature/module, EVERY applicable clean-code category. Touching only one category is a failure. Run `codegraph_impact` first (`codegraph.mdc`). |
 | **"aggressive/deep refactor"** | Entire codebase, every category. |
 | **"rebuild"** | Read and follow `rebuild-protocol.mdc`. Keep every feature, rebuild the structure properly. Not a pixel copy. |
 | **"redesign"** | Read and follow `redesign-protocol.mdc`. Look/feel changes, core logic intact, starts with discovery. |

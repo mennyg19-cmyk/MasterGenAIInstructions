@@ -18,18 +18,30 @@ A rebuild = "now that I know all the features I actually want, build it again fr
 
 All spawning mechanics, the roster, family-diversity rules, attribution, and the debate loop live in **`subagents.mdc` -- read it before Phase 0.** Slugs named below are examples; swap any valid slugs that preserve family diversity.
 
-## Phase 0: Multi-Model Audit + History Mining
+## Phase 0: Multi-Model Audit + History Mining (CodeGraph A+B hybrid)
 
-Do NOT do this yourself -- spawn subagents.
+Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep the whole tree either. **CodeGraph is deterministic; models differ in judgment, not in graph facts.**
 
-1. Orient: read the codebase; identify the major areas.
-2. Per area, spawn **2 subagents on DIFFERENT model families with SPLIT ROLES** (one message, `run_in_background: true`; never the same slug twice per area). Two models still cover every area -- different blind spots -- but each reads deeply for ONE concern instead of both duplicating an exhaustive audit:
-   - **Inventory auditor**:
-     > "You are auditing the [AREA] of this codebase at [PATH]. Document every feature, behavior, route, component, endpoint, data model, and config -- exhaustive; if in doubt, include it (this is the list of what must NOT be lost in a rebuild). Structured report."
-   - **Structure auditor** (different family):
-     > "You are auditing the [AREA] of this codebase at [PATH]. Two jobs: (1) Call out everything WRONG or messy: misplaced features, things that should be grouped, clashing/duplicated modules, broken or half-finished features, hacky CSS, confusing flows. (2) Produce a COVERAGE SKELETON: a bare list of every route, screen, endpoint, data model, and job you encountered -- names/paths only, no descriptions. The skeleton is a cross-check against another auditor's report, so completeness matters more than detail."
-3. Spawn a history miner on the project's chat transcripts: bugs fixed, features added after the plan, pain points/regressions, workarounds, user corrections → **BUILD-HISTORY.md**.
-4. Wait for ALL reports before Phase 1.
+### Step 1: Parent graph backbone (orchestrator -- you)
+
+1. Ensure `.codegraph/` exists (`codegraph init` if not). If rebuild names a reference app path, init there too.
+2. Identify major areas (frontend, backend, DB, config, tests).
+3. Per area, run CodeGraph (`codegraph_context`, `codegraph_files`, targeted `codegraph_explore`) and write **factual** digests to `rebuild-audit/graph-backbone/[area].md` -- routes, symbols, endpoints, models (no interpretation yet).
+4. Spawn history miner → **BUILD-HISTORY.md** (unchanged).
+
+### Step 2: Multi-model auditors (2 families × each area -- judgment layer)
+
+Per area, spawn **2 subagents on DIFFERENT model families** (`run_in_background: true`, one message). Each prompt must include:
+
+- Path to `rebuild-audit/graph-backbone/[area].md` (REQUIRED READING + proof-of-read per `subagents.mdc`).
+- **First action:** check CodeGraph MCP (`codegraph_status`). If available, use `codegraph_*` for drill-down -- do not re-scan the tree with Read/grep. If unavailable, use the backbone only and note "MCP unavailable" in the report header; parent must run any follow-up queries the subagent requests.
+- **Split roles (unchanged):**
+  - **Inventory auditor:** exhaustive feature/behavior list (what must NOT be lost).
+  - **Structure auditor:** what's WRONG/messy + coverage skeleton (names/paths only).
+
+The multi-model step is **interpretation and cross-check**, not duplicate file walks.
+
+### Step 3: Wait for ALL reports before Phase 1.
 
 ## Phase 1: Feature Inventory
 

@@ -38,3 +38,6 @@ htmlcov/
 # Agent scratch space (expectation files, phase plans -- never committed)
 .scratch/
 previews/
+
+# CodeGraph local index (run codegraph init per project)
+.codegraph/

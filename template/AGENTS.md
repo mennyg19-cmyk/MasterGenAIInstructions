@@ -5,39 +5,33 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 ## How the rules stack
 
 1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat.
-2. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `deploy-awareness.mdc`, `vocabulary.mdc`.
-3. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
-4. **README § Rule Preferences** -- your standing choices when ponytail and protocols disagree.
+2. **CodeGraph (always on when MCP configured)** -- `codegraph.mdc`: deterministic structural index; hybrid with Read/grep.
+3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `deploy-awareness.mdc`, `vocabulary.mdc`.
+4. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
+5. **README § Rule Preferences** -- standing choices when rules disagree.
 
 ## Read-Before-Acting Index
 
 | When | Read |
 |---|---|
-| Before any edit | `workflow.mdc` + `ponytail.mdc` + `clean-code.mdc` |
+| Before any edit | `workflow.mdc` + `ponytail.mdc` + `codegraph.mdc` + `clean-code.mdc` |
+| Structural code questions | `codegraph.mdc` (codegraph_* before grep-for-symbol) |
 | Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
 | Commits / deploys | `git-discipline.mdc` + `deploy-awareness.mdc` |
-| Subagents | `subagents.mdc` (multi-model: rebuild/redesign only unless "use more models") |
-| Phase review / production merge | `review-protocol.mdc` (ponytail-review + correctness loop) |
+| Subagents | `subagents.mdc` (graph-backbone + MCP-if-available pattern) |
+| Phase review / production merge | `review-protocol.mdc` |
 | Tests | `testing-protocol.mdc` |
 | Rule conflict | README § Rule Preferences + `ponytail.mdc` |
 
-## Menny's Rule Preferences (summary)
+## CodeGraph essentials
 
-See README § Rule Preferences for the full list. Highlights:
-
-- Ponytail **full**, always on. Dependencies: ponytail ladder (no new packages lightly).
-- Walkthrough headers **off** (`enable walkthroughs` to restore).
-- Chat: terse routine edits; full prose for explain/decisions/conflicts.
-- Reviews: **mandatory ponytail-review** at every phase gate + correctness loop.
-- Testing: hybrid (protocol floor, minimal tests). God files: split at >500 lines / refactor.
-- Multi-model: rebuild/redesign only. Verification: tiered. Artifacts: ask when heavy.
-- Unknown conflict: default protocol-safe, keep building, tell user, offer to record preference.
-- Complex requests: fix-don't-suggest. Rebuild: ask before dropping speculative features.
+- **Deterministic:** same query + index = same output for any model. Models differ in *interpretation*, not graph facts.
+- **Hybrid:** codegraph for structure; Read/grep for literals. Run `codegraph init` if `.codegraph/` missing.
+- **Rebuild Phase 0:** parent graph-backbone → multi-model auditors (try MCP; parent fills gaps).
+- **`codegraph_impact`** before refactor/rename/delete.
 
 ## Absolutes
 
-- Orient: HANDOFF → README (incl. Rule Preferences) → this file → DECISION-LOG (recent).
-- Verify in running app; tiered depth per `workflow.mdc`.
-- Production merge requires review loop; platform green after push.
-- Never commit secrets; never `prisma db push` in build scripts.
-- Subagents: explicit model, paths not pastes, proof-of-read, terse replies.
+- Orient: HANDOFF → README (Rule Preferences) → this file → DECISION-LOG (recent). Init codegraph if missing.
+- Ponytail full; tiered verification; production review loop; platform green after push.
+- Subagents: explicit model, paths not pastes, proof-of-read, codegraph_status first, terse replies.
