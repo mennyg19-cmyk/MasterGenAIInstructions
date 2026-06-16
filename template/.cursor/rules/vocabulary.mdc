@@ -22,6 +22,11 @@ Definitions are exact. Do not under-scope or over-scope.
 | **"hotfix" / "production is broken"** | Read and follow `hotfix-protocol.mdc`. Speed over ceremony. |
 | **"hand off" / "save state"** | Read `session-handoff.mdc`; write HANDOFF.md. |
 | **"cleanup"** (codebase) | Read and follow `cleanup-protocol.mdc`. |
+| **"enable walkthroughs"** | Re-enable archived `code-walkthrough.mdc` (was disabled to save tokens). |
+| **"ponytail lite" / "full" / "ultra"** | Adjust lazy intensity (ponytail is always on at full by default). |
+| **"stop ponytail" / "normal mode"** | Suspend lazy posture until `ponytail` is said again. |
+| **"review for over-engineering" / "ponytail-review"** | `ponytail.mdc` on-demand review section. Complements `review-protocol.mdc`. |
+| **"audit for over-engineering" / "ponytail-audit"** | `ponytail.mdc` on-demand audit section. One-shot; does not apply fixes. |
 
 ## Load-on-demand rules
 

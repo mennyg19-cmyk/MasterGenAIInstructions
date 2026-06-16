@@ -10,6 +10,8 @@ description: Testing strategy and execution -- tests built alongside code, TESTI
 - Don't test: framework internals, trivial getters, UI layout (that's visual review).
 - Every bug fix gets a regression test that would have caught it.
 
+**Hybrid (Rule Preference):** meet this protocol's requirements, but keep each test ponytail-minimal -- no fixture forests, no per-function suites unless the feature demands it.
+
 ## Test DB Isolation
 
 - DB tests use an **isolated test schema/database** -- never the shared dev/prod client singleton (a past suite silently hit the dev DB and proved nothing). Confirm the connection target before trusting a green run.

@@ -1,33 +1,10 @@
 ---
-description: Every file gets a plain-English walkthrough at the top, in code order. Keeps the codebase readable for humans.
-alwaysApply: true
+description: DISABLED per Rule Preferences (saves tokens). Say "enable walkthroughs" to restore. Full rule archived in MasterGenAIInstructions _meta/archived/code-walkthrough.mdc.
+alwaysApply: false
 ---
 
-# Code Walkthrough
+# Code Walkthrough (disabled)
 
-Every file in the project gets a plain-English walkthrough at the top explaining what's in it. Tone: per `workflow.mdc`.
+**Not active.** Menny's Rule Preferences turned this off to save tokens. Code should be self-explanatory via clear naming (`clean-code.mdc`).
 
-## Format
-
-- Block comment at the top of every file (after imports).
-- Walks through the file in order of the code.
-- Says what each function/class/section does.
-
-## Example
-
-```
-# === What's in this file ===
-# This handles the invoice report calculations.
-#
-# load_invoice_data()     -- Pulls raw invoice lines from D365 for a date range
-# apply_discounts()       -- Applies volume and customer-specific discounts to each line
-# calculate_totals()      -- Sums up the discounted lines into a final invoice total
-# format_for_excel()      -- Shapes the data into the column layout the Excel export expects
-# generate_report()       -- Orchestrates the full pipeline: load -> discount -> total -> format
-```
-
-## Rules
-
-- Updated whenever functions are added, removed, or renamed.
-- Stale walkthroughs are worse than no walkthrough -- keep them in sync.
-- For frontend pages/components: describe what the user sees and what interactions are available.
+**Re-enable:** user says `enable walkthroughs` → copy `_meta/archived/code-walkthrough.mdc` from MasterGenAIInstructions (or restore from git history), set `alwaysApply: true`, record in README § Rule Preferences.

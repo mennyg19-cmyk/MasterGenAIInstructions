@@ -9,3 +9,5 @@ So I built this. One place where all my rules live. One bootstrap script to stam
 The rules come from real experience -- hundreds of hours of AI-assisted development across Python/Flask, React Native, Next.js, and more. They evolved from corrections I made in actual sessions, patterns I noticed in my chat histories, and mistakes I got tired of seeing.
 
 This is not a framework. It's not a philosophy manifesto. It's practical rules that make agents work the way I want them to.
+
+**Ponytail** ([DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail), MIT) is integrated as the always-on coding posture: YAGNI, stdlib first, shortest diff, anti-bloat. My protocols still own scope, gates, and multi-agent rigor. When they disagree, agents surface options instead of silently picking -- see `_meta/RULE-CONFLICTS.md` and README § Rule Preferences in each project.

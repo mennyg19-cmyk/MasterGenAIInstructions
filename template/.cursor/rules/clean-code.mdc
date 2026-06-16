@@ -11,7 +11,7 @@ alwaysApply: true
 - **Rule of 2**: needs 2+ real call sites right now. Not "might be useful later."
 - No barrel files unless 5+ exports.
 - No wrapper components under 5 lines of JSX with no logic -- inline it.
-- Split files by concern, not by line count.
+- Split files by concern, not by line count -- **split when >500 lines, mixed concerns, or a refactor command** (Rule Preference: saves agent tokens vs one god file).
 - If removing duplication adds more lines than it saves and the code is stable, leave it duplicated.
 
 ## Comment Quality
@@ -64,7 +64,7 @@ alwaysApply: true
 
 ## Dependency Discipline
 
-- Before adding any package: can this be done with stdlib or existing deps?
+- Before adding any package: can this be done with stdlib or existing deps? (Follow the ladder in `ponytail.mdc` -- always on.)
 - If a package is needed, state WHY in the commit message.
 - Never add a package just for slight convenience.
 - Pin versions -- no floating ranges.

@@ -8,10 +8,13 @@ A "phase" = a feature, module, or protocol step spanning more than one commit.
 
 ## Cadence (single source of truth -- other files defer to this)
 
-1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent. Commit/push freely on the working/preview branch.
-2. **Per todo**: SELF-REVIEW against the pre-written expectation checklist (`workflow.mdc`) -- walk every item with evidence from the running app. No evidence = unchecked = not done.
-3. **Per phase**: the independent review loop below, BEFORE the phase is marked done or the next one starts.
-4. **Before any merge to the production branch**: the loop is MANDATORY (the go-live gate). Preview branches may carry tested-but-unreviewed code; production never may.
+1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent.
+2. **Per todo**: SELF-REVIEW per `workflow.mdc` verification tier.
+3. **Per phase** (in order, all mandatory before the phase is marked done):
+   - Self-review against expectation checklists.
+   - **Ponytail-review** on the phase diff (`ponytail.mdc`) -- hunt over-engineering; fix EVERY finding (delete/stdlib/native/yagni/shrink) or log explicit user deferral in DECISION-LOG. Re-run until `Lean already. Ship.` or zero actionable cuts.
+   - **Correctness loop** below (independent subagent, fresh family each pass, zero findings).
+4. **Before production merge**: correctness loop mandatory (go-live gate).
 
 ## Self-Review First, Then Independent
 

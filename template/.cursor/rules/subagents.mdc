@@ -41,10 +41,16 @@ The subagent's final message lands in YOUR context -- don't pay for the delivera
 
 Families: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet+Opus)**. "Use more models" = reach across families.
 
+## When to use multiple models (Rule Preference)
+
+- **Multi-family required:** rebuild and redesign protocols (audits, proposals, debate, final parity review).
+- **Single subagent default:** normal features, fixes, phase reviews, hotfixes -- unless the user says **"use more models."**
+- When multi-model IS required: N subagents = N different families; never the same slug twice per job.
+
 ## Three Hard Rules
 
 1. **Never silently fall back to your own model.** A rejected slug returns the valid list -- pick another valid slug and retry. NEVER drop `model` and run on yourself: that turns multi-model coverage into single-model blind spots without anyone noticing.
-2. **Same job × N subagents = N different families.** Two Opus variants ≠ two families. Never the same slug twice for one job. Diversity beats power -- a cheap cross-family model catches more than a second expensive same-family one.
+2. **Same job × N subagents = N different families** (when multi-model is required per above). Two Opus variants ≠ two families.
 3. **The orchestrator records the assigned model on every artifact** (header line `Model: <slug>`). Self-labels and filenames prove nothing about what actually ran.
 
 ## Multi-Model Debate to Consensus

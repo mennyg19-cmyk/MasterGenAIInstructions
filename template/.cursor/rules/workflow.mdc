@@ -18,6 +18,7 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 ## Core Principles
 
 - Read before edit -- reuse existing helpers, components, and patterns; don't introduce competing ones.
+- **Coding posture: ponytail full by default** (`ponytail.mdc`, always on) -- ladder, anti-bloat, shortest working diff; on conflict with another rule, follow ponytail's conflict protocol (never silent override).
 - Smallest complete change. No drive-by rewrites. No silent scope creep.
 - "Based on app X": define which app owns UI vs. logic vs. data format in README before building.
 - Keep README current.
@@ -26,7 +27,7 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 
 ## Execution Discipline
 
-- **Fix, don't suggest** -- implement direct instructions; offer options only when asked.
+- **Fix, don't suggest** -- implement direct instructions; offer options only when asked or when a standing Rule Preference says to surface a conflict.
 - **Don't stop until done** -- all phases, todos, steps. Stopping early requires saying why and getting permission.
 - **Verify in the running app** -- never mark done from code alone. An empty 200 is not working: seed data, exercise the real flow.
 - **Implement attached plans verbatim** -- don't edit the plan file or re-create existing todos.
@@ -37,6 +38,11 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 - **Never silently choose business logic** (calculations, domain rules) -- log in DECISION-LOG.md and flag.
 - **Completion checklist before "done"**: re-read every todo/phase/checklist item and confirm each is actually complete. Never declare done from memory.
 
+## Verification (tiered)
+
+- **Small fixes** (single bug, narrow change): smoke check -- the affected path works in the running app or via the smallest runnable test.
+- **Features, rebuild todos, phase work**: full expectation checklist (`workflow.mdc` expectation files) -- every item with evidence from the running app; seeded data for data-driven pages.
+
 ## Expectation Files (pre-committed self-review)
 
 For any phase (multi-todo body of work), keep a rolling scratch file at `.scratch/phase-plan.md` (gitignored, never committed -- add `.scratch/` to `.gitignore` if it's missing):
@@ -44,7 +50,11 @@ For any phase (multi-todo body of work), keep a rolling scratch file at `.scratc
 1. **Before the phase**: write the phase plan -- todos, plan/inventory IDs covered, what "done" looks like, what must be verified in the running app.
 2. **Before each todo**: append an EXPECTED block -- enumerated, verifiable items (the route that must load, every control and its behavior, structural fixes), citing the IDs it covers. Written BEFORE building, so the goal can't shrink to fit the result.
 3. **After the todo**: walk that checklist item by item, marking each with evidence (route opened, control clicked, value seen). An item without evidence is unchecked; an unchecked item means the todo is not done.
-4. **At the phase gate**: reviews start from these completed checklists (verify evidence, spot-check claims) per `review-protocol.mdc`.
+4. **At the phase gate**: reviews per `review-protocol.mdc`.
+
+## Protocol artifacts
+
+When creating a large protocol artifact (FEATURE-INVENTORY, DEBATE-LOG, expectation files, long DECISION-LOG entries): **ask** if the format feels heavy or propose a lighter alternative. If autonomous, note the tradeoff in DECISION-LOG and use the protocol format unless BLOCKED.
 
 ## Dev Server Hygiene
 

@@ -14,7 +14,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 14 Cursor rule files
+|   |-- .cursor/rules/   # 15 Cursor rule files (ponytail always on)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -60,7 +60,7 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **13 Cursor rule files** covering vocabulary, workflow, git discipline, clean code, review gates, autonomous mode, testing, code walkthroughs, rebuild/redesign/hotfix protocols, deploy awareness, and session handoff.
+- **14 Cursor rule files** covering vocabulary, workflow, ponytail (always-on minimalism), git discipline, clean code, review gates, autonomous mode, testing, code walkthroughs, rebuild/redesign/hotfix protocols, deploy awareness, and session handoff.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
 - Proper `.gitignore`.
@@ -87,29 +87,33 @@ This copies the 14 rule files and AGENTS.md into the project. It creates DECISIO
 
 ## Rule Files
 
-### Always-On (9 files, loaded every session)
+### Always-On (7 files, loaded every session)
 
 | File | Purpose |
 |---|---|
-| `vocabulary.mdc` | What every command word means |
+| `vocabulary.mdc` | Command words + protocol index |
 | `workflow.mdc` | Core principles, tone, onboarding, security |
+| `ponytail.mdc` | Always-on lazy senior-dev posture (YAGNI, ladder, anti-bloat); conflict protocol vs other rules |
 | `git-discipline.mdc` | Branching, commits, push behavior |
 | `clean-code.mdc` | Code quality, naming, anti-AI-slop, dependencies |
-| `review-protocol.mdc` | When and how to use review subagents |
-| `autonomous-mode.mdc` | Unattended operation rules |
-| `testing-protocol.mdc` | Testing strategy alongside code |
 | `code-walkthrough.mdc` | File-level plain-English documentation |
 | `deploy-awareness.mdc` | Project-specific deploy config (template) |
 
-### Triggered by Description (4 files, loaded when relevant)
+### Load on Demand
 
 | File | Trigger |
 |---|---|
+| `review-protocol.mdc` | Phase complete, review, production merge |
+| `autonomous-mode.mdc` | "run autonomously" / decision logging |
+| `testing-protocol.mdc` | Writing tests |
+| `subagents.mdc` | Spawning any subagent |
 | `rebuild-protocol.mdc` | User says "rebuild" |
 | `redesign-protocol.mdc` | User says "redesign" |
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |
+
+Conflict playbook (human reference, not auto-loaded): `_meta/RULE-CONFLICTS.md`.
 
 ## Updating Rules Across All Projects
 

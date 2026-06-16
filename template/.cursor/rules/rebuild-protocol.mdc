@@ -10,7 +10,7 @@ A rebuild = "now that I know all the features I actually want, build it again fr
 
 ## The #1 Rule: Keep Every Feature. Improve the Structure.
 
-**Half 1 (sacred): no feature gets dropped.** The old app is the source of truth for WHAT it can do -- every page, button, dialog, form, filter, import/export, bulk/row action, settings option, data column. Read the old code for each area before rebuilding it; never work from memory. Backend capability with no working UI control ("engine with no car") is a FAILURE. "It compiles and renders" is not done. Keep the old source accessible all rebuild long; note its path in REBUILD-PLAN.md.
+**Half 1 (sacred): no feature gets dropped.** The old app is the source of truth for WHAT it can do -- every page, button, dialog, form, filter, import/export, bulk/row action, settings option, data column. Read the old code for each area before rebuilding it; never work from memory. Backend capability with no working UI control ("engine with no car") is a FAILURE. "It compiles and renders" is not done. Keep the old source accessible all rebuild long; note its path in REBUILD-PLAN.md. **If a feature feels speculative, bolted-on, or never used:** ask before DROP-with-approval (`ponytail.mdc` Rule Preference) -- ponytail does not auto-skip inventory items.
 
 **Half 2 (the point): the structure gets FIXED, not copied.** Not a pixel photocopy. Move what's misplaced, group what belongs together, fix broken/clashing interactions, rebuild CSS so it lines up and is consistent, finish what was never done right. The test: every feature works AND it's organized better -- not "looks identical." Significant layout/grouping changes get recorded; judgment calls the user might care about get surfaced.
 

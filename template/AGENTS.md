@@ -1,31 +1,43 @@
 # Agent Instructions
 
-Rules for ALL agents working in this repo (Cursor, Claude Code, Codex, etc.).
+Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor/rules/*.mdc`.
 
-**The full rulebook lives in `.cursor/rules/*.mdc` -- plain markdown files any agent can read.** This file is only a router plus the absolutes. When a row below matches your task, READ THAT FILE before acting -- never work from memory or from this summary.
+## How the rules stack
+
+1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat.
+2. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `deploy-awareness.mdc`, `vocabulary.mdc`.
+3. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
+4. **README § Rule Preferences** -- your standing choices when ponytail and protocols disagree.
 
 ## Read-Before-Acting Index
 
 | When | Read |
 |---|---|
-| Any session, before any edit | `.cursor/rules/workflow.mdc` (orientation, execution discipline, expectation files) |
-| User says "rebuild" / "redesign" / "hotfix" / "cleanup" / "run autonomously" / "hand off" | the matching `*-protocol.mdc` / `autonomous-mode.mdc` / `session-handoff.mdc` (exact vocabulary: `vocabulary.mdc`) |
-| Writing or changing code | `.cursor/rules/clean-code.mdc` + `.cursor/rules/code-walkthrough.mdc` |
-| Committing, pushing, branching | `.cursor/rules/git-discipline.mdc` |
-| Anything that deploys (or after any push) | `.cursor/rules/deploy-awareness.mdc` |
-| Spawning ANY subagent | `.cursor/rules/subagents.mdc` |
-| Finishing a phase / reviewing / merging to production | `.cursor/rules/review-protocol.mdc` |
-| Writing tests | `.cursor/rules/testing-protocol.mdc` |
+| Before any edit | `workflow.mdc` + `ponytail.mdc` + `clean-code.mdc` |
+| Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
+| Commits / deploys | `git-discipline.mdc` + `deploy-awareness.mdc` |
+| Subagents | `subagents.mdc` (multi-model: rebuild/redesign only unless "use more models") |
+| Phase review / production merge | `review-protocol.mdc` (ponytail-review + correctness loop) |
+| Tests | `testing-protocol.mdc` |
+| Rule conflict | README § Rule Preferences + `ponytail.mdc` |
 
-## The Absolutes (full detail lives in the files above)
+## Menny's Rule Preferences (summary)
 
-- Plain English everywhere; audience is a self-taught programmer who hates jargon.
-- Orient before editing: HANDOFF.md (if present) → README.md → this file → DECISION-LOG.md (recent entries).
-- Verify in the running app -- never declare done from code alone; an empty 200 is not working.
-- Before declaring done: re-read every todo/checklist item and confirm each is complete. Never from memory.
-- Never work directly on the production branch; review loop is mandatory before production merges.
-- After every push: verify triggered builds are green ON THE PLATFORM. "Should pass" is banned.
-- Never `prisma db push` / `--accept-data-loss` in build scripts.
-- Never commit secrets; `.env*` gitignored; `.env.example` placeholders.
-- Subagents: `model` set explicitly, different families per job, documents passed as file paths with a read-in-full order and proof-of-read, replies are short summaries.
-- Never silently choose business logic -- log it in DECISION-LOG.md.
+See README § Rule Preferences for the full list. Highlights:
+
+- Ponytail **full**, always on. Dependencies: ponytail ladder (no new packages lightly).
+- Walkthrough headers **off** (`enable walkthroughs` to restore).
+- Chat: terse routine edits; full prose for explain/decisions/conflicts.
+- Reviews: **mandatory ponytail-review** at every phase gate + correctness loop.
+- Testing: hybrid (protocol floor, minimal tests). God files: split at >500 lines / refactor.
+- Multi-model: rebuild/redesign only. Verification: tiered. Artifacts: ask when heavy.
+- Unknown conflict: default protocol-safe, keep building, tell user, offer to record preference.
+- Complex requests: fix-don't-suggest. Rebuild: ask before dropping speculative features.
+
+## Absolutes
+
+- Orient: HANDOFF → README (incl. Rule Preferences) → this file → DECISION-LOG (recent).
+- Verify in running app; tiered depth per `workflow.mdc`.
+- Production merge requires review loop; platform green after push.
+- Never commit secrets; never `prisma db push` in build scripts.
+- Subagents: explicit model, paths not pastes, proof-of-read, terse replies.
