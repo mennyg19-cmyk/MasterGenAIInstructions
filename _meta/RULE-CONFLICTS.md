@@ -12,13 +12,14 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 
 | Layer | Source | What it owns | Always on? |
 |---|---|---|---|
+| **genAITemplate** | [EvanPokroy/genAITemplate](https://github.com/EvanPokroy/genAITemplate) | Foundation: bootstrap + stamp agent instructions into new repos | N/A (historical) |
+| **Protocols** | Menny / [MasterGenAIInstructions](https://github.com/mennyg19-cmyk/MasterGenAIInstructions) (evolved from genAITemplate) | Rebuild inventory, review loops, deploy gates, autonomous BLOCKED | On demand |
 | **Ponytail** | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | Ladder, YAGNI, anti-bloat, terse chat, conflict protocol | Yes |
 | **Anti-slop** | [unslop](https://github.com/MohamedAbdallah-14/unslop) Tier 1 in `ponytail.mdc` | Drop AI-isms; human voice in chat, comments, commits, HANDOFF | Yes |
 | **CodeGraph** | [codegraph](https://github.com/colbymchenry/codegraph) in `codegraph.mdc` | Deterministic structural lookup; hybrid with Read/grep; A+B rebuild backbone | Yes |
 | **Gate discipline** | [babysitter](https://github.com/a5c-ai/babysitter) Tier 1 in `workflow.mdc` | Mandatory stop at gates; command output discipline; `.scratch/run-state.md` | Yes |
-| **Clean-code** | Original | Naming, code anti-tics, UI consistency, Rule of 2 | Yes |
-| **Workflow** | Original | Orientation, execution discipline, expectation files, security | Yes |
-| **Protocols** | Original | Rebuild inventory, review loops, deploy gates, autonomous BLOCKED | On demand |
+| **Clean-code** | Menny (MasterGenAIInstructions) | Naming, code anti-tics, UI consistency, Rule of 2 | Yes |
+| **Workflow** | Menny (MasterGenAIInstructions) | Orientation, execution discipline, expectation files, security | Yes |
 | **On conflict** | `ponytail.mdc` | Explain → options → README preferences → protocol-safe default | Yes |
 
 **Design intent:** Protocols own scope and quality gates. Ponytail + integrations keep day-to-day work lean — fewer tokens, less slop, fewer deps — without quietly dropping features or skipping reviews.

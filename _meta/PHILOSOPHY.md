@@ -6,7 +6,9 @@ Every project, every session, I'd say the same things: commit and push after eve
 
 So I built **MasterGenAIInstructions** — one place where all my rules live. One bootstrap script stamps them into every new project. Agents follow my workflow from the first commit.
 
-The core protocols grew from real experience: hundreds of hours of AI-assisted development across Python/Flask, React Native, Next.js, and more. They evolved from corrections in actual sessions, patterns in chat histories, and mistakes I got tired of seeing.
+**Foundation:** This repo started as a fork of [Evan Pokroy's genAITemplate](https://github.com/EvanPokroy/genAITemplate) — Evan's idea of a lightweight bootstrap + documentation operating system for agent-assisted projects. I kept the scaffolding (bootstrap scripts, registry, portable instructions). I replaced the security-first SonarQube stack with Cursor-native rules and my own vibe-coding workflows.
+
+The core protocols grew from real experience on top of that foundation: hundreds of hours of AI-assisted development across Python/Flask, React Native, Next.js, and more. They evolved from corrections in actual sessions, patterns in chat histories, and mistakes I got tired of seeing.
 
 This is not a framework. It's practical rules that make agents work the way I want them to.
 
@@ -18,7 +20,8 @@ Different tools solve different problems. They are **layered**, not merged into 
 
 | Layer | Job | Analogy |
 |---|---|---|
-| **Protocols** (this repo) | *What* to do and *when* — rebuild inventory, review loops, deploy gates | The playbook |
+| **genAITemplate** (Evan Pokroy) | *Foundation* — bootstrap a repo with agent instructions already in place | The original blueprint |
+| **Protocols** (Menny / this repo) | *What* to do and *when* — rebuild inventory, review loops, deploy gates | The playbook |
 | **Ponytail** | *How* to implement — YAGNI, ladder, shortest diff | The senior dev at the keyboard |
 | **CodeGraph** | *How to navigate* code — deterministic structure, not guessing from grep | The map |
 | **Unslop** (Tier 1) | *How replies sound* — drop AI-isms, save tokens on chat | The editor |
@@ -34,7 +37,16 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
 
 ## Credits — where the rules came from
 
-### Original protocols (Menny / MasterGenAIInstructions)
+### Evan Pokroy — genAITemplate (foundation)
+
+- **Credit:** [EvanPokroy/genAITemplate](https://github.com/EvanPokroy/genAITemplate). Menny's fork: [mennyg19-cmyk/genAITemplate](https://github.com/mennyg19-cmyk/genAITemplate).
+- **What Evan built:** A small, language-agnostic **agent project starter** — bash bootstrap (`deploy-new-project.sh`), `MASTER-INSTRUCTIONS.md`, `_meta/` principles and glossary, numbered trace/wiki folders, and a guided bootstrap agent. The point: every new project ships with a documentation OS and meta-prompts so agents aren't trained from scratch each time.
+- **What survived the fork:** The *pattern* — bootstrap → stamp template → git init → optional remote → work with agents who already know the house rules. Menny's `bootstrap.ps1`, `apply.ps1`, `update-all.ps1`, and `registry.json` are the Windows/Cursor evolution of that idea.
+- **What Menny changed:** Replaced Evan's security-first / SonarQube-centric SDL with Cursor `.mdc` rules, `AGENTS.md`, rebuild/redesign multi-agent protocols, plain-English DECISION-LOG (not formal ADR wiki), deploy verification, and later integrations (ponytail, codegraph, unslop, babysitter Tier 1). Evan's setup wasn't wrong — it targets a different workflow (compliance-heavy, non-Cursor). This repo is vibe-coding for personal and app projects.
+
+---
+
+### Menny's protocols (MasterGenAIInstructions — evolved from genAITemplate)
 
 **What they do:** Own the workflows I actually run — multi-phase rebuilds with sacred feature inventories, debate-to-consensus architecture, diff-scoped phase reviews, expectation checklists in `.scratch/`, DECISION-LOG / HANDOFF, subagent mechanics (paths not pastes, proof-of-read, family diversity), deploy verification, autonomous BLOCKED stops, hotfix/cleanup/redesign paths.
 

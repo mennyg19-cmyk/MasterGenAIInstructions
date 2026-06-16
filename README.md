@@ -2,6 +2,8 @@
 
 Personal agent operating system for AI-assisted development. Bootstrap new projects with Cursor rules, portable AGENTS.md, and workflow protocols pre-loaded so agents work your way from commit zero.
 
+**Lineage:** Forked and rebuilt from [Evan Pokroy's genAITemplate](https://github.com/EvanPokroy/genAITemplate) (Menny's fork: [mennyg19-cmyk/genAITemplate](https://github.com/mennyg19-cmyk/genAITemplate)) into this Cursor-native system.
+
 **Philosophy and credits:** [_meta/PHILOSOPHY.md](_meta/PHILOSOPHY.md) — why this exists, how the layers fit together, and who we borrowed from.
 
 ## What's In Here
@@ -37,18 +39,30 @@ Rules are **layered**. Protocols own scope and quality gates; integrations make 
 ┌─────────────────────────────────────────────────────────┐
 │  README § Rule Preferences  — your standing choices      │
 ├─────────────────────────────────────────────────────────┤
-│  Protocols (on demand)  — rebuild, review, subagents…    │  ← original (this repo)
+│  Protocols (on demand)  — rebuild, review, subagents…  │  ← Menny (evolved from Evan's template)
 ├─────────────────────────────────────────────────────────┤
 │  Ponytail  — how to implement (ladder, YAGNI, brevity) │  ← DietrichGebert/ponytail
-│  + Unslop Tier 1  — anti-slop voice in ponytail.mdc     │  ← MohamedAbdallah-14/unslop
+│  + Unslop Tier 1  — anti-slop voice in ponytail.mdc    │  ← MohamedAbdallah-14/unslop
 ├─────────────────────────────────────────────────────────┤
-│  CodeGraph  — structural navigation (MCP + CLI)        │  ← colbymchenry/codegraph
+│  CodeGraph  — structural navigation (MCP + CLI)         │  ← colbymchenry/codegraph
 ├─────────────────────────────────────────────────────────┤
-│  Babysitter Tier 1  — gates, cmd output, run-state     │  ← a5c-ai/babysitter (rules only)
+│  Babysitter Tier 1  — gates, cmd output, run-state      │  ← a5c-ai/babysitter (rules only)
+├─────────────────────────────────────────────────────────┤
+│  genAITemplate  — bootstrap + “one place for agent rules”│  ← EvanPokroy (foundation)
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Original protocols (this repo)
+### [Evan Pokroy / genAITemplate](https://github.com/EvanPokroy/genAITemplate) — foundation
+
+| | |
+|---|---|
+| **Original repo** | [EvanPokroy/genAITemplate](https://github.com/EvanPokroy/genAITemplate) |
+| **Menny's fork** | [mennyg19-cmyk/genAITemplate](https://github.com/mennyg19-cmyk/genAITemplate) |
+| **What Evan built** | A lightweight **meta-prompt / agent project template**: bash bootstrap (`deploy-new-project.sh`), a documentation operating system (`MASTER-INSTRUCTIONS.md`, `_meta/PRINCIPLES.md`, trace journals, ADR wiki), and the core idea that new projects should ship with agent instructions pre-loaded — not pasted from chat every session. |
+| **What carries forward here** | Bootstrap-and-apply workflow (`bootstrap.ps1`, `apply.ps1`, `update-all.ps1`, `registry.json`), “stamp rules into every repo,” portable agent docs (`AGENTS.md`), and the goal of not repeating yourself to agents. |
+| **What Menny replaced** | Evan's stack was security/SDL- and SonarQube-centric and not Cursor-native. MasterGenAIInstructions is `.cursor/rules/*.mdc`, vibe-coding workflows (rebuild, multi-model review, deploy verification), and Menny's own protocols — built on Evan's scaffolding idea, not a port of his rule content. |
+
+### Menny's protocols (this repo — evolved from genAITemplate)
 
 Multi-agent workflows built from real session corrections: sacred rebuild inventories, debate-to-consensus, diff-scoped phase reviews, expectation files (`.scratch/phase-plan.md`), DECISION-LOG / HANDOFF, subagent proof-of-read, deploy verification, autonomous BLOCKED stops.
 
