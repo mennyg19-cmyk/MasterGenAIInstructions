@@ -71,6 +71,47 @@ def copy_supporting_if_missing(target_dir):
     return results
 
 
+def codegraph_mcp_installed():
+    mcp_json = Path.home() / ".cursor" / "mcp.json"
+    return mcp_json.exists() and "codegraph" in mcp_json.read_text(encoding="utf-8")
+
+
+def ensure_codegraph_mcp():
+    if not shutil.which("codegraph"):
+        return "  [codegraph] CLI not on PATH -- skip MCP and index"
+    if codegraph_mcp_installed():
+        return None
+    result = subprocess.run(
+        ["codegraph", "install", "--target=cursor", "--location=global", "--yes"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0:
+        return "  [codegraph] MCP wired -- restart Cursor to load"
+    return f"  [codegraph] MCP install failed: {result.stderr.strip() or result.stdout.strip()}"
+
+
+def sync_project_codegraph(project_path):
+    if not shutil.which("codegraph"):
+        return "  [codegraph] CLI not on PATH -- skip index"
+    index = Path(project_path) / ".codegraph"
+    cmd = ["codegraph", "sync"] if index.exists() else ["codegraph", "init"]
+    result = subprocess.run(cmd, cwd=project_path, capture_output=True, text=True)
+    if result.returncode == 0:
+        label = "synced" if index.exists() else "built at .codegraph/"
+        return f"  [codegraph] Index {label}"
+    return f"  [codegraph] index failed: {result.stderr.strip() or result.stdout.strip()}"
+
+
+def copy_guardrails(project_path):
+    dest = Path(project_path) / ".github" / "workflows" / "agent-guardrails.yml"
+    if dest.exists():
+        return "  [skipped]  .github/workflows/agent-guardrails.yml (already exists)"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(TEMPLATE_DIR / ".github" / "workflows" / "agent-guardrails.yml", dest)
+    return "  [created]  .github/workflows/agent-guardrails.yml"
+
+
 class BootstrapFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=20)
@@ -169,8 +210,16 @@ class BootstrapFrame(ttk.Frame):
 
         register_project(dest)
         self.log("[registered] Added to registry")
+
+        mcp_msg = ensure_codegraph_mcp()
+        if mcp_msg:
+            self.log(mcp_msg)
+        cg_msg = sync_project_codegraph(dest)
+        if cg_msg:
+            self.log(cg_msg)
+
         self.log("")
-        self.log(f"Done! Open {dest} in Cursor.")
+        self.log(f"Done! Open {dest} in Cursor (restart if MCP was just installed).")
 
 
 class ApplyFrame(ttk.Frame):
@@ -227,6 +276,16 @@ class ApplyFrame(ttk.Frame):
 
         register_project(target)
         self.log("  [registered] Added to registry")
+
+        self.log(copy_guardrails(target))
+
+        mcp_msg = ensure_codegraph_mcp()
+        if mcp_msg:
+            self.log(mcp_msg)
+        cg_msg = sync_project_codegraph(target)
+        if cg_msg:
+            self.log(cg_msg)
+
         self.log("")
         self.log("Done!")
 
@@ -236,7 +295,7 @@ class UpdateFrame(ttk.Frame):
         super().__init__(parent, padding=20)
         ttk.Label(self, text="Update All Registered Projects", font=("Segoe UI", 14, "bold")).pack(anchor="w", pady=(0, 15))
 
-        ttk.Label(self, text="Copies the latest .cursor/rules/ and AGENTS.md to every registered project.",
+        ttk.Label(self, text="Copies the latest .cursor/rules/, AGENTS.md, CodeGraph index sync, and CI guardrails to every registered project.",
                   wraplength=500, justify="left").pack(anchor="w", pady=(0, 10))
 
         btn_frame = ttk.Frame(self)
@@ -268,6 +327,11 @@ class UpdateFrame(ttk.Frame):
         self.log(f"Updating {len(registry)} project(s)...")
         self.log("")
 
+        mcp_msg = ensure_codegraph_mcp()
+        if mcp_msg:
+            self.log(mcp_msg)
+            self.log("")
+
         updated = []
         missing = []
 
@@ -278,7 +342,13 @@ class UpdateFrame(ttk.Frame):
                 continue
 
             count = copy_rules_to(project_path)
+            guard_line = copy_guardrails(project_path)
+            cg_msg = sync_project_codegraph(project_path)
             self.log(f"  [updated]  {project_path} ({count} rules)")
+            if guard_line.startswith("  [created]"):
+                self.log(f"             {guard_line.strip()}")
+            if cg_msg:
+                self.log(f"             {cg_msg.strip()}")
             updated.append(project_path)
 
         if missing:
@@ -289,9 +359,13 @@ class UpdateFrame(ttk.Frame):
         if self.commit_var.get() and updated:
             self.log("")
             for project_path in updated:
-                result = subprocess.run(["git", "status", "--porcelain"], cwd=project_path, capture_output=True, text=True)
+                track = [".cursor/rules/", "AGENTS.md", ".github/workflows/agent-guardrails.yml"]
+                result = subprocess.run(
+                    ["git", "status", "--porcelain", "--", *track],
+                    cwd=project_path, capture_output=True, text=True,
+                )
                 if result.stdout.strip():
-                    subprocess.run(["git", "add", ".cursor/rules/", "AGENTS.md"], cwd=project_path, capture_output=True)
+                    subprocess.run(["git", "add", *track], cwd=project_path, capture_output=True)
                     subprocess.run(["git", "commit", "-m", "Update rules from MasterGenAIInstructions"],
                                    cwd=project_path, capture_output=True)
                     subprocess.run(["git", "push"], cwd=project_path, capture_output=True)

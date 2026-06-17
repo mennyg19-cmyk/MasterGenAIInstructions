@@ -13,6 +13,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$SCRIPT_DIR/template"
+# shellcheck source=lib/project-setup.sh
+source "$SCRIPT_DIR/lib/project-setup.sh"
 
 if [ ! -d "$TEMPLATE_DIR" ]; then
     echo "Error: Template directory not found at $TEMPLATE_DIR" >&2
@@ -70,10 +72,33 @@ if [ "${CREATE_REPO:-y}" != "n" ]; then
     fi
 fi
 
+# Register the project for future updates
+REGISTRY_FILE="$SCRIPT_DIR/registry.json"
+FULL_PATH="$(pwd)"
+if command -v python3 &>/dev/null; then
+    REGISTERED=$(python3 - "$REGISTRY_FILE" "$FULL_PATH" <<'PY'
+import json, sys
+from pathlib import Path
+registry_file, full_path = Path(sys.argv[1]), sys.argv[2]
+registry = json.loads(registry_file.read_text()) if registry_file.exists() else []
+if full_path not in registry:
+    registry.append(full_path)
+    registry_file.write_text(json.dumps(registry, indent=2))
+    print("yes")
+PY
+)
+    if [ "$REGISTERED" = "yes" ]; then
+        echo "  [registered] Project added to registry for future rule updates."
+    fi
+fi
+
+ensure_codegraph_mcp || true
+sync_project_codegraph "$DESTINATION"
+
 echo ""
 echo "Done! Your project is ready at: $DESTINATION"
 echo ""
 echo "Next steps:"
-echo "  1. Open $DESTINATION in Cursor"
+echo "  1. Open $DESTINATION in Cursor (restart Cursor if MCP was just installed)"
 echo "  2. Fill in .cursor/rules/deploy-awareness.mdc with your deploy targets"
 echo "  3. Start building -- agents already know your workflow"

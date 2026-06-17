@@ -7,7 +7,7 @@ alwaysApply: true
 
 Adapted from [codegraph](https://github.com/colbymchenry/codegraph) (MIT). **Deterministic** -- tree-sitter AST + SQLite index, not LLM summaries. Same query + same index state = **same result regardless of which model runs it.** Multi-model value is in *interpretation* and *which follow-up queries to run*, not in re-reading files.
 
-Requires: `codegraph install` (MCP wiring) + per-project `codegraph init` (builds `.codegraph/`). If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
+Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync` (same scripts). If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
 
 ## Surface selection (MCP or CLI)
 

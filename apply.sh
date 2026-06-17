@@ -15,6 +15,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$SCRIPT_DIR/template"
+# shellcheck source=lib/project-setup.sh
+source "$SCRIPT_DIR/lib/project-setup.sh"
 
 if [ ! -d "$TEMPLATE_DIR" ]; then
     echo "Error: Template directory not found at $TEMPLATE_DIR" >&2
@@ -54,10 +56,43 @@ done
 echo "  [skipped]  README.md (not overwriting existing project file)"
 echo "  [skipped]  .gitignore (not overwriting existing project file)"
 
+# Register the project for future updates
+REGISTRY_FILE="$SCRIPT_DIR/registry.json"
+FULL_PATH="$(cd "$TARGET_DIR" && pwd)"
+if command -v python3 &>/dev/null; then
+    REGISTERED=$(python3 - "$REGISTRY_FILE" "$FULL_PATH" <<'PY'
+import json, sys
+from pathlib import Path
+registry_file, full_path = Path(sys.argv[1]), sys.argv[2]
+registry = json.loads(registry_file.read_text()) if registry_file.exists() else []
+if full_path not in registry:
+    registry.append(full_path)
+    registry_file.write_text(json.dumps(registry, indent=2))
+    print("yes")
+PY
+)
+    if [ "$REGISTERED" = "yes" ]; then
+        echo "  [registered] Project added to registry for future rule updates."
+    fi
+fi
+
+NO_GUARDRAILS="${NO_GUARDRAILS:-0}"
+if [ "$NO_GUARDRAILS" != "1" ]; then
+    copy_project_guardrails "$TARGET_DIR" "$TEMPLATE_DIR"
+fi
+
+ensure_codegraph_mcp || true
+sync_project_codegraph "$TARGET_DIR"
+
 echo ""
 echo "Done! Rules applied to: $TARGET_DIR"
 echo ""
 echo "Next steps:"
 echo "  1. Fill in .cursor/rules/deploy-awareness.mdc with your deploy targets"
 echo "  2. Review AGENTS.md to make sure it fits this project"
-echo "  3. Commit the new files"
+if [ "$NO_GUARDRAILS" != "1" ]; then
+    echo "  3. Review .github/workflows/agent-guardrails.yml -- tune or remove jobs as needed"
+    echo "  4. Commit the new files"
+else
+    echo "  3. Commit the new files"
+fi

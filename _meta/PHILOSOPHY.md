@@ -83,7 +83,7 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
 - **What it does:** Tree-sitter AST + SQLite index. Deterministic MCP tools (`codegraph_search`, `codegraph_callers`, `codegraph_impact`, …). Same query + same index = same facts for any model.
 - **Where it lives:** `codegraph.mdc` (always on). Woven into `rebuild-protocol.mdc` Phase 0, `subagents.mdc`, `vocabulary.mdc` (refactor → impact first).
 - **How we integrated it:** Hybrid lookup — codegraph for structure; Read/grep for literals and configs. **A+B rebuild pattern:** parent writes `graph-backbone/` digests (shared facts); subagents interpret with different models and drill down via MCP if available. Agents run `codegraph init` if `.codegraph/` is missing.
-- **Setup:** `codegraph install` once per machine (MCP); `codegraph init` per project. Bootstrap offers init when CLI is present.
+- **Setup:** `codegraph install` once per machine (MCP, auto on bootstrap/apply/update-all when missing); `codegraph init` or `sync` per project (automatic on bootstrap, apply, and update-all when CLI is present).
 
 ---
 

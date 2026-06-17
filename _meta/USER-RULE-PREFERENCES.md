@@ -15,7 +15,7 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1
 | **Rebuild Phase 0** | **A+B hybrid** — parent writes graph-backbone digests; 2 families/area interpret + audit; subagents use MCP if available, else parent runs queries |
 | **Subagents + CodeGraph** | Subagent checks `codegraph status` (CLI) or `codegraph_status` (MCP); uses whichever is available; if neither, reads parent digest + parent runs follow-up queries via MCP or CLI |
 | **codegraph_impact** | Mandatory before rename/delete/signature change/refactor |
-| **CodeGraph setup** | Bootstrap offers `codegraph init` when CLI present; global `codegraph install` once per machine |
+| **CodeGraph setup** | `bootstrap` / `apply` / `update-all` auto-run MCP install (once/machine) + `codegraph init` or `sync` (per project) when CLI is on PATH |
 | **Rebuild reference app** | Init codegraph in this repo **and** reference path when named |
 | **Rebuild scope** | Ask when a feature feels speculative/bolted-on; don't auto-drop |
 | **Dependencies** | Ponytail ladder — no new package unless stdlib + native + existing deps fail |

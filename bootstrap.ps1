@@ -7,6 +7,7 @@
 #   3. Replace {{PROJECT_NAME}} and {{DESCRIPTION}} placeholders
 #   4. Initialize git
 #   5. Optionally create a private GitHub repo and push
+#   6. Ensure CodeGraph MCP (machine) + init index (project) when CLI is on PATH
 
 param(
     [string]$ProjectName,
@@ -17,6 +18,7 @@ param(
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $TemplateDir = Join-Path $ScriptDir "template"
+. (Join-Path $ScriptDir "lib\project-setup.ps1")
 
 if (-not (Test-Path $TemplateDir)) {
     Write-Error "Template directory not found at $TemplateDir"
@@ -101,22 +103,13 @@ if ($registry -notcontains $fullPath) {
     Write-Host "  [registered] Project added to registry for future rule updates."
 }
 
+Ensure-CodeGraphMcp | Out-Null
+Sync-ProjectCodeGraph -ProjectPath $Destination
+
 Write-Host ""
 Write-Host "Done! Your project is ready at: $Destination"
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Open $Destination in Cursor"
+Write-Host "  1. Open $Destination in Cursor (restart Cursor if MCP was just installed)"
 Write-Host "  2. Fill in .cursor/rules/deploy-awareness.mdc with your deploy targets"
-$cgCli = Get-Command codegraph -ErrorAction SilentlyContinue
-if ($cgCli) {
-    $cgInit = Read-Host "Run codegraph init in this project? (y/n, default: y)"
-    if ($cgInit -ne "n") {
-        Push-Location $Destination
-        codegraph init
-        Pop-Location
-        Write-Host "  [codegraph] Index built at .codegraph/"
-    }
-} else {
-    Write-Host "  3. Optional: install CodeGraph (https://github.com/colbymchenry/codegraph) then run codegraph install && codegraph init"
-}
-Write-Host "  4. Start building -- agents already know your workflow"
+Write-Host "  3. Start building -- agents already know your workflow"

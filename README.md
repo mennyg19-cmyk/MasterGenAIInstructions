@@ -100,7 +100,7 @@ Multi-agent workflows built from real session corrections: sacred rebuild invent
 | **What it does** | Deterministic AST index via MCP (`codegraph_search`, `codegraph_callers`, `codegraph_impact`, `codegraph_files`, …). Hybrid with Read/grep for literals. |
 | **Rule file** | `codegraph.mdc` (always on) |
 | **Rebuild** | A+B hybrid: parent `graph-backbone/` digests + multi-model judgment |
-| **Setup** | `codegraph install` (once/machine) + `codegraph init` (per project). Bootstrap offers init. |
+| **Setup** | Automatic: scripts run `codegraph install` (once/machine, if missing) + `codegraph init` or `sync` (per project) on bootstrap, apply, and update-all when the CLI is on PATH. Install CLI from [colbymchenry/codegraph](https://github.com/colbymchenry/codegraph) if missing. |
 
 ### [Babysitter](https://github.com/a5c-ai/babysitter) — when to stop (Tier 1)
 
@@ -127,8 +127,8 @@ Not Cursor rules — a **GitHub Actions workflow** that complements `deploy-awar
 | **Workflow file** | `template/.github/workflows/agent-guardrails.yml` |
 | **When it runs** | PR, push to `main`, manual `workflow_dispatch` |
 | **Bootstrap** | Copied with the full template — new projects get it automatically |
-| **apply.ps1** | Use `-Guardrails` flag to copy the workflow (skips if already present): `.\apply.ps1 -TargetDir path -Guardrails` |
-| **update-all.ps1** | Use `-Guardrails` flag to push the workflow to all registered projects: `.\update-all.ps1 -Guardrails -AutoCommit` |
+| **apply.ps1** | Copies guardrails by default (skips if already present). Use `-NoGuardrails` to skip: `.\apply.ps1 -TargetDir path` |
+| **update-all.ps1** | Copies guardrails + syncs CodeGraph in every registered project by default. Use `-NoGuardrails` to skip workflow copy: `.\update-all.ps1 -AutoCommit` |
 
 Agents catch many issues in rules; CI catches what slips through (secrets in commits, common vulns, unsafe workflow YAML). Add language-specific build/test jobs separately — this file is safety rails only.
 
