@@ -1,26 +1,52 @@
 ---
-description: CodeGraph MCP -- deterministic structural code intelligence. Always on when MCP configured. Hybrid with Read/grep; parent backbone + subagent drill-down.
+description: CodeGraph -- deterministic structural code intelligence. MCP or CLI when indexed. Hybrid with Read/grep; parent backbone + subagent drill-down.
 alwaysApply: true
 ---
 
-# CodeGraph (always on when MCP available)
+# CodeGraph (always on when index exists)
 
 Adapted from [codegraph](https://github.com/colbymchenry/codegraph) (MIT). **Deterministic** -- tree-sitter AST + SQLite index, not LLM summaries. Same query + same index state = **same result regardless of which model runs it.** Multi-model value is in *interpretation* and *which follow-up queries to run*, not in re-reading files.
 
 Requires: `codegraph install` (MCP wiring) + per-project `codegraph init` (builds `.codegraph/`). If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
 
+## Surface selection (MCP or CLI)
+
+| Situation | Use |
+|---|---|
+| `codegraph_*` MCP tools in this session | MCP tools (preferred) |
+| MCP not connected but `codegraph` on PATH and `.codegraph/` exists | **CLI via shell** -- same graph, same output |
+| No index yet | `codegraph init` once, then MCP or CLI |
+| No MCP and no CLI after one init attempt | Read/grep fallback for this run only |
+
+**MCP not wired is not a reason to grep** when the CLI works. Subagents often lack MCP -- use CLI (`codegraph explore`, `codegraph node`, …) before grep or blind Read loops.
+
+## CLI ↔ MCP map
+
+| Question | MCP | CLI |
+|---|---|---|
+| Area / "how does X work" | `codegraph_explore` | `codegraph explore "<question or symbols>"` |
+| One symbol or read a file | `codegraph_node` | `codegraph node <symbol>` or `codegraph node <file-path>` |
+| Find symbol X | `codegraph_search` | `codegraph query <search> [--json]` |
+| What calls Y? | `codegraph_callers` | `codegraph callers <symbol> [--json]` |
+| What does Y call? | `codegraph_callees` | `codegraph callees <symbol> [--json]` |
+| Blast radius if I change Z | `codegraph_impact` | `codegraph impact <symbol> [--json]` |
+| Project / area file tree | `codegraph_files` | `codegraph files [--json]` |
+| Index health | `codegraph_status` | `codegraph status` |
+
+Prefer **`explore`** for area questions (usually one call). Use **`node`** for one symbol or indexed file read parity.
+
 ## Hybrid lookup (Rule Preference)
 
 | Need | Tool |
 |---|---|
-| Structure: where is X, who calls Y, impact, trace, signatures | `codegraph_*` when index exists |
+| Structure: where is X, who calls Y, impact, trace, signatures | MCP or CLI when index exists |
 | Literals: strings, comments, log messages, configs, markdown | Read / grep |
 | Index missing / stale banner lists file | Read that file; re-sync handles the rest |
 | Old reference app at another path (rebuild) | `codegraph init` there too if CLI available; else Read |
 
-**Do not grep-for-symbol** when `codegraph_search` works. **Do not re-verify graph results with grep** -- trust AST output; check staleness banner instead.
+**Do not grep-for-symbol** when MCP or CLI works. **Do not re-verify graph results with grep** -- trust AST output; check staleness banner instead.
 
-## Tool map
+## Tool map (MCP names)
 
 | Question | Tool |
 |---|---|
@@ -28,14 +54,14 @@ Requires: `codegraph install` (MCP wiring) + per-project `codegraph init` (build
 | Project / area file tree | `codegraph_files` |
 | What calls Y? | `codegraph_callers` |
 | What does Y call? | `codegraph_callees` |
-| Flow X → Y | `codegraph_trace` |
+| Flow X → Y | `codegraph_explore` (name symbols spanning the flow) |
 | Blast radius if I change Z | `codegraph_impact` |
 | Signature / source | `codegraph_node` or `codegraph_explore` |
-| Task area context | `codegraph_context` |
+| Task area context | `codegraph_explore` |
 | Read indexed file (Read parity) | `codegraph_node` with `file` only |
 | Index health | `codegraph_status` |
 
-**Before rename / delete / signature change / refactor command:** run `codegraph_impact` first (Rule Preference: mandatory).
+**Before rename / delete / signature change / refactor command:** run `codegraph_impact` or `codegraph impact` first (Rule Preference: mandatory).
 
 ## Parent + subagent pattern (A+B hybrid)
 
@@ -53,4 +79,4 @@ When REBUILD-PLAN.md names an old reference path: offer/run `codegraph init` in 
 
 ## Not initialized
 
-If tools return "not initialized": run `codegraph init` once (install CLI first if missing). If MCP/CLI still unavailable after that attempt, stop retrying and use Read/grep fallback for this run.
+If tools return "not initialized": run `codegraph init` once (install CLI first if missing). If MCP and CLI both unavailable after that attempt, stop retrying and use Read/grep fallback for this run.

@@ -19,7 +19,7 @@ If `.codegraph/` is missing and `codegraph` CLI is on PATH, run **`codegraph ini
 
 DECISION-LOG.md is newest-first; read the entries above the archive marker (recent + anything marked BLOCKED), not the whole history. If it has grown past ~150 lines, rotate it per `autonomous-mode.mdc` before moving on.
 
-**Structural lookups:** hybrid per `codegraph.mdc` -- codegraph when indexed; Read/grep for literals and non-code files.
+**Structural lookups:** hybrid per `codegraph.mdc` -- MCP or CLI when indexed; Read/grep for literals and non-code files.
 
 ## Core Principles
 

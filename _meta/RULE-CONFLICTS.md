@@ -39,7 +39,7 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 | Multi-model vs minimal process | Rebuild/redesign only unless "use more models." |
 | Fix-don't-suggest vs question | Build what was asked. |
 | Artifacts vs terse chat | Artifacts follow protocol formats; anti-slop = direct facts, not padding. |
-| CodeGraph vs grep | Hybrid — codegraph for structure when indexed; Read/grep for literals. |
+| CodeGraph vs grep | Hybrid — MCP or CLI for structure when indexed; Read/grep for literals only. No MCP ≠ grep. |
 | Gate discipline vs hotfix | Hotfix skips multi-agent review loop; single self-review per `hotfix-protocol.mdc` / `review-protocol.mdc` deviations. |
 | Don't stop until done vs mandatory stop | Finish the whole run; **do not skip gates** on the way (`workflow.mdc`). |
 
@@ -97,9 +97,9 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 
 | | Codegraph rule | Reality |
 |---|---|---|
-| **Says** | Load every session; init if missing | MCP may not be wired on every machine |
+| **Says** | Load every session; init if missing | MCP may not be wired in every session (subagents never get MCP) |
 
-**Resolved default:** Keep CodeGraph rule loaded. If MCP/CLI is missing, run one init attempt, then stop retrying and use Read/grep fallback for that run.
+**Resolved default:** Keep CodeGraph rule loaded. If MCP tools aren't in session but CLI is on PATH and `.codegraph/` exists, use CLI (`codegraph explore`, `codegraph query`, …) — **not grep**. If both MCP and CLI unavailable after one init attempt, stop retrying and use Read/grep fallback for that run.
 
 ---
 
