@@ -1,6 +1,6 @@
 # Menny's Rule Preferences (canonical)
 
-Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1). Copied into each project's README § Rule Preferences via template.
+Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1). Updated 2026-06-17 (Julius Brussee skills Tier 1). Copied into each project's README § Rule Preferences via template.
 
 | Area | Choice |
 |---|---|
@@ -28,3 +28,8 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1
 | **Multi-model subagents** | Full protocol for rebuild/redesign only; single-model elsewhere unless "use more models" |
 | **Verification** | Tiered — smoke for small fixes; full checklist for features/rebuilds/phases |
 | **Protocol artifacts** | Ask when an artifact feels heavy; otherwise use protocol formats |
+| **Grill (planning)** | Rebuild: ask y/n before Phase 0; redesign: after brief; say **grill me** anytime (`grill-protocol.mdc`) |
+| **Plan review** | **senior review** / **junior to senior** on agent-written plans (`plan-review.mdc`) |
+| **Context canary** | On demand — **canary** / long high-stakes sessions (`context-canary.mdc`) |
+| **UI craft** | `interface-kit.mdc` after design direction chosen; not during redesign competition |
+| **Prose de-slop** | Long-form publishable text — **deslop this prose** (`prose-deslop.mdc`); routine chat stays ponytail |

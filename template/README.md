@@ -74,5 +74,8 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Multi-model subagents:** Rebuild/redesign only unless I say "use more models".
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
-
-<!-- Add new resolutions below after conflicts: -->
+- **Grill:** Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.
+- **Plan review:** `senior review` / `junior to senior` on agent-written plans.
+- **Canary:** on demand for long sessions (`canary` / `context canary`).
+- **UI craft:** `interface-kit.mdc` after direction chosen — not during redesign model competition.
+- **Prose de-slop:** long-form publishable text only (`deslop this prose`).

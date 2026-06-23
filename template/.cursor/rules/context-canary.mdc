@@ -1,0 +1,50 @@
+---
+description: Per-turn canary line to detect silent context degradation; trip protocol writes checkpoint and re-anchors. Read when user says "canary", "context canary", "you lost context", or starts a long high-stakes session.
+---
+
+# Context Canary
+
+Adapted from [Julius Brussee / context-canary](https://github.com/JuliusBrussee/skills/tree/main/skills/context-canary) (MIT). Cheap standing instruction that **fails visibly** when early context rots.
+
+Pairs with `session-handoff.mdc` (boundary checkpoints) — canary catches **mid-session** drift.
+
+## Install (when invoked)
+
+State the contract once, then follow every response:
+
+```
+**Menny · t1 · ctx ok**
+```
+
+| Field | Meaning |
+|---|---|
+| **Name** | User's name (ask if unknown). Missing → instruction fell out of context. |
+| **Turn** | Increment every response (`t2`, `t3`…). Reset/skip/`t?` → continuity broke (compaction/summary). |
+| **Self-check** | `ctx ok` · `ctx aging` (long session, early details summarized) · `ctx thin` (reconstructing vs remembering) |
+
+- Canary is the **first line** of every response (including after tool calls).
+- No apology or decoration on the canary line — byte-stable for pattern matching.
+- Self-check must be **honest** — reflex `ctx ok` defeats the instrument.
+- **Session canary** (conversation-only) detects compaction; file-based standing rules survive compaction by design — default to session canary.
+
+User may say **"stop canary"** to disable.
+
+## Trip protocol
+
+**Warning:** one missed canary on otherwise coherent reply — note it, resume canary, continue.
+
+**Confirmed trip:** two consecutive misses, counter discontinuity, or agent cannot find the contract in context.
+
+Then:
+
+1. **Stop trusting drifted state** — don't barrel ahead on the current task.
+2. **Checkpoint** — `HANDOFF.md` + `.scratch/run-state.md` (goal, decisions, files touched, verified vs in-progress, next step).
+3. **Re-anchor** — re-read README § Rule Preferences, `AGENTS.md`, original task; state back 3–4 lines for user correction.
+4. **Recommend fresh session** (or explicit compact) seeded with checkpoint — degraded context compounds.
+5. **Re-install canary** at `t1 (gen 2)`.
+
+Never silently resume after a gap without noting the trip.
+
+## Limits
+
+Present canary = weak evidence of health; missing canary = strong evidence of degradation. Hard constraints (architecture, "never touch X") can rot while the canary survives — stay suspicious after compaction or ~50% context window.

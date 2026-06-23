@@ -18,7 +18,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 17 Cursor rule files (6 always-on + 1 auto-attach)
+|   |-- .cursor/rules/   # 22 Cursor rule files (6 always-on + 1 auto-attach)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -50,6 +50,8 @@ Rules are **layered**. Protocols own scope and quality gates; integrations make 
 ├──────────────────────────────────────────────────────────┤
 │  Babysitter Tier 1  — gates, cmd output, run-state       │  ← a5c-ai/babysitter (rules only)
 ├──────────────────────────────────────────────────────────┤
+│  Julius Brussee skills (Tier 1)  — grill, plan-review, UI craft   │  ← grill-me, junior-to-senior, interface-kit, …
+├──────────────────────────────────────────────────────────┤
 │  CI guardrails (optional)  — gitleaks · semgrep · zizmor │  ← language-agnostic workflow
 ├──────────────────────────────────────────────────────────┤
 │  genAITemplate  — bootstrap + “one place for agent rules”│  ← EvanPokroy (foundation)
@@ -70,7 +72,7 @@ Rules are **layered**. Protocols own scope and quality gates; integrations make 
 
 Multi-agent workflows built from real session corrections: sacred rebuild inventories, debate-to-consensus, diff-scoped phase reviews, expectation files (`.scratch/phase-plan.md`), DECISION-LOG / HANDOFF, subagent proof-of-read, deploy verification, autonomous BLOCKED stops.
 
-**Files:** `rebuild-protocol.mdc`, `review-protocol.mdc`, `subagents.mdc`, `workflow.mdc`, `autonomous-mode.mdc`, `git-discipline.mdc`, `clean-code.mdc`, `deploy-awareness.mdc`, and others.
+**Files:** `rebuild-protocol.mdc`, `review-protocol.mdc`, `grill-protocol.mdc`, `plan-review.mdc`, `subagents.mdc`, `workflow.mdc`, `autonomous-mode.mdc`, `git-discipline.mdc`, `clean-code.mdc`, `deploy-awareness.mdc`, and others.
 
 ### [Ponytail](https://github.com/DietrichGebert/ponytail) — how to code
 
@@ -111,6 +113,25 @@ Multi-agent workflows built from real session corrections: sacred rebuild invent
 | **What we took** | Mandatory gate stops, command output summarization, `.scratch/run-state.md` checkpoints |
 | **Integration** | Ideas in `workflow.mdc` + cross-refs — **no** `@a5c-ai/babysitter-sdk`, **no** npm plugin |
 | **Exception** | Hotfix uses lighter gates per `hotfix-protocol.mdc` |
+
+### [Julius Brussee / Caveman skills](https://github.com/JuliusBrussee/skills) — planning, prose, UI craft (Tier 1)
+
+Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/skills) (MIT). **No** `npx skills add`, **no** caveman always-on (conflicts with ponytail + plain-English tone). **Not taken:** caveman telegraphic mode, loop-factory CLI, cavemem.
+
+| Skill (upstream) | What we took | Rule file |
+|---|---|---|
+| **grill-me** | Calibrated planning interview — one Q at a time, recommended answers | `grill-protocol.mdc` |
+| **junior-to-senior** | Staff plan review — fog/tunnel, evidence, promoted plan v2 | `plan-review.mdc` |
+| **interface-kit** | UI implementation priority stack + anti-generic aesthetics | `interface-kit.mdc` |
+| **f\*ck-slop** | Deep prose de-slop loop (negative parallelism, verify passes) | `prose-deslop.mdc` |
+| **context-canary** | Per-turn canary + trip/checkpoint protocol | `context-canary.mdc` |
+| **loop-factory** | Grill gate before locked phase plans — ideas only, no CLI | `workflow.mdc`, `autonomous-mode.mdc` |
+
+| | |
+|---|---|
+| **Rebuild** | Asks user (y/n) before Phase 0 whether to run grill |
+| **Redesign** | Grill gate after REDESIGN-BRIEF, before audit |
+| **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
 
 ### CI guardrails — automated safety outside the agent (optional)
 
@@ -173,7 +194,7 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **17 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 10 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), and [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1) — rules only, no extra npm.
+- **22 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 15 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1), and [Julius Brussee skills](https://github.com/JuliusBrussee/skills) (Tier 1) — rules only, no extra npm.
 - **`.github/workflows/agent-guardrails.yml`** — optional CI: [gitleaks](https://github.com/gitleaks/gitleaks) + [semgrep](https://github.com/semgrep/semgrep) + [zizmor](https://github.com/zizmor/zizmor). Language-agnostic; tune per project.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
@@ -191,7 +212,7 @@ A new project directory with:
 ./apply.sh /path/to/existing/project
 ```
 
-This copies the 17 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
+This copies the 22 rule files and AGENTS.md into the project. It creates DECISION-LOG.md, TESTING-STRATEGY.md, and HANDOFF.md only if they don't already exist. It never touches your README.md, .gitignore, or any project code.
 
 ### After Bootstrapping or Applying
 
@@ -221,16 +242,21 @@ This copies the 17 rule files and AGENTS.md into the project. It creates DECISIO
 |---|---|
 | `deploy-awareness.mdc` | Deploy/env/workflow safety; auto-attaches on deploy-related files |
 
-### Load on Demand (10 files)
+### Load on Demand (15 files)
 
 | File | Trigger |
 |---|---|
 | `review-protocol.mdc` | Phase complete, review, production merge |
+| `plan-review.mdc` | "senior review" / "junior to senior" / large agent-written plan |
+| `grill-protocol.mdc` | "grill me" / redesign grill gate / rebuild if user opts in |
 | `autonomous-mode.mdc` | "run autonomously" / decision logging |
 | `testing-protocol.mdc` | Writing tests |
 | `subagents.mdc` | Spawning any subagent |
 | `rebuild-protocol.mdc` | User says "rebuild" |
 | `redesign-protocol.mdc` | User says "redesign" |
+| `interface-kit.mdc` | UI implementation after direction chosen |
+| `prose-deslop.mdc` | Long-form publishable prose de-slop |
+| `context-canary.mdc` | "canary" / context rot / long high-stakes session |
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |

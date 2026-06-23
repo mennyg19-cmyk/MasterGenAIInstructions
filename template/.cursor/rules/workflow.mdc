@@ -94,7 +94,7 @@ Do not keep repeating the same command/edit cycle.
 
 For any phase (multi-todo body of work), keep a rolling scratch file at `.scratch/phase-plan.md` (gitignored, never committed -- add `.scratch/` to `.gitignore` if it's missing):
 
-1. **Before the phase**: write the phase plan -- todos, plan/inventory IDs covered, what "done" looks like, what must be verified in the running app.
+1. **Before the phase**: write the phase plan -- todos, plan/inventory IDs covered, what "done" looks like, what must be verified in the running app. **Grill gate:** if product decisions are still open, run `grill-protocol.mdc` or get explicit user answers first — automate implementation, not product direction (Loop Factory principle).
 2. **Before each todo**: append an EXPECTED block -- enumerated, verifiable items (the route that must load, every control and its behavior, structural fixes), citing the IDs it covers. Written BEFORE building, so the goal can't shrink to fit the result.
 3. **After the todo**: walk that checklist item by item, marking each with evidence (route opened, control clicked, value seen). An item without evidence is unchecked; an unchecked item means the todo is not done.
 4. **At the phase gate**: reviews per `review-protocol.mdc`; then mandatory stop — no next phase until gate discipline passes (`workflow.mdc`).

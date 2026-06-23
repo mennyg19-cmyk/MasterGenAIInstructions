@@ -18,6 +18,17 @@ alwaysApply: true
 - Honest, concise messages — no slop ("This commit comprehensively addresses..."). State what changed and why. Never amend pushed commits. Note affected deploy targets in the message.
 - **After every push, verify the triggered builds on the PLATFORM** (Vercel/CI actual status -- a green local build is not proof). An ERROR/red deploy = STOP and fix before any further work. A push isn't done until its builds are green. Details in `deploy-awareness.mdc`.
 
+### Multi-line commit messages (shell-aware)
+
+Menny's shell is **PowerShell on Windows**. Do **not** use bash heredoc (`$(cat <<'EOF'`) in PowerShell — it fails every time.
+
+| Shell | Pattern |
+|---|---|
+| **PowerShell** (default) | `git commit -m "Subject line." -m "Optional body paragraph."` — multiple `-m` flags, one commit. Or here-string: `$msg = @'…'@; git commit -m $msg` |
+| **bash / sh** | `git commit -m "$(cat <<'EOF'…EOF)"` |
+
+Never write a temp commit-msg file, never narrate heredoc failures, never retry with `-F` unless the message is genuinely huge. Just use the right syntax for the shell you are in.
+
 ## Don't Commit Junk
 
 - No temp/scratch files, log dumps, or analysis scripts. `.scratch/` is the standard gitignored scratch home (including expectation files per `workflow.mdc`).

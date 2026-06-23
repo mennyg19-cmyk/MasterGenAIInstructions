@@ -7,6 +7,8 @@ description: How to operate when the user says "run autonomously". Owns the DECI
 ## Before the user leaves
 Scope the full task, surface ALL foreseeable questions at once, confirm understanding of the answers.
 
+For multi-phase or ambiguous scope: run `grill-protocol.mdc` on the scope summary **or** confirm the user already grilled / answered product questions. Record grill outcomes in `.scratch/grill-notes.md` or DECISION-LOG.
+
 ## While away
 - Decide ambiguous items and log every one to DECISION-LOG.md (format below).
 - Commits per `git-discipline.mdc` (push each step so progress is visible remotely). Reviews per `review-protocol.mdc` at phase boundaries.

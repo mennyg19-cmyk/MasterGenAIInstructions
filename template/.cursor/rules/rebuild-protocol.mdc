@@ -20,6 +20,15 @@ All spawning mechanics, the roster, family-diversity rules, attribution, and the
 
 **Phase gates:** mandatory stop per `workflow.mdc` — no Phase N+1 until Phase N gate passes (inventory complete, debate done, review loop clean, etc.). Track progress in `.scratch/run-state.md`.
 
+## Grill gate (optional — ask first)
+
+Before Phase 0 Step 1, ask:
+
+> Want a grill session on your rebuild goals before we start the audit? (y/n)
+
+- **Yes** → read and follow `grill-protocol.mdc`; record outcomes in `rebuild-audit/GRILL-NOTES.md`. Do not start Step 1 until grill completes per that protocol or the user says to stop grilling.
+- **No** → proceed to Step 1.
+
 ## Phase 0: Multi-Model Audit + History Mining (CodeGraph A+B hybrid)
 
 Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep the whole tree either. **CodeGraph is deterministic; models differ in judgment, not in graph facts.**
@@ -81,6 +90,8 @@ Reject any proposal whose proof-of-read block is missing or whose counts don't m
 > "REQUIRED READING: read DEBATE-LOG.md, FEATURE-INVENTORY.md, and BUILD-HISTORY.md at [paths] IN FULL first; open the plan with a proof-of-read summary of each. The architecture in DEBATE-LOG.md is the agreed consensus of a multi-model debate -- implement it, don't re-open settled decisions. Produce a detailed REBUILD-PLAN.md confirming every inventory feature is preserved, listing the structural improvements and why, and including prevention steps for every BUILD-HISTORY bug/workaround/pain point."
 
 The plan must: (1) state "every feature preserved -- nothing dropped" AND the frame "old app = WHAT, not HOW; not a port, not a pixel copy"; (2) list structural improvements; (3) give every BUILD-HISTORY item a prevention step; (4) never contradict the canonical audit or DEBATE-LOG consensus -- conflicts resolve as: canonical wins / intentionally differs (reasoned) / needs user approval.
+
+**Optional before gate:** offer `plan-review.mdc` on the REBUILD-PLAN draft ("senior review this plan") — user decides.
 
 **Granular todos (critical).** One page/screen = one todo minimum; big pages split. Each todo: the old-code file (feature reference only), a keep-list sub-checklist of every control, the structural fixes, and **the inventory IDs it covers**. Every ID claimed by exactly one todo; every route in the manifest has a todo; an ID with no todo = a feature about to be dropped. Every endpoint/table/cron its own todo; every BUILD-HISTORY bug a verify-todo; >30min todos get split; number everything. **UI and internals are built together per feature** -- never "all backend, then all UI."
 

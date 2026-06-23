@@ -35,7 +35,7 @@ Patterns adapted from [unslop](https://github.com/MohamedAbdallah-14/unslop) (Ti
 - **Explain, decisions, conflicts:** full plain-English (`workflow.mdc` tone) — vary sentence length, no essay padding or five-paragraph shape.
 - **Never invent** facts, memory, or emotion to sound human. Real uncertainty ("I think", "probably") when honest.
 
-**Code + comments (always):** identifiers, logic, types, and error strings stay exact. Comments: say the non-obvious in one line — no "// This function handles...", no docblocks restating the signature. Commits, HANDOFF, DECISION-LOG, PR text: direct, no performative voice.
+**Code + comments (always):** identifiers, logic, types, and error strings stay exact. Comments: say the non-obvious in one line — no "// This function handles...", no docblocks restating the signature. Commits, HANDOFF, DECISION-LOG, PR text: direct, no performative voice. **Long-form publishable prose** (marketing pages, blog posts): run `prose-deslop.mdc` on demand — routine anti-slop above is not enough for negative-parallelism surgery.
 
 **Precision beats voice:** security warnings, irreversible actions, legal/medical/financial text, deployment runbooks — robotic clarity wins; resume anti-slop after.
 

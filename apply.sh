@@ -39,7 +39,7 @@ echo ""
 
 mkdir -p "$TARGET_DIR/.cursor/rules"
 cp "$TEMPLATE_DIR/.cursor/rules/"* "$TARGET_DIR/.cursor/rules/"
-echo "  [copied]   .cursor/rules/ (13 rule files)"
+echo "  [copied]   .cursor/rules/ (all rule files)"
 
 cp "$TEMPLATE_DIR/AGENTS.md" "$TARGET_DIR/AGENTS.md"
 echo "  [copied]   AGENTS.md"

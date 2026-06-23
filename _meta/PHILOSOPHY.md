@@ -26,6 +26,7 @@ Different tools solve different problems. They are **layered**, not merged into 
 | **CodeGraph** | *How to navigate* code — deterministic structure, not guessing from grep | The map |
 | **Unslop** (Tier 1) | *How replies sound* — drop AI-isms, save tokens on chat | The editor |
 | **Babysitter** (Tier 1) | *When to stop* — gates, checkpoints, don't flood context with logs | The stage manager |
+| **Julius skills** (Tier 1) | *Plan before build* — grill, staff plan review, UI craft, prose/canary on demand | The Socratic interviewer |
 | **CI guardrails** (optional) | *What CI catches* — secrets, static bugs, unsafe workflow YAML | The second pair of eyes (not in the chat) |
 
 **Protocols stay in charge of scope and quality.** Integrations make day-to-day work leaner without quietly dropping features or skipping reviews. CI guardrails run outside the agent — zero token cost, catches slips after push.
@@ -97,6 +98,21 @@ When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name i
   - **Run checkpoint** — `.scratch/run-state.md` for rebuilds and autonomous runs (lighter than a full journal).
 - **Where it lives:** `workflow.mdc`, `review-protocol.mdc`, `rebuild-protocol.mdc`, `autonomous-mode.mdc`, `session-handoff.mdc`.
 - **What we did not take:** `@a5c-ai/babysitter-sdk`, Cursor experimental plugin, lossy context compression hooks — rules-only enforcement is enough for now; hotfix still gets a documented lighter gate per `hotfix-protocol.mdc`.
+
+---
+
+### Julius Brussee / Caveman skills — planning, prose, UI (Tier 1)
+
+- **Credit:** [JuliusBrussee/skills](https://github.com/JuliusBrussee/skills) (MIT). Ecosystem: [caveman](https://github.com/JuliusBrussee/caveman), [cavekit](https://github.com/JuliusBrussee/cavekit), [cavemem](https://github.com/JuliusBrussee/cavemem).
+- **What we took (patterns in rules, no installer):**
+  - **grill-me** → `grill-protocol.mdc` — calibrated planning interview before build.
+  - **junior-to-senior** → `plan-review.mdc` — staff review of agent-written plans.
+  - **interface-kit** → `interface-kit.mdc` — UI implementation craft after direction is chosen.
+  - **f\*ck-slop** → `prose-deslop.mdc` — deep prose de-slop loop (complements ponytail Tier 1).
+  - **context-canary** → `context-canary.mdc` — per-turn canary + trip protocol (on demand).
+  - **loop-factory** → grill gate in `workflow.mdc` / `autonomous-mode.mdc` (ideas only).
+- **Wiring:** Rebuild **asks** (y/n) before Phase 0 grill; redesign grills after REDESIGN-BRIEF; vocabulary triggers for all.
+- **What we did not take:** Caveman telegraphic always-on (fights ponytail + plain-English tone), loop-factory Python CLI, cavemem memory layer, `npx skills add` marketplace install.
 
 ---
 

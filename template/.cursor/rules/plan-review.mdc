@@ -1,0 +1,91 @@
+---
+description: Staff-level adversarial review of agent-written plans — fog/tunnel diagnosis, evidence-backed findings, promoted plan v2. Read when user says "senior review", "junior to senior", or before committing to a large agent-written plan.
+---
+
+# Plan Review (Junior → Senior)
+
+Adapted from [Julius Brussee / junior-to-senior](https://github.com/JuliusBrussee/skills/tree/main/skills/junior-to-senior) (MIT). Reviews **plans and designs**, not code diffs — use `review-protocol.mdc` for implementation review.
+
+**Cardinal rule:** every finding needs **evidence** — codebase `file:line`, or fetched source with date. No evidence → label `[training-data, unverified]` or drop the claim.
+
+**Senior scopes and upgrades; senior does not invent product direction.** Genuine product choices → "Open questions for you."
+
+## Phase 0 — Freeze the artifact
+
+Identify what is under review: conversation plan, pasted doc, or repo file (`REBUILD-PLAN.md`, architecture proposal, etc.). Quote or restate it before critiquing. No artifact → offer to draft a junior plan first or stop.
+
+## Phase 1 — Research (before critique)
+
+### Codebase (mandatory when repo exists)
+
+- Conventions, lockfile versions, prior art, deploy constraints the plan ignored.
+- Use CodeGraph MCP or CLI when indexed (`codegraph.mdc`); subagent `Explore` for broad sweeps.
+
+### Web (for load-bearing technical choices)
+
+- Official docs, changelogs, release notes — check dates for deprecations and superseded patterns.
+- No web access → mark best-practice claims `[training-data, unverified]`.
+
+### Isolation
+
+When spawning a reviewer subagent: give frozen artifact + research digest, **not** the reasoning that produced the junior plan (`subagents.mdc`).
+
+## Phase 2 — Altitude diagnosis
+
+| Class | Signal |
+|---|---|
+| **Fog** | High-level hand-waving — no interfaces, data shapes, failure handling, named libs |
+| **Tunnel** | File-level detail with no product goal, success metric, or out-of-scope list |
+| **Mixed** | Fog on hard parts, tunnel on easy parts — tag sections separately |
+
+Challenge vague blacklist: "simple", "scalable", "handle gracefully", "robust", "flexible", "clean architecture".
+
+## Phase 3 — Adversarial review
+
+- Vague phrase → concrete question it hides.
+- Named tech → version + why; unnamed "a cache" → name it or flag open decision.
+- Data crossing boundaries → write the shape.
+- Ask: rollback? migration? what breaks at 10×?
+- **Steelman** before attack; concede when junior is right.
+
+Severities: **blocker** (plan fails as written) · **major** (works but worse than SOTA or misfit to repo) · **minor** (polish).
+
+## Phase 4 — Promoted plan (v2)
+
+Deliver **review first**, then rewrite:
+
+1. Goal and non-goals
+2. Decisions — chosen option, version, rationale, strongest rejected alternative, evidence
+3. Design at right altitude — detail on hard parts; coarse on routine parts
+4. Sequencing — milestones with **observable** verification each
+5. Risks and rollback
+6. Open questions for human (product only)
+
+## Output format
+
+```markdown
+## Senior Review
+**Altitude:** fog | tunnel | mixed — one sentence why.
+
+### Blockers
+- [B1] Finding — evidence — fix.
+
+### Major / Minor
+...
+
+### What the junior got right
+...
+
+## Promoted Plan (v2)
+[Phase 4 structure]
+
+## Delta summary
+- 3–6 bullets: what changed and why.
+
+## Open questions for you
+- Product decisions only.
+```
+
+Zero blockers and zero majors is a valid outcome — say **"this plan holds"** and stop. Never manufacture findings.
+
+**User decides** — do not silently replace the junior plan; present review + v2 + delta.

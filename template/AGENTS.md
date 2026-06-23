@@ -7,7 +7,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat, **anti-slop always on** (no CLI).
 2. **CodeGraph (always on when indexed)** -- `codegraph.mdc`: deterministic structural index via MCP **or CLI**; hybrid with Read/grep.
 3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `vocabulary.mdc` (+ `deploy-awareness.mdc` auto-attached on deploy/env/workflow files).
-4. **Protocols (on demand)** -- rebuild, redesign, review, testing, autonomous, subagents.
+4. **Protocols (on demand)** -- rebuild, redesign, review, grill, plan-review, testing, autonomous, subagents, interface-kit, prose-deslop, context-canary.
 5. **README § Rule Preferences** -- standing choices when rules disagree.
 
 ## Read-Before-Acting Index
@@ -17,6 +17,11 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 | Before any edit | `workflow.mdc` + `ponytail.mdc` + `codegraph.mdc` + `clean-code.mdc` |
 | Structural code questions | `codegraph.mdc` (MCP or CLI before grep-for-symbol) |
 | Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
+| Grill / stress-test a plan | `grill-protocol.mdc` |
+| Senior review of a plan | `plan-review.mdc` |
+| Context rot / long session | `context-canary.mdc` (on demand) |
+| UI implementation (direction chosen) | `interface-kit.mdc` |
+| Publishable long-form prose | `prose-deslop.mdc` |
 | Commits / deploys | `git-discipline.mdc` + `deploy-awareness.mdc` |
 | Subagents | `subagents.mdc` (graph-backbone + MCP-if-available pattern) |
 | Phase review / production merge | `review-protocol.mdc` |

@@ -21,6 +21,7 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 | **Clean-code** | Menny (MasterGenAIInstructions) | Naming, code anti-tics, UI consistency, Rule of 2 | Yes |
 | **Workflow** | Menny (MasterGenAIInstructions) | Orientation, execution discipline, expectation files, security | Yes |
 | **On conflict** | `ponytail.mdc` | Explain → options → README preferences → protocol-safe default | Yes |
+| **Julius skills** | [JuliusBrussee/skills](https://github.com/JuliusBrussee/skills) Tier 1 | Grill, plan-review, interface-kit, prose-deslop, context-canary | On demand |
 
 **Design intent:** Protocols own scope and quality gates. Ponytail + integrations keep day-to-day work lean — fewer tokens, less slop, fewer deps — without quietly dropping features or skipping reviews.
 
@@ -106,6 +107,16 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 ### 9. Anti-slop in ponytail vs clean-code Anti-AI-Tics
 
 **Not a conflict.** Ponytail/unslop = prose voice (chat, commits, HANDOFF). Clean-code = code patterns (nesting, try/catch, verbosity). Both apply.
+
+---
+
+### 10. Caveman (Julius) vs ponytail + plain-English tone
+
+| | Caveman | This stack |
+|---|---|---|
+| **Says** | Telegraphic ~75% token compression always | Plain English (`workflow.mdc`); ponytail terse routine + full explain when needed |
+
+**Resolved default:** Do **not** install caveman always-on. Optional user request for extra compression only if they explicitly ask — ponytail + anti-slop is the standing choice.
 
 ---
 

@@ -1,0 +1,54 @@
+---
+description: UI implementation craft — accessibility, performance, typography, motion, anti-generic aesthetics. Read when building/polishing UI after direction is chosen. Does NOT replace redesign multi-model competition.
+---
+
+# Interface Kit
+
+Adapted from [Julius Brussee / interface-kit](https://github.com/JuliusBrussee/skills/tree/main/skills/interface-kit) (MIT). **Implementation** discipline — not discovery. During **redesign**, run only in Phase 4 build (`redesign-protocol.mdc`); Phase 2 proposals stay subagent-owned.
+
+**Override:** project `DESIGN.md` or approved `REDESIGN-PLAN.md` tokens beat these defaults.
+
+## Priority stack (non-negotiable order)
+
+1. **Accessibility** — contrast ≥4.5:1, keyboard nav, focus visible, semantic HTML/ARIA
+2. **Performance** — modern image formats, lazy below fold, CLS < 0.1, `transform`/`opacity` animations only
+3. **Typography** — readable line length (~65ch), `text-wrap: balance` on headings, tabular nums for data
+4. **Layout** — 4/8px grid, concentric radii, optical alignment
+5. **Color** — semantic tokens (CSS variables); test dark mode separately
+6. **Motion** — 150–300ms, ease-out default; respect `prefers-reduced-motion`
+7. **Polish** — shadows, press states, staggered enter — only after 1–4 pass
+
+Never ship pretty motion on a button that fails keyboard access.
+
+## Before coding UI
+
+1. **Commit to a direction** — brutalist, editorial, playful, luxury, etc. Hedging between styles fails.
+2. **Match complexity to vision** — maximalist needs layered structure; minimalist needs surgical spacing.
+3. **Reuse app patterns** (`clean-code.mdc` UI consistency) — no rogue screens.
+
+## Ban list (when no DESIGN.md)
+
+Avoid generic AI-slop defaults:
+
+- Display fonts: Inter, Roboto, Arial, system-ui, Space Grotesk as the *identity* font
+- Purple-gradient-on-white hero, stock-illustration landing, cookie-cutter three-column feature grid
+- Decorative emoji headers, scattered bold in prose, uniform sentence cadence in marketing copy
+
+Pick distinctive type, palette, and layout — intentional, not "safe."
+
+## Component craft
+
+- **States:** default, hover, focus-visible, active, disabled, loading, error — all designed, not `:hover` only
+- **Touch targets:** ≥44px where applicable
+- **Forms:** labels, errors tied to fields, no placeholder-only labels
+- **Data tables:** sticky header consideration, empty states, loading skeletons that match layout
+
+## Redesign handoff
+
+When user picked a direction from `previews/proposal-*.html`, extract tokens (colors, type scale, spacing rhythm) into implementation — don't drift back to ban-list defaults.
+
+## Boundaries
+
+- Does not pick between competing design directions — user or redesign protocol does.
+- Does not replace `review-protocol.mdc` — still verify in the running app.
+- Marketing/long-form copy slop → `prose-deslop.mdc` if needed.

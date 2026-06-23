@@ -45,7 +45,7 @@ $RulesDest = Join-Path $TargetDir ".cursor\rules"
 
 New-Item -ItemType Directory -Path $RulesDest -Force | Out-Null
 Copy-Item -Path "$RulesSource\*" -Destination $RulesDest -Force
-Write-Host "  [copied]   .cursor/rules/ (13 rule files)"
+Write-Host "  [copied]   .cursor/rules/ (all rule files)"
 
 $AgentsSource = Join-Path $TemplateDir "AGENTS.md"
 Copy-Item -Path $AgentsSource -Destination $TargetDir -Force

@@ -12,6 +12,8 @@ Per `workflow.mdc`: no phase marked done, no production merge, no next-phase wor
 
 ## Cadence (single source of truth -- other files defer to this)
 
+**Plan vs code:** `plan-review.mdc` reviews agent-written **plans** (fog/tunnel, evidence, promoted v2). This file reviews **implementation** at phase gates and before production merge.
+
 1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent.
 2. **Per todo**: SELF-REVIEW per `workflow.mdc` verification tier.
 3. **Per phase** (in order, all mandatory before the phase is marked done):
