@@ -1,0 +1,54 @@
+---
+description: Command vocabulary and protocol index -- what every instruction word means and which rule file to load before acting.
+alwaysApply: true
+---
+
+# Vocabulary + Protocol Index
+
+Definitions are exact. Do not under-scope or over-scope.
+
+| Command | Meaning / Action |
+|---|---|
+| **"tidy" / "clean up"** (a file) | Current file only: dead code, naming, inline trivial things. |
+| **"refactor"** | Whole feature/module, EVERY applicable clean-code category. Touching only one category is a failure. Run `codegraph_impact` first (`codegraph.mdc`). |
+| **"aggressive/deep refactor"** | Entire codebase, every category. |
+| **"rebuild"** | Read and follow `rebuild-protocol.mdc`. Keep every feature, rebuild the structure properly. Not a pixel copy. |
+| **"redesign"** | Read and follow `redesign-protocol.mdc`. Look/feel changes, core logic intact, starts with discovery. |
+| **"fix"** | Specific bug, smallest possible change. |
+| **"add"** | New feature, follow existing patterns. |
+| **"update" / "enhance"** | Extend an existing feature. |
+| **"run autonomously"** | Read and follow `autonomous-mode.mdc`. |
+| **"review"** | Read and follow `review-protocol.mdc`. |
+| **"hotfix" / "production is broken"** | Read and follow `hotfix-protocol.mdc`. Speed over ceremony. |
+| **"hand off" / "save state"** | Read `session-handoff.mdc`; write HANDOFF.md. |
+| **"cleanup"** (codebase) | Read and follow `cleanup-protocol.mdc`. |
+| **"enable walkthroughs"** | Re-enable archived `code-walkthrough.mdc` (was disabled to save tokens). |
+| **"ponytail lite" / "full" / "ultra"** | Adjust lazy intensity (ponytail is always on at full by default). |
+| **"stop ponytail" / "normal mode"** | Suspend lazy posture until `ponytail` is said again. |
+| **"review for over-engineering" / "ponytail-review"** | `ponytail.mdc` on-demand review section. Complements `review-protocol.mdc`. |
+| **"audit for over-engineering" / "ponytail-audit"** | `ponytail.mdc` on-demand audit section. One-shot; does not apply fixes. |
+| **"security review" / "trust boundary review"** | Run the trust-boundary checklist in `review-protocol.mdc`. |
+| **"run bugbot" / "automated code review"** | Launch Bugbot-style review (readonly) on current diff. |
+| **"verify end to end" / "why isn't this working"** | Apply end-to-end verification flow (`deploy-awareness.mdc` + verification skill pattern). |
+| **"split this PR" / "too big to review"** | Use split-to-prs workflow/skill to create reviewable chunks. |
+| **"use canvas" / "show this visually"** | Use canvas for analytical/visual artifacts instead of large markdown dumps. |
+| **"use context7" / "check latest docs"** | Use Context7 MCP/docs lookup before using unfamiliar library APIs. |
+| **"grill me" / "stress-test this" / "challenge my plan"** | Read and follow `grill-protocol.mdc`. |
+| **"senior review" / "junior to senior" / "review this plan"** | Read and follow `plan-review.mdc` on the plan artifact. |
+| **"canary" / "context canary" / "you lost context"** | Read and follow `context-canary.mdc`. |
+| **"build UI" / "polish UI" / "make it look good"** (implementation) | Read `interface-kit.mdc` after design direction is chosen. |
+| **"deslop this prose" / "humanize this" / "remove AI tells"** (long-form) | Read `prose-deslop.mdc`. Complements always-on anti-slop in ponytail. |
+
+## Load-on-demand rules
+
+Read the rule file BEFORE starting the activity -- not from memory:
+
+- **Spawning ANY subagent** → `subagents.mdc` (mechanics, model roster, family diversity, attribution, debate loop).
+- **Finishing a phase / reviewing / merging to production** → `review-protocol.mdc` (owns review cadence).
+- **Writing tests or planning testing** → `testing-protocol.mdc`.
+- **Working unattended** → `autonomous-mode.mdc` (owns the DECISION-LOG.md format).
+- **Grilling a plan** → `grill-protocol.mdc`.
+- **Reviewing an agent-written plan** → `plan-review.mdc`.
+- **Long high-stakes session / context rot** → `context-canary.mdc` (on demand).
+- **UI implementation** → `interface-kit.mdc`.
+- **Publishable long-form prose** → `prose-deslop.mdc`.

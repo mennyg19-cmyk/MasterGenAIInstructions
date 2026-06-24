@@ -1,0 +1,18 @@
+---
+description: Testing strategy and execution -- tests built alongside code, TESTING-STRATEGY.md, test DB isolation. Read when writing tests or planning testing.
+---
+
+# Testing Protocol
+
+- Tests are built ALONGSIDE code, never as an end-of-build batch. Each feature adds an entry to **TESTING-STRATEGY.md** (what to test, expected behavior, edge cases) so a cheaper model can later run the suite from it without deep context.
+- Test names describe the scenario: `returns_zero_when_no_invoices`, not `test_calculate`.
+- Test: business logic/calculations, user-facing behavior, edge cases, error paths, authorization.
+- Don't test: framework internals, trivial getters, UI layout (that's visual review).
+- Every bug fix gets a regression test that would have caught it.
+
+**Hybrid (Rule Preference):** meet this protocol's requirements, but keep each test ponytail-minimal -- no fixture forests, no per-function suites unless the feature demands it.
+
+## Test DB Isolation
+
+- DB tests use an **isolated test schema/database** -- never the shared dev/prod client singleton (a past suite silently hit the dev DB and proved nothing). Confirm the connection target before trusting a green run.
+- If DB tests are flag-gated (e.g. `RUN_DB_IT`), the flag must be ON in the gate that decides "done." A skipped test guards nothing.

@@ -1,0 +1,92 @@
+---
+description: Deployment discipline -- build verification, deploy safety, env vars, database deploy rules, and this project's deploy targets.
+alwaysApply: false
+globs:
+  - "**/.github/workflows/**"
+  - "**/vercel.json"
+  - "**/next.config.*"
+  - "**/prisma/**"
+  - "**/.env*"
+  - "**/package.json"
+---
+
+# Deploy Awareness
+
+## Local Gate (before every commit)
+
+Typecheck → lint → format check → **the real production build** (`next build` or equivalent; tsc+lint miss server/client boundary violations -- guard server modules with `import "server-only"`) → tests. Re-run the WHOLE gate after every batch of fixes, including review fixes. Never push code that doesn't compile.
+
+## Platform Gate (after every push)
+
+A push is done when every build it triggered is **green on the platform -- observed, not assumed**.
+
+- Vercel: check actual status (CLI `vercel ls`/`vercel inspect`, or MCP); wait for READY; ERROR/CANCELED = read the build logs and fix NOW. Confirm expected target (preview vs production) and branch.
+- GitHub Actions: `gh run list` / `gh run watch <id>` / `gh run view <id> --log-failed`.
+- Other hosts: same idea via that platform's CLI/dashboard.
+- **"Should pass" is banned** -- observe and quote the real status. A red platform build after a green local build is still your problem. Never start the next task on a red or unverified build. (No CI/host at all = no-op, but confirm that's actually true.)
+
+## Structure Changes Require Platform-Settings Changes
+
+Changed the repo shape (dropped a monorepo, moved the app root, renamed packages, switched build tool)? Update the platform's **Root Directory, Install Command, Build Command** as part of the SAME change, and confirm the next deploy goes GREEN. A stale Root Directory fails every build at clone while local builds stay green.
+
+## "Done" Means Visible Online
+
+A milestone is done only when: merged into the branch that actually deploys (often NOT `main` -- check) + deployment READY (verified) + the live URL shows the new work with real/seeded data. Committed-to-a-branch is not done.
+
+## Database Deploy Rules
+
+- **NEVER in a build script**: `prisma db push` (and never, anywhere with real data, `--accept-data-loss` -- it can destroy data on every deploy), or `prisma migrate deploy` against a DB with unknown migration history.
+- Safe build command: `prisma generate && next build`. Migrations run manually or as a separate gated CI step. `db push` = local dev only. Production = `prisma migrate`, baselined first if history mismatches.
+- **A rebuild gets a fresh, isolated database** -- never point new code at the old project's populated DB.
+- **Read `schema.prisma` before writing code against an entity** -- never field/enum names from memory. Two schema-mismatch errors in a row = stop guessing, generate a field reference from the live schema.
+
+## Environment Variables
+
+- Every new var: `.env.example` (placeholder + comment), env validation schema, note which environments need it, flag in the commit message.
+- Before deploying: diff `.env.example` against the deploy target. **Check SCOPE, not just presence** -- a Vercel var missing from the Preview scope kills every preview build.
+- Audit env drift across environments after major features.
+
+## Auth Framework Completeness
+
+Adding auth (Clerk/Auth0/NextAuth/...)? All five must exist as a set or deploys crash: provider wrapper in root layout, middleware file, sign-in/sign-up routes, env vars in every environment, callback URLs in the provider dashboard.
+
+## Smoke Deploy
+
+Deploy after the foundation scaffold, not after 5 phases of local work. The smoke test must load a **real authenticated page against the seeded DB** -- a green homepage hides schema crashes, and **an empty 200 is not "working"** (seed realistic data, confirm real content renders and the primary action works). Fix smoke failures before building more. Every later phase ends with a deploy verification.
+
+## End-to-end Verification Pattern
+
+Before declaring deploy fixes done, verify the full flow: **browser/UI → API route → data layer → rendered response**. Confirm with seeded or real data, not empty placeholders.
+
+If the user says "why isn't this working," run this flow first before broad refactors.
+
+## Windows / PowerShell
+
+- `Out-File` adds a UTF-8 BOM that breaks Prisma/JSON parsers -- write UTF-8 no-BOM (`[System.IO.File]::WriteAllText()`).
+- Capture build output to a file (`2>&1 | Out-File build.log`) and read it; piping through `Select-String` loses errors.
+- A stray `package-lock.json` in a parent directory can break Turbopack workspace-root detection.
+
+## Optional CI Hardening (when ready)
+
+- `gitleaks` for secret scanning (pre-commit or CI).
+- `semgrep` for static security checks on app code.
+- `zizmor` when adding/changing GitHub Actions workflows.
+- Language-agnostic starter workflow: `.github/workflows/agent-guardrails.yml` (tune per project).
+
+---
+
+## Project-Specific Configuration
+
+<!-- TEMPLATE: Fill in for your project. Remove comments when configured. -->
+
+### Deploy Targets
+
+<!-- e.g. Vercel project `my-app`: auto-deploy on push to `main`; preview on other branches -->
+
+### Production Branch
+
+<!-- Which branch triggers production deploys? -->
+
+### Post-Deploy Checks
+
+<!-- e.g. site loads at URL; GET /api/health returns 200; sign-in → dashboard works -->

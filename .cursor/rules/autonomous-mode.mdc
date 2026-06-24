@@ -1,0 +1,35 @@
+---
+description: How to operate when the user says "run autonomously". Owns the DECISION-LOG.md format. Read when working unattended or logging a decision.
+---
+
+# Autonomous Mode
+
+## Before the user leaves
+Scope the full task, surface ALL foreseeable questions at once, confirm understanding of the answers.
+
+For multi-phase or ambiguous scope: run `grill-protocol.mdc` on the scope summary **or** confirm the user already grilled / answered product questions. Record grill outcomes in `.scratch/grill-notes.md` or DECISION-LOG.
+
+## While away
+- Decide ambiguous items and log every one to DECISION-LOG.md (format below).
+- Commits per `git-discipline.mdc` (push each step so progress is visible remotely). Reviews per `review-protocol.mdc` at phase boundaries.
+- **Gate discipline** per `workflow.mdc` — no next phase while a gate is incomplete.
+- Maintain `.scratch/run-state.md` (protocol, phase, last_gate_passed, open_blocked, last_commit, next_action); update on every gate pass.
+- **High-risk decisions** (data loss, security, breaking changes, business logic): log with status **BLOCKED**, commit + push the log, and do NOT proceed past that point.
+
+## DECISION-LOG.md format
+```
+## [Date] [Short description]
+**What I had to decide:** ...
+**Options I considered:** ...
+**What I chose:** ...
+**Why:** ...
+**Status:** DECIDED / BLOCKED
+```
+
+## Log rotation (keeps session-start reads cheap)
+- DECISION-LOG.md is **newest-first**.
+- When it grows past ~150 lines: move everything except open BLOCKED entries and the current phase's decisions to **DECISION-LOG-ARCHIVE.md** (append, never trim), and leave a one-line marker at the bottom of the live log: "Older entries: DECISION-LOG-ARCHIVE.md". The archive is reference material -- read it only when a specific old decision matters.
+- Same pattern for any other always-read file that grows without bound (e.g. TESTING-STRATEGY.md): live file stays small, history goes to an `-ARCHIVE` twin.
+
+## When the user returns
+Summary: what was done, decisions made, what's pending. User reviews the log and approves or overrides.

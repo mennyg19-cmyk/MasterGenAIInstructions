@@ -1,0 +1,86 @@
+---
+description: How to spawn subagents -- mechanics, model roster, family diversity, attribution, and the debate-to-consensus loop. Read BEFORE spawning any subagent.
+---
+
+# Subagents (single source of truth)
+
+If a model slug ever changes, it changes here and nowhere else.
+
+## Mechanics
+
+Use the **Task tool**: `subagent_type` = `"generalPurpose"` (writes files) or `"explore"` (read-only); **`model` set explicitly every time**; `run_in_background: true` when parallelizing (spawn them in one message). The prompt must carry ALL context -- subagents cannot see your chat.
+
+### Pass context by reference, not by pasting
+
+**Never paste whole documents (inventory, build history, debate log, proposals) into a prompt.** Pass the FILE PATHS plus a short orientation (what each file is, why it matters to this task). Pasting the same documents into every spawn is the single biggest token waste in multi-agent work.
+
+This only works if the subagent actually reads them, so every prompt that passes paths MUST include both of these, verbatim or equivalent:
+
+1. **"REQUIRED READING: read each of these files IN FULL, top to bottom, before doing anything else. Do not skim, do not stop at headings, do not rely on this prompt's summary -- the files are the source of truth and this prompt is only an orientation."**
+2. **A proof-of-read requirement**: the subagent's deliverable must open with a 3-5 line summary of each required file in its own words (e.g. item counts, route count, the key constraints it found). A deliverable without the proof-of-read block, or with counts that don't match the files, means the subagent skimmed -- reject it and re-spawn.
+
+Exception: small task-specific snippets (an error message, a 10-line spec, the open-points list for a debate round) are cheaper to inline than to write to a file -- inline those.
+
+### Replies are summaries, not deliverables
+
+The subagent's final message lands in YOUR context -- don't pay for the deliverable twice. Every spawn prompt must say: **"Write your deliverable to [file path]. Your final reply must be ≤10 lines: the file path(s) written, the proof-of-read block, and headline findings/counts only. Do NOT repeat the deliverable's content in your reply. Follow ponytail anti-slop (no sycophancy, no stock vocab, no hedging stacks)."** You read the file if you need the detail.
+
+### CodeGraph in subagents (A+B hybrid)
+
+CodeGraph results are **deterministic** -- same query, same index, same output for any model. Multi-model audits need different *judgments*, not six copies of the same graph read.
+
+Every subagent prompt for codebase exploration must say:
+
+1. **Check CodeGraph first:** `codegraph status` (CLI — subagents usually have **no MCP**). If healthy, use CLI for structural lookups. **Do not use Grep, SemanticSearch, or Read-tree scans for structure.**
+2. **If subagent has no MCP and no CLI in its sandbox:** read parent's graph-backbone digest files (proof-of-read required). List exact `codegraph` queries needed; **parent runs them via shell CLI** and updates the digest — never substitute grep.
+3. **Parent responsibility:** before spawning, run baseline graph scan (`codegraph explore` / `codegraph files`) and write digests. Parent uses **CLI** when MCP is missing in parent session too — not Grep.
+
+Review/audit subagents: same rule -- try codegraph on the phase diff's symbols first; Read only for non-indexed or stale-banner files.
+
+## Roster (snapshot -- the tool's accepted list is the real source of truth)
+
+| Slug | Family |
+|---|---|
+| `composer-2.5-fast` | Composer (cheapest; broad sweeps/audits) |
+| `gpt-5.5-extra-high` | GPT (default reviewer) |
+| `gpt-5.2-codex` | GPT/Codex (code-focused) |
+| `gemini-3.1-pro` | Gemini (design/UX eye) |
+| `grok-4.3` | Grok |
+| `grok-build-0.1` | Grok (build-oriented) |
+| `kimi-k2.5` | Kimi |
+| `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (fast) |
+| `claude-4.5-opus-high-thinking` / `claude-4.6-opus-max-thinking` / `claude-opus-4-8-thinking-xhigh` | Claude Opus (deep analysis) |
+
+Families: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet+Opus)**. "Use more models" = reach across families.
+
+## When to use multiple models (Rule Preference)
+
+- **Multi-family required:** rebuild and redesign protocols (audits, proposals, debate, final parity review).
+- **Single subagent default:** normal features, fixes, phase reviews, hotfixes -- unless the user says **"use more models."**
+- When multi-model IS required: N subagents = N different families; never the same slug twice per job.
+
+## Three Hard Rules
+
+1. **Never silently fall back to your own model.** A rejected slug returns the valid list -- pick another valid slug and retry. NEVER drop `model` and run on yourself: that turns multi-model coverage into single-model blind spots without anyone noticing.
+2. **Same job × N subagents = N different families** (when multi-model is required per above). Two Opus variants ≠ two families.
+3. **The orchestrator records the assigned model on every artifact** (header line `Model: <slug>`). Self-labels and filenames prove nothing about what actually ran.
+
+## Multi-Model Debate to Consensus
+
+Use when 2+ subagents return competing proposals for the SAME decision that must converge into one answer (e.g. rebuild architecture proposals). **Never let a single converger silently pick a winner.** Debate real trade-offs (architecture, structure, stack, data model) -- never relitigate fixed things (which features to keep is non-negotiable; debate resolves HOW, never WHAT).
+
+- **Same-models exception**: this is the ONE place you deliberately reuse models -- each model defends its OWN proposal every round (the author must answer). Attribution still applies.
+- **Each round**: (1) extract the open points of disagreement; (2) re-spawn each side with the **full running debate context** -- both original proposals, the entire DEBATE-LOG so far, the RESOLVED points with their agreed answers (so settled ground can't reopen), the current open-points list, and the canonical inventory/audit. Pass the proposals/log/inventory **as file paths with the required-reading + proof-of-read instructions above**; inline only the short open-points list. Subagents are stateless; without the full log they repeat themselves and never converge. (You may compress RESOLVED to a tight summary; open-point exchanges must be read in full.) (3) Each side must, per open point, do exactly one of: **DEFEND** with concrete cited reasons, **CONCEDE**, or **PROPOSE A THIRD OPTION**, ending with its RESOLVED and OPEN lists. (4) Close points where both sides land on the same answer; append the round to DEBATE-LOG.md.
+- **End states**: *Consensus* (open list empty -- the goal) or *stalemate* (a full round with no movement, or ~3-4 rounds hit). On stalemate the orchestrator resolves each remaining point: canonical audit/inventory wins on any contradiction; otherwise the stronger-reasoned option, recorded; genuine product judgment calls go to the user, never decided silently.
+- **Record everything** in DEBATE-LOG.md: per round, who defended/conceded/proposed, what closed, what stayed open, final consensus or tie-break with reasons, model attribution per round. The converged plan must reflect the consensus -- not one model's pick -- and must not contradict the canonical audit/inventory.
+
+## Pre-Spawn Checklist
+
+- [ ] `model` set explicitly on every Task call?
+- [ ] Multi-subagent job on different families, no repeats?
+- [ ] Rejected slug → picked another valid one (not your own model)?
+- [ ] Prompt self-contained (paths + orientation; subagent can't see this chat)?
+- [ ] Documents passed as paths with the REQUIRED READING + proof-of-read instructions (not pasted)?
+- [ ] Deliverable checked for the proof-of-read block before accepting it?
+- [ ] Orchestrator-assigned model recorded on each deliverable?
+- [ ] Competing proposals → debate-to-consensus loop, not a silent pick?

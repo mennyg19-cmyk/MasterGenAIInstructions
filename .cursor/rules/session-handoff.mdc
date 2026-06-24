@@ -1,0 +1,24 @@
+---
+description: Saving state between sessions. Triggered when the user says "hand off" or "save state", or when hitting context limits.
+---
+
+# Session Handoff
+
+When an agent hits context limits, the session is ending, or the user says "hand off":
+
+## Write HANDOFF.md
+
+Write a HANDOFF.md at the project root with:
+
+- **What's done** -- completed work with commit references.
+- **What's in progress** -- current task, where it left off, what file was being edited.
+- **What's next** -- remaining tasks in order.
+- **Open decisions** -- anything unresolved the next session needs to know.
+- **Gotchas** -- anything surprising the next agent should watch out for.
+
+## Rules
+
+- HANDOFF.md is overwritten each time (current state, not a log).
+- **Anti-slop:** bullet facts only — no recap prose, no "In this session we comprehensively...". Same standard as `ponytail.mdc` chat rules.
+- **Run checkpoint:** if `.scratch/run-state.md` exists, sync `phase`, `last_gate_passed`, `last_commit`, and `next_action` with HANDOFF before ending the session.
+- The next session picks it up via the onboarding sequence in `workflow.mdc`.

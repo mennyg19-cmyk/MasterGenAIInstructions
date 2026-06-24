@@ -1,0 +1,75 @@
+---
+description: UI/UX redesign workflow. Triggered when the user says "redesign". Changes how the app looks and feels while keeping core logic intact.
+---
+
+# Redesign Protocol
+
+Changes the UI/UX (and adjusts backend where needed to support it). Keeps core logic intact. Commits follow `git-discipline.mdc`. Reviews follow `review-protocol.mdc`.
+
+**Everything is on the table.** CSS framework, component library, design system, layout approach, even the frontend framework itself -- all of it can change unless the user specifically says to keep something. If switching from vanilla CSS to Tailwind or from one component library to another would produce a better result, propose it.
+
+## The core rule: you do NOT design it yourself
+
+A redesign is a **competition between models**, not you picking a look. Multiple subagents on DIFFERENT model families each build a real, viewable proposal; the user looks at them side by side and picks the parts they like. If you find yourself editing the app's actual styling in Phase 2, or producing a single design "for" the user, you have broken the protocol. (This happened: the agent built one homepage itself and the user had to stop it -- "you are supposed to be spinning up multiple subagents with different models... not build this on your own. did you read the protocol?")
+
+Spawning mechanics, the model roster, and the multi-model rules live in **`subagents.mdc`** -- read it. The short version: every subagent uses the Task tool with `model` set explicitly (never fall back to your own model), and the proposal subagents must be on different families (no repeats).
+
+## Phase 0: Discovery Conversation
+
+1. Ask the user: what's bothering you about the current design? (boring, colors off, navigation confusing, looks generic, etc.)
+2. Follow up: which specific pages or sections?
+3. **Capture a one-paragraph brand/domain brief** -- what this product actually is, who it's for, and the core message. (A past redesign muddled the product's purpose in its copy and the user had to correct it: "you're getting confused a bit.") All generated copy and imagery is validated against this brief.
+4. Document the pain points and the brand brief as **REDESIGN-BRIEF.md**.
+5. **Grill gate:** read and follow `grill-protocol.mdc` on the brief and pain points. Record under `## Grill Gate` in REDESIGN-BRIEF.md (or `GRILL-NOTES.md`). Gate: grill complete before Phase 1.
+
+## Phase 1: Current UX Audit
+
+1. Subagents review the current UI/UX.
+2. Document what works well (keep) vs. what aligns with the pain points.
+3. Catalog every screen, component, and interaction.
+4. Note which backend pieces would need adjustment.
+
+## Phase 2: Design Proposals (spawn the models -- do NOT design it yourself)
+
+1. **Spawn one subagent per design direction, each on a DIFFERENT model family** (per `subagents.mdc`): Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet/Opus). Default to at least 3-4 directions; when the user says "more options" or "use more models," spin up one per family across the whole roster. Never use the same model twice -- two proposals from the same model are the same proposal.
+2. Each subagent independently proposes a different design direction addressing the pain points and **builds the actual viewable preview** (see below). You are the coordinator: you spawn them, collect their previews, and present them. You do not produce your own competing design.
+3. Each proposal covers: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
+4. Tone: per `workflow.mdc`.
+
+### Visual Previews (every proposal is something the user can open and look at)
+
+The whole point is that the user SEES each option and picks from it. Each subagent's proposal MUST include a real preview:
+
+1. Create a `previews/` folder in the project root.
+2. Each proposal gets its own standalone file: `previews/proposal-1.html`, `previews/proposal-2.html`, etc. (one per model/direction).
+3. Each file is self-contained -- inline CSS, no external dependencies, no build step. Just open in a browser.
+4. Build the **key screen(s) the user named** (e.g. the homepage) fully styled in that direction -- not a description of a design, an actual rendered page. A written design summary with no viewable page is a failure.
+5. Use real-looking placeholder data, not "Lorem ipsum."
+6. The subagent prompt must explicitly say: "Build a complete, self-contained HTML preview of [the screen] in your proposed direction, saved to `previews/proposal-N.html`. It must open and render standalone in a browser."
+7. The user compares proposals by opening the files side by side.
+8. The `previews/` folder is temporary -- delete it after the user picks a direction.
+
+## Phase 3: User Review + Iteration
+
+1. Present all proposals to the user with links to the preview files.
+2. User opens the previews in a browser and compares visually. **Here the user is the decider** -- unlike a rebuild, you do not force the models to converge; the human picks what they like by looking.
+3. User picks elements they like from different proposals. (Optional: if two proposals make conflicting UX/architecture claims and the user wants the trade-offs argued out, you may run the **debate-to-consensus loop** from `subagents.mdc` -- each model defends its own direction -- to surface a clear recommendation. The user still makes the final call.)
+4. Synthesize the feedback into a refined direction -- generate a new preview if needed.
+5. Iterate until user approves.
+6. Produce **REDESIGN-PLAN.md** with the approved direction.
+7. **Optional:** user may request `plan-review.mdc` on REDESIGN-PLAN.md before build ("senior review this plan").
+8. Delete the `previews/` folder.
+
+## Phase 4: Build the Redesign
+
+1. Execute phase by phase (theme/colors first, then layout, then navigation, then components). UI craft per `interface-kit.mdc`.
+2. Follow `review-protocol.mdc` cadence: fast checks per commit; the review loop at each phase boundary and mandatory before merging to the production branch.
+3. Adjust backend where needed to support new UI patterns.
+
+## Phase 5: Final Review
+
+1. Compare finished product against REDESIGN-PLAN.md.
+2. Verify all existing functionality still works -- a redesign must not drop features. Walk the app in the browser, not from code.
+3. Verify the specific pain points from Phase 0 are resolved.
+4. Review loops until clean per `review-protocol.mdc` -- fix findings, re-review with fresh eyes, repeat until zero findings.
+5. Produce **REDESIGN-COMPLETION-REPORT.md**.

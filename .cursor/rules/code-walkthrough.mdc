@@ -1,0 +1,10 @@
+---
+description: DISABLED per Rule Preferences (saves tokens). Say "enable walkthroughs" to restore. Full rule archived in MasterGenAIInstructions _meta/archived/code-walkthrough.mdc.
+alwaysApply: false
+---
+
+# Code Walkthrough (disabled)
+
+**Not active.** Menny's Rule Preferences turned this off to save tokens. Code should be self-explanatory via clear naming (`clean-code.mdc`).
+
+**Re-enable:** user says `enable walkthroughs` → copy `_meta/archived/code-walkthrough.mdc` from MasterGenAIInstructions (or restore from git history), set `alwaysApply: true`, record in README § Rule Preferences.

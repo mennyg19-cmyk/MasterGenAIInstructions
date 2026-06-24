@@ -1,0 +1,79 @@
+---
+description: Code quality, naming, structure, dependency, and anti-AI-slop standards. Owns the "one pattern per concern" principle.
+alwaysApply: true
+---
+
+# Clean Code
+
+## Abstraction Discipline
+
+- **Refactor categories checklist**: duplicated logic, duplicated UI, inline styles, magic values, god files, inconsistent patterns, dead code, type/schema drift.
+- **Rule of 2**: needs 2+ real call sites right now. Not "might be useful later."
+- No barrel files unless 5+ exports.
+- No wrapper components under 5 lines of JSX with no logic -- inline it.
+- Split files by concern, not by line count -- **split when >500 lines, mixed concerns, or a refactor command** (Rule Preference: saves agent tokens vs one god file).
+- If removing duplication adds more lines than it saves and the code is stable, leave it duplicated.
+
+## Comment Quality
+
+- No narration comments ("Initialize the database", "Return the result").
+- No change-explanation comments ("Updated to fix the bug", "Added per user request").
+- Comments only for: non-obvious intent, trade-offs, constraints the code can't convey.
+- If code needs a comment to explain WHAT it does, rewrite the code to be clearer.
+- Tone: per `workflow.mdc`.
+
+## Naming Conventions
+
+- No vague names: `data`, `result`, `info`, `temp`, `val`, `item`, `thing` are banned as standalone names.
+- Function names describe what they DO (`calculateInvoiceTotal`, not `processData`).
+- Boolean names read as yes/no questions (`isActive`, `hasPermission`, `canEdit`).
+- Collections are plural (`users`, `invoiceLines`), single items are singular.
+- Abbreviations only if universal in the domain (`id`, `url`, `db` are fine).
+
+## Error Handling
+
+- No swallowed errors (empty catch blocks).
+- No defensive code for conditions that can't happen.
+- Error messages say what went wrong AND what the expected state was.
+
+## Anti-AI-Tics
+
+- No unnecessary try/catch wrapping around code that won't throw.
+- No redundant type assertions the compiler already guarantees.
+- No over-verbose code that does in 10 lines what could be done in 3.
+- No "just in case" code -- every line must have a reason.
+- No copy-paste patterns with minor variations -- extract the pattern.
+- If a function has more than 3 levels of nesting, refactor it.
+
+## Anti-Hallucination (verify-before-claim)
+
+- Do not invent library APIs, config keys, flags, or function signatures from memory.
+- Before using a third-party symbol, verify it exists in current docs or local types/source.
+- If verification is missing, say so explicitly and choose a safe fallback.
+- Do not claim "fixed/passed/working" without tool output or running-app evidence.
+- For factual claims, prefer source-backed statements (command output, file content, or docs).
+
+## UI Consistency
+
+- New screens must reuse existing header, theme, and navigation patterns.
+- No rogue styling -- if the app has a dark header, every screen gets a dark header.
+- Back navigation: back buttons go to where the user came from, not a hardcoded route. Define explicit exceptions (e.g., Settings always returns to Settings root) in the project README.
+- If a new screen looks different from the rest of the app, that's a bug.
+
+## Consistency (one pattern per concern)
+
+- One error-handling approach per project.
+- One data-fetching pattern per project.
+- One state management pattern per project.
+- One styling approach per project.
+- One HTTP client, one date library, one test framework -- never two that do the same thing.
+- When starting a new project, pick these patterns in the first session and document in README.
+- Every subsequent session follows established patterns, never introduces a competing one.
+
+## Dependency Discipline
+
+- Before adding any package: can this be done with stdlib or existing deps? (Follow the ladder in `ponytail.mdc` -- always on.)
+- If a package is needed, state WHY in the commit message.
+- Never add a package just for slight convenience.
+- Pin versions -- no floating ranges.
+- If removing a dependency is possible without significant effort, prefer removal.

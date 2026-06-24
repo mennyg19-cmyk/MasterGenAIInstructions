@@ -1,0 +1,61 @@
+---
+description: Deep de-slop pass for publishable prose — mechanical tell detection and rewrite-by-meaning loop. Read before publishing long-form text, or when user says "deslop this prose", "humanize this", "remove AI tells".
+---
+
+# Prose De-Slop
+
+Adapted from [Julius Brussee / fuck-slop](https://github.com/JuliusBrussee/skills/tree/main/skills/fuck-slop) (MIT). **Complements** always-on anti-slop in `ponytail.mdc` — that bans routine chat filler; this runs a **deliberate loop** on longer prose (blog posts, marketing README sections, newsletters).
+
+**Not for:** code, commits, HANDOFF bullets, DECISION-LOG entries — ponytail rules already cover those.
+
+## Phase 0 — Target
+
+Establish genre (blog, email, docs, marketing), audience, stance, length limits. If unclear, ask once.
+
+## Phase 1 — Mechanical scan
+
+Hunt these tells (grep or line-by-line):
+
+| Tell | Examples |
+|---|---|
+| **Negative parallelism** | "not X but Y", "less about X than Y", "the real X is Y", rhetorical "X? Y." |
+| **Puffery** | pivotal, seismic, testament, tapestry, landscape, delve, holistic, cutting-edge |
+| **Rule-of-three padding** | three synonymous bullets where one carries the weight |
+| **False ranges** | "from X to Y" with no meaningful midpoint |
+| **Hedged both-sides** | "it's worth noting", auto-counterpoint without commitment |
+| **Cadence** | 3+ sentences same length; every sentence same subject-verb-elaboration shape |
+| **Skeleton** | "In today's fast-paced world", "In conclusion", engagement-bait endings |
+
+Report worst examples before rewriting.
+
+## Phase 2 — Rewrite by meaning
+
+**Never paraphrase the pattern** — decide what the sentence asserts, then assert it.
+
+### "Not X but Y" triage
+
+1. **Strawman X** → delete X half; state Y with evidence.
+2. **Real contrast** → name who holds X; make Y specific.
+3. **Empty decoration** → delete whole sentence.
+
+Banned escape hatches count as new findings: "less about X than Y", "X matters, but Y matters more", em-dash "— not X, but Y".
+
+### Other fixes
+
+- Puffery → plain word or concrete fact from source (never invent stats/names).
+- Rule-of-three → keep strongest item unless all three are distinct.
+- Hedging → commit to one opinion; counterpoint only if genuinely conceded.
+- Cadence → vary length deliberately; fragments OK.
+- Low specificity → `[ADD: which study?]` placeholder if author must supply — don't hallucinate.
+
+**Preserve meaning and facts.** Style pass only.
+
+## Phase 3 — Verify loop
+
+Re-scan rewritten text. Fix and repeat until clean (cap 4 passes). Surviving pattern → rewrite sentence from bare claim.
+
+## Phase 4 — Register check
+
+Match genre formality. Read aloud — anywhere you wouldn't say it to the audience, rewrite.
+
+Deliver: cleaned text + short change log (categories fixed, pass count).

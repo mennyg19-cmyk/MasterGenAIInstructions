@@ -1,0 +1,108 @@
+---
+description: CodeGraph FIRST for structure — MCP or CLI. Grep/SemanticSearch forbidden for symbols, callers, layout, impact when index exists.
+alwaysApply: true
+---
+
+# CodeGraph (always on when index exists)
+
+Adapted from [codegraph](https://github.com/colbymchenry/codegraph) (MIT). **Deterministic** -- tree-sitter AST + SQLite index, not LLM summaries. Same query + same index state = **same result regardless of which model runs it.**
+
+## Hard rule (before any structural lookup)
+
+**Structural** = symbols, definitions, callers, callees, imports, file layout, impact, "where is X", "how does X work", "what calls Y".
+
+**Every session, before structural work:**
+
+1. Run **`codegraph status`** (shell) or **`codegraph_status`** (MCP) in the project root.
+2. If index is healthy → use **only** CodeGraph (MCP or CLI) for all structural questions.
+3. If `.codegraph/` missing and `codegraph` on PATH → **`codegraph init`** once, then use graph.
+4. **Forbidden when index is healthy:** the **Grep** tool, **SemanticSearch**, shell `rg`/`grep` for symbols or definitions, reading whole directory trees to "discover" structure.
+5. **Allowed with healthy index:** Read/grep **only** for literal strings, comments, log lines, env/config values, markdown, non-indexed assets.
+
+**MCP not connected is not permission to grep** — shell CLI is the same graph. Subagents (Task tool) usually lack MCP; **parent runs `codegraph` CLI** and passes digest paths + query output — subagents do not grep the tree.
+
+### Wrong → right
+
+| Wrong | Right |
+|---|---|
+| Grep / `rg` for a function or class name | `codegraph query <name>` or `codegraph explore "<name>"` |
+| SemanticSearch "how does auth work" | `codegraph explore "auth"` |
+| Read/glob many files to map routes | `codegraph files` then `codegraph explore` |
+| `grep -r "import.*Foo"` for callers | `codegraph callers Foo` |
+| Re-grep to "verify" a graph result | Trust AST output; `codegraph sync` if stale banner |
+
+Violating this rule wastes tokens and misses cross-file facts. If you already grepped for structure, stop, run codegraph, redo the lookup.
+
+Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync`. If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
+
+## Surface selection (MCP or CLI)
+
+| Situation | Use |
+|---|---|
+| `codegraph_*` MCP tools in this session | MCP tools (preferred) |
+| MCP not connected but `codegraph` on PATH and `.codegraph/` exists | **CLI via shell** -- same graph, same output |
+| No index yet | `codegraph init` once, then MCP or CLI |
+| No MCP and no CLI after one init attempt | Read/grep fallback for this run only |
+
+**MCP not wired is not a reason to grep** when the CLI works. Subagents often lack MCP -- use CLI (`codegraph explore`, `codegraph node`, …) before grep or blind Read loops.
+
+## CLI ↔ MCP map
+
+| Question | MCP | CLI |
+|---|---|---|
+| Area / "how does X work" | `codegraph_explore` | `codegraph explore "<question or symbols>"` |
+| One symbol or read a file | `codegraph_node` | `codegraph node <symbol>` or `codegraph node <file-path>` |
+| Find symbol X | `codegraph_search` | `codegraph query <search> [--json]` |
+| What calls Y? | `codegraph_callers` | `codegraph callers <symbol> [--json]` |
+| What does Y call? | `codegraph_callees` | `codegraph callees <symbol> [--json]` |
+| Blast radius if I change Z | `codegraph_impact` | `codegraph impact <symbol> [--json]` |
+| Project / area file tree | `codegraph_files` | `codegraph files [--json]` |
+| Index health | `codegraph_status` | `codegraph status` |
+
+Prefer **`explore`** for area questions (usually one call). Use **`node`** for one symbol or indexed file read parity.
+
+## Hybrid lookup (Rule Preference)
+
+| Need | Tool |
+|---|---|
+| Structure: where is X, who calls Y, impact, trace, signatures | MCP or CLI when index exists |
+| Literals: strings, comments, log messages, configs, markdown | Read / grep |
+| Index missing / stale banner lists file | Read that file; re-sync handles the rest |
+| Old reference app at another path (rebuild) | `codegraph init` there too if CLI available; else Read |
+
+**Do not grep-for-symbol** when MCP or CLI works. **Do not re-verify graph results with grep** -- trust AST output; check staleness banner instead.
+
+## Tool map (MCP names)
+
+| Question | Tool |
+|---|---|
+| Find symbol X | `codegraph_search` |
+| Project / area file tree | `codegraph_files` |
+| What calls Y? | `codegraph_callers` |
+| What does Y call? | `codegraph_callees` |
+| Flow X → Y | `codegraph_explore` (name symbols spanning the flow) |
+| Blast radius if I change Z | `codegraph_impact` |
+| Signature / source | `codegraph_node` or `codegraph_explore` |
+| Task area context | `codegraph_explore` |
+| Read indexed file (Read parity) | `codegraph_node` with `file` only |
+| Index health | `codegraph_status` |
+
+**Before rename / delete / signature change / refactor command:** run `codegraph_impact` or `codegraph impact` first (Rule Preference: mandatory).
+
+## Parent + subagent pattern (A+B hybrid)
+
+Runtime mechanics live in `subagents.mdc` and `rebuild-protocol.mdc` Phase 0. Keep this file focused on deterministic graph behavior + tool choice.
+
+## Rebuild reference app (Rule Preference)
+
+When REBUILD-PLAN.md names an old reference path: offer/run `codegraph init` in **this repo and the reference path** (two indexes). Feature harvesting from old code uses that graph + Read for non-indexed assets.
+
+## vs ponytail / your rules
+
+- **Allies:** fewer Read/grep loops = fewer tokens (ponytail + codegraph align).
+- **Conflicts:** follow ponytail conflict protocol; default protocol-safe, tell user, offer README § Rule Preference entry.
+- **Walkthroughs off:** codegraph replaces file-navigation overhead; does not replace DECISION-LOG, expectation files, or review gates.
+
+## Not initialized
+
+If tools return "not initialized": run `codegraph init` once (install CLI first if missing). If MCP and CLI both unavailable after that attempt, stop retrying and use Read/grep fallback for this run.

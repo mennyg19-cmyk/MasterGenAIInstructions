@@ -1,0 +1,18 @@
+---
+description: Emergency production fix protocol. Triggered when the user says "hotfix" or "production is broken". Prioritizes speed over ceremony.
+---
+
+# Hotfix Protocol
+
+Deviations from normal workflow -- speed matters.
+
+## Process
+
+1. Skip the multi-agent review cycle.
+2. Branch from main: `hotfix/<description>` (per `git-discipline.mdc`, but merge back to main immediately after).
+3. Scope: fix the specific bug, nothing else. Zero scope creep.
+4. Write a test that reproduces the bug FIRST, then fix it.
+5. Verify the fix passes.
+6. Single self-review (no subagent needed for a focused fix).
+7. Merge to main and deploy right away.
+8. After the dust settles: log what happened in DECISION-LOG.md.

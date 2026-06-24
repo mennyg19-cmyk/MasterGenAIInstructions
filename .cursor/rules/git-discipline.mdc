@@ -1,0 +1,37 @@
+---
+description: Commit, push, and branching rules. Owns ALL git behavior; other files state only their deviations.
+alwaysApply: true
+---
+
+# Git Discipline
+
+## Branching
+
+- Never work directly on `main`/production. Use a short, descriptive working branch per task/phase (`rebuild-auth`, `fix-invoice-calc`).
+- **Merging working branch → production branch is the go-live gate**: requires a clean review loop per `review-protocol.mdc` first. Never merge unreviewed code to production.
+- **Never assume `main` is the production branch** -- check deploy config/README. Document the branch strategy (which branch deploys where) in README on day one; if undocumented, figure it out and write it down before changing anything.
+
+## Commits
+
+- One logical change = one commit. Commit and push after every completed change; never leave unpushed commits.
+- **Per-commit gate = fast local checks** (typecheck, lint, tests). The review-subagent loop runs at phase boundaries and before production merges per `review-protocol.mdc` -- NOT per commit.
+- Honest, concise messages — no slop ("This commit comprehensively addresses..."). State what changed and why. Never amend pushed commits. Note affected deploy targets in the message.
+- **After every push, verify the triggered builds on the PLATFORM** (Vercel/CI actual status -- a green local build is not proof). An ERROR/red deploy = STOP and fix before any further work. A push isn't done until its builds are green. Details in `deploy-awareness.mdc`.
+
+### Multi-line commit messages (shell-aware)
+
+Menny's shell is **PowerShell on Windows**. Do **not** use bash heredoc (`$(cat <<'EOF'`) in PowerShell — it fails every time.
+
+| Shell | Pattern |
+|---|---|
+| **PowerShell** (default) | `git commit -m "Subject line." -m "Optional body paragraph."` — multiple `-m` flags, one commit. Or here-string: `$msg = @'…'@; git commit -m $msg` |
+| **bash / sh** | `git commit -m "$(cat <<'EOF'…EOF)"` |
+
+Never write a temp commit-msg file, never narrate heredoc failures, never retry with `-F` unless the message is genuinely huge. Just use the right syntax for the shell you are in.
+
+## Don't Commit Junk
+
+- No temp/scratch files, log dumps, or analysis scripts. `.scratch/` is the standard gitignored scratch home (including expectation files per `workflow.mdc`).
+- Heavy artifacts (oversized images, generated PDFs, `previews/`) stay out of the repo; optimize images before committing.
+- **Stage explicitly** -- never blanket `git add -A` when unrelated work is in the tree.
+- Requested cleanup happens now, never "later."

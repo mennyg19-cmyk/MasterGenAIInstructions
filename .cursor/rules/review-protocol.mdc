@@ -1,0 +1,55 @@
+---
+description: Review rules -- self-review against expectation files, then the independent review-subagent loop at phase gates and before any production merge. Read when finishing a phase, asked to "review", or preparing a production merge.
+---
+
+# Review Protocol
+
+A "phase" = a feature, module, or protocol step spanning more than one commit.
+
+## Mandatory stop (gate discipline)
+
+Per `workflow.mdc`: no phase marked done, no production merge, no next-phase work until — self-review complete, ponytail-review clean (where required), correctness loop at **zero findings** (where required), platform green after push, no open **BLOCKED** entries, and `.scratch/run-state.md` updated if the run uses it.
+
+## Cadence (single source of truth -- other files defer to this)
+
+**Plan vs code:** `plan-review.mdc` reviews agent-written **plans** (fog/tunnel, evidence, promoted v2). This file reviews **implementation** at phase gates and before production merge.
+
+1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent.
+2. **Per todo**: SELF-REVIEW per `workflow.mdc` verification tier.
+3. **Per phase** (in order, all mandatory before the phase is marked done):
+   - Self-review against expectation checklists.
+   - **Ponytail-review** on the phase diff (`ponytail.mdc`) -- hunt over-engineering; fix EVERY finding (delete/stdlib/native/yagni/shrink) or log explicit user deferral in DECISION-LOG. Re-run until `Lean already. Ship.` or zero actionable cuts.
+   - **Correctness loop** below (independent subagent, fresh family each pass, zero findings).
+4. **Before production merge**: correctness loop mandatory (go-live gate).
+
+## Self-Review First, Then Independent
+
+Before spawning the phase reviewer, re-walk all of the phase's completed expectation checklists and fix everything you can find yourself. The independent reviewer then receives those completed checklists and verifies the evidence / spot-checks the claims instead of rediscovering scope from scratch. Done right, this usually means one independent pass instead of several -- but the loop below still runs until clean.
+
+## The Independent Loop
+
+- Reviewer: readonly subagent (default `gpt-5.5-extra-high`), spawned per `subagents.mdc` -- `model` set explicitly, never your own model.
+- **Phase reviews are DIFF-SCOPED, not whole-project.** Give the reviewer: the phase's diff (`git diff <phase-start>..HEAD` file list), the phase goal, and the PATHS to the completed expectation checklists, the invariant ledger (if one exists), and README/AGENTS.md -- by reference with the required-reading + proof-of-read instructions per `subagents.mdc`, never pasted. Do not hand it the whole codebase to re-read.
+- The two bug classes a diff can't show are covered by targeted guards, not by widening the scope: the **trust-boundary security review** below runs full-context on any phase touching payments/auth/roles/order creation, and every phase reviewer checks the diff against the **invariant ledger** (cross-phase consistency travels in the ledger, not in extra context).
+- **Final/go-live reviews are whole-app** (e.g. a rebuild's Phase 5 enumerated parity review) -- diff-scoping applies to intermediate phase gates only.
+- Findings go in DECISION-LOG.md. Fix EVERY finding, then a **fresh** reviewer (different family, no prior context, so it can't rubber-stamp) re-checks. **Repeat until a pass returns zero findings.** "Found things, fixed them, moving on" without a clean re-review is not allowed.
+- **A review must return results.** A clean typecheck is never a stand-in for a review that didn't finish. If a reviewer hangs/times out, re-spawn smaller scoped reviews until you get real findings.
+- Every review answers: **does the work actually do what it was supposed to, end to end, in the running app?** Type errors and lint nits are not the bar; stubs and read-only pages are findings.
+
+## Feature-Parity Review (rebuilds / "match the old thing" work)
+
+- Reviewer gets the inventory/spec + the old reference (screenshots or source).
+- **Enumerate, never sample**: route-coverage diff first (every old route has a working new route), then EVERY inventory ID in order, marked PRESENT / PARTIAL / STUB / MISSING with evidence (route opened, control clicked), verified in the running app. Unverifiable = MISSING.
+- The phase fails while anything is less than PRESENT.
+
+## Trust-Boundary Security Review (mandatory for payments/auth/roles/order creation)
+
+Review by entry point, not by file. For each public route / authenticated action / admin action / webhook / cron, confirm: actor + where auth is enforced; server-side input validation; server-derived money/role/ownership fields (never trusted from the client); side effects; and one abuse test (the obvious misuse, blocked).
+
+## Invariant Ledger
+
+For domains with hard rules (money, auth/roles, inventory, shipping, order structure), keep numbered invariants; reviews cite invariant IDs, not prose, so they can't drift between audit, plan, and build. The ledger is small by design -- it goes to EVERY phase reviewer, and a diff that violates an invariant is a finding even if the changed files look fine in isolation.
+
+## Deviations
+
+Rebuild/redesign add their own gates (see those files). Hotfix = single self-review only.
