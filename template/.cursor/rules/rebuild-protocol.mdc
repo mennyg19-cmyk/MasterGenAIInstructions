@@ -45,7 +45,7 @@ Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep
 Per area, spawn **2 subagents on DIFFERENT model families** (`run_in_background: true`, one message). Each prompt must include:
 
 - Path to `rebuild-audit/graph-backbone/[area].md` (REQUIRED READING + proof-of-read per `subagents.mdc`).
-- **First action:** check CodeGraph MCP (`codegraph_status`). If available, use `codegraph_*` for drill-down -- do not re-scan the tree with Read/grep. If unavailable, use the backbone only and note "MCP unavailable" in the report header; parent must run any follow-up queries the subagent requests.
+- **First action:** `codegraph status` (CLI) or `codegraph_status` (MCP). If healthy, use **codegraph CLI or MCP** for drill-down — **no Grep, SemanticSearch, or Read/grep tree scans.** If MCP unavailable in subagent, use graph-backbone + request parent run CLI queries; note "graph via parent digest" in the report header.
 - **Split roles (unchanged):**
   - **Inventory auditor:** exhaustive feature/behavior list (what must NOT be lost).
   - **Structure auditor:** what's WRONG/messy + coverage skeleton (names/paths only).

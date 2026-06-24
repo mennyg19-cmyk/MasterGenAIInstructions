@@ -1,13 +1,39 @@
 ---
-description: CodeGraph -- deterministic structural code intelligence. MCP or CLI when indexed. Hybrid with Read/grep; parent backbone + subagent drill-down.
+description: CodeGraph FIRST for structure — MCP or CLI. Grep/SemanticSearch forbidden for symbols, callers, layout, impact when index exists.
 alwaysApply: true
 ---
 
 # CodeGraph (always on when index exists)
 
-Adapted from [codegraph](https://github.com/colbymchenry/codegraph) (MIT). **Deterministic** -- tree-sitter AST + SQLite index, not LLM summaries. Same query + same index state = **same result regardless of which model runs it.** Multi-model value is in *interpretation* and *which follow-up queries to run*, not in re-reading files.
+Adapted from [codegraph](https://github.com/colbymchenry/codegraph) (MIT). **Deterministic** -- tree-sitter AST + SQLite index, not LLM summaries. Same query + same index state = **same result regardless of which model runs it.**
 
-Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync` (same scripts). If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
+## Hard rule (before any structural lookup)
+
+**Structural** = symbols, definitions, callers, callees, imports, file layout, impact, "where is X", "how does X work", "what calls Y".
+
+**Every session, before structural work:**
+
+1. Run **`codegraph status`** (shell) or **`codegraph_status`** (MCP) in the project root.
+2. If index is healthy → use **only** CodeGraph (MCP or CLI) for all structural questions.
+3. If `.codegraph/` missing and `codegraph` on PATH → **`codegraph init`** once, then use graph.
+4. **Forbidden when index is healthy:** the **Grep** tool, **SemanticSearch**, shell `rg`/`grep` for symbols or definitions, reading whole directory trees to "discover" structure.
+5. **Allowed with healthy index:** Read/grep **only** for literal strings, comments, log lines, env/config values, markdown, non-indexed assets.
+
+**MCP not connected is not permission to grep** — shell CLI is the same graph. Subagents (Task tool) usually lack MCP; **parent runs `codegraph` CLI** and passes digest paths + query output — subagents do not grep the tree.
+
+### Wrong → right
+
+| Wrong | Right |
+|---|---|
+| Grep / `rg` for a function or class name | `codegraph query <name>` or `codegraph explore "<name>"` |
+| SemanticSearch "how does auth work" | `codegraph explore "auth"` |
+| Read/glob many files to map routes | `codegraph files` then `codegraph explore` |
+| `grep -r "import.*Foo"` for callers | `codegraph callers Foo` |
+| Re-grep to "verify" a graph result | Trust AST output; `codegraph sync` if stale banner |
+
+Violating this rule wastes tokens and misses cross-file facts. If you already grepped for structure, stop, run codegraph, redo the lookup.
+
+Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync`. If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
 
 ## Surface selection (MCP or CLI)
 

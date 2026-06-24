@@ -31,9 +31,9 @@ CodeGraph results are **deterministic** -- same query, same index, same output f
 
 Every subagent prompt for codebase exploration must say:
 
-1. **Check CodeGraph first:** `codegraph_status` (MCP) or `codegraph status` (CLI). If healthy, use MCP or CLI for all structural lookups (`codegraph.mdc`). Do not grep-for-symbol or Read whole trees when the graph works.
-2. **If neither MCP nor CLI:** read the parent's graph-backbone digest files (proof-of-read required). List any extra graph queries needed; parent runs them via MCP or CLI and updates the digest before you continue.
-3. **Parent responsibility:** before spawning, run the baseline graph scan and write digests. If a subagent reports no graph access, parent runs requested queries -- never leave the audit blind.
+1. **Check CodeGraph first:** `codegraph status` (CLI — subagents usually have **no MCP**). If healthy, use CLI for structural lookups. **Do not use Grep, SemanticSearch, or Read-tree scans for structure.**
+2. **If subagent has no MCP and no CLI in its sandbox:** read parent's graph-backbone digest files (proof-of-read required). List exact `codegraph` queries needed; **parent runs them via shell CLI** and updates the digest — never substitute grep.
+3. **Parent responsibility:** before spawning, run baseline graph scan (`codegraph explore` / `codegraph files`) and write digests. Parent uses **CLI** when MCP is missing in parent session too — not Grep.
 
 Review/audit subagents: same rule -- try codegraph on the phase diff's symbols first; Read only for non-indexed or stale-banner files.
 
