@@ -60,6 +60,34 @@ function Sync-ProjectCodeGraph {
     }
 }
 
+# Remove stale .mdc files not in the template (legacy rules often tell agents to grep).
+# Preserves deploy-awareness.mdc (per-project deploy config).
+function Prune-OrphanProjectRules {
+    param(
+        [Parameter(Mandatory)][string]$ProjectPath,
+        [Parameter(Mandatory)][string]$TemplateDir
+    )
+
+    $RulesDest = Join-Path $ProjectPath ".cursor\rules"
+    $RulesSource = Join-Path $TemplateDir ".cursor\rules"
+    if (-not (Test-Path $RulesDest)) { return }
+
+    $allowed = @(
+        (Get-ChildItem $RulesSource -Filter "*.mdc" | ForEach-Object { $_.Name })
+        "deploy-awareness.mdc"
+    )
+    $removed = @()
+    foreach ($f in Get-ChildItem $RulesDest -Filter "*.mdc" -File) {
+        if ($allowed -notcontains $f.Name) {
+            Remove-Item $f.FullName -Force
+            $removed += $f.Name
+        }
+    }
+    if ($removed.Count -gt 0) {
+        Write-Host "  [pruned]   removed stale rules: $($removed -join ', ')"
+    }
+}
+
 function Copy-ProjectGuardrails {
     param(
         [Parameter(Mandatory)][string]$ProjectPath,

@@ -60,6 +60,7 @@ foreach ($projectPath in $registry) {
     $rulesDest = Join-Path $projectPath ".cursor\rules"
     New-Item -ItemType Directory -Path $rulesDest -Force | Out-Null
     Copy-Item -Path "$RulesSource\*" -Destination $rulesDest -Force -Exclude $ProjectOwnedFiles
+    Prune-OrphanProjectRules -ProjectPath $projectPath -TemplateDir $TemplateDir
     Copy-Item -Path $AgentsSource -Destination $projectPath -Force
 
     if (-not $NoGuardrails) {

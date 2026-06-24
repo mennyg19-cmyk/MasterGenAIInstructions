@@ -274,6 +274,16 @@ When you edit a rule in this repo, push the changes to all registered projects:
 
 This copies the updated `.cursor/rules/` and `AGENTS.md` to every project in `registry.json`. It will offer to commit the changes in each project. Projects that no longer exist are automatically removed from the registry.
 
+### Onboard or refresh every local git repo
+
+```powershell
+.\register-and-apply.ps1 -Discover -AutoCommit
+```
+
+Discovers git repos under `App`, `Family`, and `D:\Projects` (skips tool forks like `codegraph`/`ponytail`), applies the full stack (rules + CodeGraph index + guardrails), prunes stale legacy `.mdc` files that conflict with CodeGraph, registers each repo, then runs `update-all -AutoCommit`.
+
+**Important:** Open each project folder as the **Cursor workspace root** — not a parent monorepo — so `.cursor/rules/` loads.
+
 ## Using Without Cursor
 
 `AGENTS.md` in each bootstrapped project contains the same rules in portable format. It works with Claude Code, Codex, or any AI tool that reads project docs.

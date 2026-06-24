@@ -49,6 +49,27 @@ sync_project_codegraph() {
     fi
 }
 
+prune_orphan_project_rules() {
+    local project_path="$1"
+    local template_dir="$2"
+    local rules_dest="$project_path/.cursor/rules"
+    local rules_src="$template_dir/.cursor/rules"
+    [ -d "$rules_dest" ] || return
+    local removed=""
+    for f in "$rules_dest"/*.mdc; do
+        [ -f "$f" ] || continue
+        base=$(basename "$f")
+        [ "$base" = "deploy-awareness.mdc" ] && continue
+        if [ ! -f "$rules_src/$base" ]; then
+            rm -f "$f"
+            removed="$removed $base"
+        fi
+    done
+    if [ -n "$removed" ]; then
+        echo "  [pruned]   removed stale rules:$removed"
+    fi
+}
+
 copy_project_guardrails() {
     local project_path="$1"
     local template_dir="$2"

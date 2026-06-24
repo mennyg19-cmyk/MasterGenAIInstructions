@@ -39,6 +39,7 @@ echo ""
 
 mkdir -p "$TARGET_DIR/.cursor/rules"
 cp "$TEMPLATE_DIR/.cursor/rules/"* "$TARGET_DIR/.cursor/rules/"
+prune_orphan_project_rules "$TARGET_DIR" "$TEMPLATE_DIR"
 echo "  [copied]   .cursor/rules/ (all rule files)"
 
 cp "$TEMPLATE_DIR/AGENTS.md" "$TARGET_DIR/AGENTS.md"
