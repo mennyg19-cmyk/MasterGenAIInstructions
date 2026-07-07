@@ -62,6 +62,7 @@ If the user says "why isn't this working," run this flow first before broad refa
 
 ## Windows / PowerShell
 
+- **Inline `$` breaks in the agent shell** — any command needing `$variables`, loops, or hashes → `.scratch/agent-run.ps1` + `-File` (`workflow.mdc` § Shell execution). Do not retry mangled one-liners.
 - `Out-File` adds a UTF-8 BOM that breaks Prisma/JSON parsers -- write UTF-8 no-BOM (`[System.IO.File]::WriteAllText()`).
 - Capture build output to a file (`2>&1 | Out-File build.log`) and read it; piping through `Select-String` loses errors.
 - A stray `package-lock.json` in a parent directory can break Turbopack workspace-root detection.

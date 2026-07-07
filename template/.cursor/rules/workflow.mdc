@@ -43,6 +43,7 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 - **Revert fully or not at all.**
 - **Resume after interruption** -- read HANDOFF + `.scratch/run-state.md`; continue from `next_action`, don't restart from scratch.
 - **Run commands yourself** (push, deploy, build) -- don't hand the user instructions.
+- **PowerShell: script file, not inline `$`** -- see `Shell execution` below.
 - **Never silently choose business logic** (calculations, domain rules) -- log in DECISION-LOG.md and flag.
 - **Completion checklist before "done"**: re-read every todo/phase/checklist item and confirm each is actually complete. Never declare done from memory.
 
@@ -72,6 +73,33 @@ Do not flood context with terminal dumps. After a long command:
 - **Huge output:** write full log to `.scratch/last-command.log`, summarize in chat.
 
 Prefer `--stat`, `| tail -n`, `rg` with limits, and targeted flags over whole-tree dumps.
+
+## Shell execution (Windows PowerShell)
+
+Menny's environment is **PowerShell on Windows**. The agent Shell tool **mangles inline `$`** — variables, `$(...)`, `@{...}`, here-strings, and `foreach` break when pasted as one-liners. Do not narrate this failure; use the pattern below.
+
+### Use a script file when the command needs `$`
+
+Write **`.scratch/agent-run.ps1`** (gitignored), then execute:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .scratch/agent-run.ps1
+```
+
+Or from repo root: `& .\.scratch\agent-run.ps1`
+
+**Put in the script file:** any PowerShell using `$variables`, loops, hashes, multi-statement logic, JSON/registry edits, or here-strings.
+
+**OK inline (no `$`):** `git status`, `git diff`, `npm run build`, `codegraph status`, `gh pr list`, simple single commands.
+
+**Prefer existing repo scripts** over inventing inline PowerShell: `MasterGenAIInstructions\apply.ps1`, `update-all.ps1`, `lib\git-commit.ps1`, `register-and-apply.ps1`, etc.
+
+### Other shell rules
+
+- **No bash heredoc** in PowerShell (`$(cat <<'EOF'`) — see `git-discipline.mdc` for commits.
+- **No `&&`** in PowerShell — use `;` or separate script lines.
+- **UTF-8 no BOM** when scripts write files — see `deploy-awareness.mdc` § Windows.
+- Delete or overwrite `.scratch/agent-run.ps1` each run; do not commit it.
 
 ## Untrusted-content boundary
 

@@ -24,10 +24,12 @@ Menny's shell is **PowerShell on Windows**. Do **not** use bash heredoc (`$(cat 
 
 | Shell | Pattern |
 |---|---|
-| **PowerShell** (default) | `git commit -m "Subject line." -m "Optional body paragraph."` — multiple `-m` flags, one commit. Or here-string: `$msg = @'…'@; git commit -m $msg` |
+| **PowerShell** (default) | `git commit -m "Subject line." -m "Optional body paragraph."` — multiple `-m` flags, no `$` variables |
 | **bash / sh** | `git commit -m "$(cat <<'EOF'…EOF)"` |
 
-Never write a temp commit-msg file, never narrate heredoc failures, never retry with `-F` unless the message is genuinely huge. Just use the right syntax for the shell you are in.
+**Do not inline** `$msg = @'…'@; git commit -m $msg` through the agent shell — `$` gets mangled. For anything beyond two `-m` flags: write `.scratch/commit.ps1` (or use `MasterGenAIInstructions\lib\git-commit.ps1` when in that tree) and run with `-File`. See `workflow.mdc` § Shell execution.
+
+Never narrate heredoc or dollar-sign failures. Use the right pattern silently.
 
 ## Don't Commit Junk
 

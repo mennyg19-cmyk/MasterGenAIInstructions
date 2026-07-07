@@ -61,6 +61,7 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Anti-slop:** always on, baked into ponytail — no CLI; chat, comments, commits, HANDOFF, DECISION-LOG; code logic exact.
 - **Gate discipline:** mandatory stop at every gate (babysitter Tier 1, rules only — no npm). `.scratch/run-state.md` for long runs.
 - **Command output:** summarize long terminal output; full logs to `.scratch/last-command.log`.
+- **PowerShell:** never inline `$` in agent shell — use `.scratch/agent-run.ps1` + `-File` (`workflow.mdc`).
 - **CodeGraph:** Hybrid lookup; auto init/sync on bootstrap/apply/update-all. **No Grep/SemanticSearch for structure when index healthy** — MCP or CLI only; Read/grep for literals.
 - **Rebuild Phase 0:** A+B hybrid -- parent deterministic graph backbone, then 2 model families per area for judgment (not six blind file walks).
 - **Rebuild scope:** Ask when a feature feels speculative; never auto-drop inventory IDs.
