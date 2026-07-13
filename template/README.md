@@ -69,11 +69,11 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Testing:** Hybrid — testing-protocol floor, ponytail-minimal tests (no fixture forests).
 - **Walkthrough headers:** Off (saves tokens). Say `enable walkthroughs` to restore archived rule.
 - **Chat:** Terse routine; full explain when needed; anti-slop always (no sycophancy/stock vocab/hedging).
-- **Reviews:** Mandatory ponytail-review at every phase gate + correctness/security loop.
+- **Reviews:** Mandatory ponytail-review at every phase gate + correctness Loops A/B (Sol then Fable) + quality Loop C + trust-boundary when triggered. Checklist + evidence; review-admin; fix-canary. See `review-protocol.mdc`.
 - **Complex requests:** Fix-don't-suggest — build what was asked.
 - **God files:** Split on refactor or >500 lines / mixed concerns.
 - **Multi-model subagents:** Rebuild/redesign only unless I say "use more models".
-- **Default models:** Claude deep = `claude-fable-5-thinking-medium` (Fable replaces Opus, medium only). Reviews / GPT = `gpt-5.6-sol-medium` (Sol > Terra > Luna). Roster in `subagents.mdc`.
+- **Default models:** Job → model routing in `subagents.mdc` (reviews = Sol, re-pass = Fable; deep Claude = Fable medium; cheap/wide = Composer/Grok; design = Gemini+Sol+Fable; facts = CodeGraph).
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
 - **Grill:** Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.

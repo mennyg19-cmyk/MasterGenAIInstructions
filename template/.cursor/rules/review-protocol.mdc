@@ -1,55 +1,117 @@
 ---
-description: Review rules -- self-review against expectation files, then the independent review-subagent loop at phase gates and before any production merge. Read when finishing a phase, asked to "review", or preparing a production merge.
+description: Review rules -- sequential checklist pipeline at phase gates and before production merge. Read when finishing a phase, asked to "review", or preparing a production merge.
 ---
 
 # Review Protocol
 
 A "phase" = a feature, module, or protocol step spanning more than one commit.
 
+**Plan vs code:** `plan-review.mdc` reviews agent-written **plans**. This file reviews **implementation**. Models: `subagents.mdc` Job routing. Hotfix deviations: below + `hotfix-protocol.mdc`.
+
 ## Mandatory stop (gate discipline)
 
-Per `workflow.mdc`: no phase marked done, no production merge, no next-phase work until — self-review complete, ponytail-review clean (where required), correctness loop at **zero findings** (where required), platform green after push, no open **BLOCKED** entries, and `.scratch/run-state.md` updated if the run uses it.
+No phase marked done, no production merge, no next-phase work until: self-review done, ponytail clean, correctness Loops A+B green, quality Loop C green, trust-boundary done if triggered, platform green after push, no open **BLOCKED**, `.scratch/run-state.md` updated if used.
 
-## Cadence (single source of truth -- other files defer to this)
+## Cadence
 
-**Plan vs code:** `plan-review.mdc` reviews agent-written **plans** (fog/tunnel, evidence, promoted v2). This file reviews **implementation** at phase gates and before production merge.
+1. **Per commit**: typecheck, lint, tests only. No review subagent.
+2. **Per todo**: self-review per `workflow.mdc` verification tier.
+3. **Per phase gate** and **before production merge**: full pipeline below (mandatory).
+4. **Hotfix**: short path in Deviations — not the full pipeline.
 
-1. **Per commit**: fast checks only (typecheck, lint, tests). No review subagent.
-2. **Per todo**: SELF-REVIEW per `workflow.mdc` verification tier.
-3. **Per phase** (in order, all mandatory before the phase is marked done):
-   - Self-review against expectation checklists.
-   - **Ponytail-review** on the phase diff (`ponytail.mdc`) -- hunt over-engineering; fix EVERY finding (delete/stdlib/native/yagni/shrink) or log explicit user deferral in DECISION-LOG. Re-run until `Lean already. Ship.` or zero actionable cuts.
-   - **Correctness loop** below (independent subagent, fresh family each pass, zero findings).
-4. **Before production merge**: correctness loop mandatory (go-live gate).
+## Phase / production pipeline (ordered)
 
-## Self-Review First, Then Independent
+Run in order. Do not start the next stage until the current one is green.
 
-Before spawning the phase reviewer, re-walk all of the phase's completed expectation checklists and fix everything you can find yourself. The independent reviewer then receives those completed checklists and verifies the evidence / spot-checks the claims instead of rediscovering scope from scratch. Done right, this usually means one independent pass instead of several -- but the loop below still runs until clean.
+| # | Stage | Who | Done when |
+|---|---|---|---|
+| 1 | **Self-review** | Parent | Expectations re-walked; own fixes applied |
+| 2 | **Ponytail-review** | Parent (`ponytail.mdc`) | `Lean already. Ship.` or zero actionable cuts (or DECISION-LOG deferral) |
+| 3 | **Correctness Loop A** | `gpt-5.6-sol-medium` | Checklist all `[x]` with evidence → `.scratch/review-pass-A*.md` |
+| 4 | **Correctness Loop B** | `claude-fable-5-thinking-medium` | Same → `.scratch/review-pass-B*.md` |
+| 5 | **Quality Loop C** | `claude-fable-5-thinking-medium` | Quality checklist green → `.scratch/review-pass-quality-*.md` |
+| 6 | **Trust-boundary** | Sol or Fable | Only if phase touches auth/payments/roles/orders — see below |
+| 7 | **Go-live parity** | Per rebuild/redesign | Production / rebuild Phase 5 only — enumerate, don't sample |
 
-## The Independent Loop
+### Family loop rules (A, B, and C)
 
-- Reviewer: readonly subagent (default `gpt-5.6-sol-medium`), spawned per `subagents.mdc` -- `model` set explicitly, never your own model.
-- **Phase reviews are DIFF-SCOPED, not whole-project.** Give the reviewer: the phase's diff (`git diff <phase-start>..HEAD` file list), the phase goal, and the PATHS to the completed expectation checklists, the invariant ledger (if one exists), and README/AGENTS.md -- by reference with the required-reading + proof-of-read instructions per `subagents.mdc`, never pasted. Do not hand it the whole codebase to re-read.
-- The two bug classes a diff can't show are covered by targeted guards, not by widening the scope: the **trust-boundary security review** below runs full-context on any phase touching payments/auth/roles/order creation, and every phase reviewer checks the diff against the **invariant ledger** (cross-phase consistency travels in the ledger, not in extra context).
-- **Final/go-live reviews are whole-app** (e.g. a rebuild's Phase 5 enumerated parity review) -- diff-scoping applies to intermediate phase gates only.
-- Findings go in DECISION-LOG.md. Fix EVERY finding, then a **fresh** reviewer (different family, no prior context, so it can't rubber-stamp) re-checks. **Repeat until a pass returns zero findings.** "Found things, fixed them, moving on" without a clean re-review is not allowed.
-- **A review must return results.** A clean typecheck is never a stand-in for a review that didn't finish. If a reviewer hangs/times out, re-spawn smaller scoped reviews until you get real findings.
-- Every review answers: **does the work actually do what it was supposed to, end to end, in the running app?** Type errors and lint nits are not the bar; stubs and read-only pages are findings.
+1. Spawn **readonly** reviewer (`model` explicit per `subagents.mdc`). Diff-scoped for phase gates (phase diff, goal, PATHS to expectations / invariant ledger / README / AGENTS — required-reading + proof-of-read). Go-live = whole-app when required.
+2. Reviewer fills the checklist; every item needs evidence or `N/A` + why. Unchecked / no evidence = not done.
+3. Parent fixes **every** finding. Before each fix batch: write/update **`.scratch/fix-canary.md`**, then run the expect steps after the fix (see Fix canary).
+4. Re-pass = **fresh spawn, same family, empty context** (never resume the prior reviewer chat). Repeat until that family's pass file is all green / zero findings.
+5. After Loop B is clean, run Loop C. After C, ship the gate unless B/C fixes were huge — then one more Loop A pass.
+6. No third correctness family unless user says **"use more models."**
+7. A review must return results. Typecheck alone is not a review. Hung reviewer → smaller scoped re-spawn.
 
-## Feature-Parity Review (rebuilds / "match the old thing" work)
+### Review admin (gated routes)
 
-- Reviewer gets the inventory/spec + the old reference (screenshots or source).
-- **Enumerate, never sample**: route-coverage diff first (every old route has a working new route), then EVERY inventory ID in order, marked PRESENT / PARTIAL / STUB / MISSING with evidence (route opened, control clicked), verified in the running app. Unverifiable = MISSING.
-- The phase fails while anything is less than PRESENT.
+Before Loop A (phase/production with auth):
 
-## Trust-Boundary Security Review (mandatory for payments/auth/roles/order creation)
+1. Parent creates/upserts a **local-only** admin against **local/dev DB only** (e.g. `agent-review@local.test`).
+2. Write creds to **`.scratch/review-auth.json`** (gitignored). Never commit. Never production / cloud preview DB.
+3. Subagent prompts get the **path** + instruction to log in and exercise gated routes.
+4. No auth / cannot create local admin → checklist item `N/A` + why. Do not fake it.
 
-Review by entry point, not by file. For each public route / authenticated action / admin action / webhook / cron, confirm: actor + where auth is enforced; server-side input validation; server-derived money/role/ownership fields (never trusted from the client); side effects; and one abuse test (the obvious misuse, blocked).
+### Fix canary
+
+Before fixing reviewer findings (and on hotfixes):
+
+```
+bug: <one line>
+expect: <steps to prove fixed — include login via .scratch/review-auth.json when gated>
+must_not_break: <optional>
+```
+
+Write to **`.scratch/fix-canary.md`**. After the fix, **run those exact steps**. Mark `PASS` + evidence or `FAIL` and continue. No PASS = not done.
+
+### Correctness checklist (Loops A and B)
+
+Every pass file lists these. Each line: `[x]` + evidence, or `N/A` + why.
+
+1. **Scope** — phase goal stated; diff matches goal (no silent extras)
+2. **Expectations** — each phase expectation verified or flagged false
+3. **Running app** — primary path works with seeded data (route + clicked/saw)
+4. **Gated routes** — logged in via review-auth; list routes checked + saw (or N/A)
+5. **No stubs** — no fake buttons, empty handlers, "coming soon" as done
+6. **Errors** — failure paths show real messages; no swallowed errors
+7. **Invariants** — ledger IDs checked if present; else N/A
+8. **Tests/checks** — applicable typecheck/lint/tests green (cite command)
+9. **Secrets / trust** — no secrets in diff; if auth/money/roles touched → trust-boundary stage required (don't skip silently)
+10. **Findings** — numbered list or explicit `zero findings`
+
+Evidence examples: `route /orders — clicked New — saw form`; `login review-auth — /admin — saw user table`; `` `npm run typecheck` exit 0 ``; `F1: Settings save no-ops (SettingsForm.tsx:88)`.
+
+### Quality checklist (Loop C)
+
+Diff-scoped against `clean-code.mdc`. Same evidence rules.
+
+1. Duplicated logic
+2. Duplicated UI
+3. Inline styles / repeated class strings / magic values
+4. God files (>500 lines or mixed concerns)
+5. Inconsistent patterns (one pattern per concern)
+6. Dead code
+7. Type/schema drift
+8. Naming (banned vague names; functions say what they do)
+9. Error handling (no empty catches; messages say wrong + expected)
+
+Ponytail (stage 2) owns bloat tags (`delete:` / `yagni:` / …). Loop C owns craft. Do not merge them into one pass.
+
+### Trust-boundary (stage 6)
+
+Mandatory when the phase touches payments/auth/roles/order creation. **Separate stage** — not only checklist item 9.
+
+Review by **entry point**, not by file. For each public route / authenticated action / admin action / webhook / cron: actor + where auth is enforced; server-side input validation; server-derived money/role/ownership (never from client); side effects; one abuse case (obvious misuse, blocked).
+
+### Feature-parity (stage 7 / rebuilds)
+
+Inventory + old reference. **Enumerate, never sample.** Route-coverage first, then every inventory ID: PRESENT / PARTIAL / STUB / MISSING with running-app evidence. Unverifiable = MISSING. Phase fails while anything is less than PRESENT.
 
 ## Invariant Ledger
 
-For domains with hard rules (money, auth/roles, inventory, shipping, order structure), keep numbered invariants; reviews cite invariant IDs, not prose, so they can't drift between audit, plan, and build. The ledger is small by design -- it goes to EVERY phase reviewer, and a diff that violates an invariant is a finding even if the changed files look fine in isolation.
+Hard domain rules (money, auth/roles, inventory, shipping, orders): numbered invariants. Reviewers cite IDs. Ledger goes to every correctness pass. Diff that violates an invariant = finding even if files look fine alone.
 
 ## Deviations
 
-Rebuild/redesign add their own gates (see those files). Hotfix = single self-review only.
+- **Rebuild/redesign**: extra gates in those protocols; still use this pipeline at their phase boundaries.
+- **Hotfix** (`hotfix-protocol.mdc`): skip Loops A/B/C. Parent writes fix canary → fix → run expect workflow (review admin if gated) → self-review → push + platform green. Log `hotfix deviation` in DECISION-LOG. **Exception:** auth/money/roles touch → one Sol correctness checklist pass; large diff (roughly >100 lines) → add Loop C once.
