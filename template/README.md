@@ -73,6 +73,7 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Complex requests:** Fix-don't-suggest — build what was asked.
 - **God files:** Split on refactor or >500 lines / mixed concerns.
 - **Multi-model subagents:** Rebuild/redesign only unless I say "use more models".
+- **Default models:** Claude deep = `claude-fable-5-thinking-medium` (Fable replaces Opus, medium only). Reviews / GPT = `gpt-5.6-sol-medium` (Sol > Terra > Luna). Roster in `subagents.mdc`.
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
 - **Grill:** Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.

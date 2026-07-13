@@ -27,6 +27,7 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1
 | **Complex requests** | Fix-don't-suggest — build what was asked |
 | **God files** | Split on refactor or >500 lines / mixed concerns — token-aware |
 | **Multi-model subagents** | Full protocol for rebuild/redesign only; single-model elsewhere unless "use more models" |
+| **Default models** | Claude deep slot: **`claude-fable-5-thinking-medium`** (Fable replaces Opus; medium only). GPT / reviews: **`gpt-5.6-sol-medium`** (Sol > Terra > Luna for reviews; Task medium). Roster lives in `subagents.mdc` |
 | **Verification** | Tiered — smoke for small fixes; full checklist for features/rebuilds/phases |
 | **Protocol artifacts** | Ask when an artifact feels heavy; otherwise use protocol formats |
 | **Grill (planning)** | Rebuild: ask y/n before Phase 0; redesign: after brief; say **grill me** anytime (`grill-protocol.mdc`) |

@@ -31,7 +31,7 @@ Spawning mechanics, the model roster, and the multi-model rules live in **`subag
 
 ## Phase 2: Design Proposals (spawn the models -- do NOT design it yourself)
 
-1. **Spawn one subagent per design direction, each on a DIFFERENT model family** (per `subagents.mdc`): Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet/Opus). Default to at least 3-4 directions; when the user says "more options" or "use more models," spin up one per family across the whole roster. Never use the same model twice -- two proposals from the same model are the same proposal.
+1. **Spawn one subagent per design direction, each on a DIFFERENT model family** (per `subagents.mdc`): Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet/Fable). Default to at least 3-4 directions; when the user says "more options" or "use more models," spin up one per family across the whole roster. Never use the same model twice -- two proposals from the same model are the same proposal.
 2. Each subagent independently proposes a different design direction addressing the pain points and **builds the actual viewable preview** (see below). You are the coordinator: you spawn them, collect their previews, and present them. You do not produce your own competing design.
 3. Each proposal covers: color palette, layout, navigation, typography, spacing, and any framework/tooling changes.
 4. Tone: per `workflow.mdc`.

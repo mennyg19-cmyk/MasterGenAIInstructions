@@ -39,19 +39,26 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
 
 ## Roster (snapshot -- the tool's accepted list is the real source of truth)
 
-| Slug | Family |
+| Slug | Family / role |
 |---|---|
 | `composer-2.5-fast` | Composer (cheapest; broad sweeps/audits) |
-| `gpt-5.5-extra-high` | GPT (default reviewer) |
+| `gpt-5.6-sol-medium` | GPT (default reviewer — see Default picks) |
+| `gpt-5.6-terra-medium` | GPT (everyday / cheaper GPT slot) |
 | `gpt-5.2-codex` | GPT/Codex (code-focused) |
 | `gemini-3.1-pro` | Gemini (design/UX eye) |
-| `grok-4.3` | Grok |
-| `grok-build-0.1` | Grok (build-oriented) |
-| `kimi-k2.5` | Kimi |
+| `cursor-grok-4.5-high-fast` | Grok |
 | `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (fast) |
-| `claude-4.5-opus-high-thinking` / `claude-4.6-opus-max-thinking` / `claude-opus-4-8-thinking-xhigh` | Claude Opus (deep analysis) |
+| `claude-fable-5-thinking-medium` | Claude Fable (deep analysis — replaces Opus slot) |
 
-Families: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet+Opus)**. "Use more models" = reach across families.
+Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use more models" = reach across families.
+
+### Default picks (Rule Preference)
+
+| Job | Slug | Why |
+|---|---|---|
+| **Phase / production review** | `gpt-5.6-sol-medium` | GPT-5.6 has three tiers: **Sol** (flagship, complex reasoning), **Terra** (balanced everyday), **Luna** (fast/cheap). Reviews need Sol. CursorBench 3.2: Sol Max 67.2% > Terra Max 64.9% > Luna Max 61.1%; Sol Medium (60.0%) still beats GPT-5.5 Extra High (58.4%). Task tool currently accepts Sol/Terra at **medium** only — use `gpt-5.6-sol-medium`. If a higher Sol effort slug appears on the Task accepted list, prefer it for reviews. |
+| **Deep Claude / premier pair** | `claude-fable-5-thinking-medium` | Fable 5 replaces the Opus family slot. **Medium** effort only (user preference). |
+| **Rebuild premier pair example** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` | Two different families. |
 
 ## When to use multiple models (Rule Preference)
 
@@ -62,7 +69,7 @@ Families: **Composer, GPT, Codex, Gemini, Grok, Kimi, Claude (Sonnet+Opus)**. "U
 ## Three Hard Rules
 
 1. **Never silently fall back to your own model.** A rejected slug returns the valid list -- pick another valid slug and retry. NEVER drop `model` and run on yourself: that turns multi-model coverage into single-model blind spots without anyone noticing.
-2. **Same job × N subagents = N different families** (when multi-model is required per above). Two Opus variants ≠ two families.
+2. **Same job × N subagents = N different families** (when multi-model is required per above). Two Fable/Sonnet variants ≠ two families.
 3. **The orchestrator records the assigned model on every artifact** (header line `Model: <slug>`). Self-labels and filenames prove nothing about what actually ran.
 
 ## Multi-Model Debate to Consensus
