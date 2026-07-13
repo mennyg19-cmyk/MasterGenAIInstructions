@@ -4,15 +4,22 @@ description: Emergency production fix protocol. Triggered when the user says "ho
 
 # Hotfix Protocol
 
-Deviations from normal workflow -- speed matters.
+Deviations from normal workflow -- speed matters. Full review pipeline lives in `review-protocol.mdc`; this file is the short path.
 
 ## Process
 
-1. Skip the multi-agent review cycle.
-2. Branch from main: `hotfix/<description>` (per `git-discipline.mdc`, but merge back to main immediately after).
-3. Scope: fix the specific bug, nothing else. Zero scope creep.
-4. Write a test that reproduces the bug FIRST, then fix it.
-5. Verify the fix passes.
-6. Single self-review (no subagent needed for a focused fix).
-7. Merge to main and deploy right away.
-8. After the dust settles: log what happened in DECISION-LOG.md.
+1. Branch from main: `hotfix/<description>` (per `git-discipline.mdc`; merge back as soon as the fix is verified).
+2. Scope: the specific bug only. Zero scope creep.
+3. **Fix canary first** — write `.scratch/fix-canary.md` (`bug` / `expect` / optional `must_not_break`) **before** editing. Expect steps must include the real user workflow (login via `.scratch/review-auth.json` when the bug is behind auth).
+4. Prefer a failing test that reproduces the bug when the project has a test harness; then fix.
+5. Apply the fix. **Run the canary expect steps.** No `PASS` with evidence = not done.
+6. Self-review the diff (no dual-family loops; no quality loop by default).
+7. Merge/deploy. Confirm **platform green** (`deploy-awareness.mdc`).
+8. Log what happened in DECISION-LOG.md with `hotfix deviation`.
+
+## When to escalate toward full review
+
+Per `review-protocol.mdc` Deviations:
+
+- Touches **auth / money / roles** → one Sol correctness checklist pass before merge.
+- Diff roughly **>100 lines** → add quality Loop C once.

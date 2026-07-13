@@ -54,11 +54,26 @@ Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use mo
 
 ### Default picks (Rule Preference)
 
-| Job | Slug | Why |
-|---|---|---|
-| **Phase / production review** | `gpt-5.6-sol-medium` | GPT-5.6 has three tiers: **Sol** (flagship, complex reasoning), **Terra** (balanced everyday), **Luna** (fast/cheap). Reviews need Sol. CursorBench 3.2: Sol Max 67.2% > Terra Max 64.9% > Luna Max 61.1%; Sol Medium (60.0%) still beats GPT-5.5 Extra High (58.4%). Task tool currently accepts Sol/Terra at **medium** only — use `gpt-5.6-sol-medium`. If a higher Sol effort slug appears on the Task accepted list, prefer it for reviews. |
-| **Deep Claude / premier pair** | `claude-fable-5-thinking-medium` | Fable 5 replaces the Opus family slot. **Medium** effort only (user preference). |
-| **Rebuild premier pair example** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` | Two different families. |
+GPT-5.6 tiers: **Sol** (flagship) > **Terra** (everyday) > **Luna** (fast/cheap). Reviews need Sol. Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
+
+| Job | Slug(s) |
+|---|---|
+| **Phase / production review** | Correctness Loop A: `gpt-5.6-sol-medium`; Loop B: `claude-fable-5-thinking-medium` (each until clean, fresh spawn). See `review-protocol.mdc` |
+| **Code quality (Loop C)** | `claude-fable-5-thinking-medium` — clean-code checklist after correctness |
+| **Security / trust-boundary** | `claude-fable-5-thinking-medium` or `gpt-5.6-sol-medium` — never Composer/Luna alone |
+| **Grill / plan-review / architecture debate** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` (pair when multi-model) |
+| **Rebuild premier pair / area auditors** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` |
+| **Implementation** (add / fix / refactor) | `gpt-5.6-sol-medium` or `claude-fable-5-thinking-medium`; `gpt-5.2-codex` for code-heavy |
+| **Medium everyday build** | `gpt-5.6-terra-medium` or `claude-4.6-sonnet-medium-thinking` |
+| **Hotfix** (speed, smallest fix) | `cursor-grok-4.5-high-fast` or `gpt-5.6-terra-medium` or Sonnet |
+| **Broad / cheap inventory sweep** | `composer-2.5-fast` (or Grok) |
+| **Long autonomous / cost-sensitive** | `cursor-grok-4.5-high-fast` or `gpt-5.6-terra-medium`; Sol/Fable only at hard gates |
+| **Redesign proposals** | Different families: Gemini + Sol + Fable (+ Grok if more options) |
+| **UI polish** (after direction chosen) | `gpt-5.6-sol-medium` or `gemini-3.1-pro` |
+| **Shell / deploy / scripts** | Grok, Codex, or Sol |
+| **Structure facts** | CodeGraph — not a model contest |
+
+**Routing rule:** precision/judgment → Sol or Fable; everyday build → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; design competition → Gemini + Sol + Fable; facts → CodeGraph.
 
 ## When to use multiple models (Rule Preference)
 
