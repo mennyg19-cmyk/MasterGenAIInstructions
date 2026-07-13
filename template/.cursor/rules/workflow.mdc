@@ -61,7 +61,7 @@ A gate is **incomplete** if any of these are true:
 Stopping early requires user permission or a logged **BLOCKED**. Crossing a gate → update `.scratch/run-state.md` (below).
 
 **Exceptions (lighter gates, not no gates):**
-- **Hotfix** (`hotfix-protocol.mdc`): skip multi-agent review loop; single self-review only (`review-protocol.mdc` deviations). Still verify fix, push, confirm platform green.
+- **Hotfix** (`hotfix-protocol.mdc`): skip dual-family/quality loops; fix-canary + self-review + run expect workflow (`review-protocol.mdc` deviations). Still verify fix, push, confirm platform green.
 - **Single-file tidy** (`vocabulary.mdc`): no phase gate unless part of a larger phase.
 
 ## Command output discipline
