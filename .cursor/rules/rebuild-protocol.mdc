@@ -73,7 +73,7 @@ Gate: no Phase 2 until the inventory is page-by-page, ID'd, tied to old-code fil
 
 ## Phase 2: Architecture Proposals
 
-Spawn exactly 2 subagents on different premier families (e.g. `claude-opus-4-8-thinking-xhigh` + `gpt-5.5-extra-high`), in parallel, each given the PATHS to FEATURE-INVENTORY.md + BUILD-HISTORY.md with the required-reading + proof-of-read instructions from `subagents.mdc` (do not paste the documents):
+Spawn exactly 2 subagents on different premier families (e.g. `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium`), in parallel, each given the PATHS to FEATURE-INVENTORY.md + BUILD-HISTORY.md with the required-reading + proof-of-read instructions from `subagents.mdc` (do not paste the documents):
 
 > "REQUIRED READING: read FEATURE-INVENTORY.md and BUILD-HISTORY.md at [paths] IN FULL before proposing anything; open your proposal with a 3-5 line proof-of-read summary of each (ID and route counts included). Then: propose a clean architecture AND information/UI structure from scratch. All technical choices open. Hard constraint: EVERY inventory feature preserved. Fix the structure: address every to-fix item -- relocate, group, resolve clashes, fix interactions, clean consistent layout. Old code = reference for WHAT, not HOW. Justify choices in plain English."
 
