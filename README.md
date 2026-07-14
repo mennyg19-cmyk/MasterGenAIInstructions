@@ -29,8 +29,11 @@ MasterGenAIInstructions/
 |       |-- agent-guardrails.yml  # Optional CI: gitleaks + semgrep + zizmor
 |-- _meta/
     |-- PHILOSOPHY.md    # Why this exists, credits, how layers fit
+    |-- model-roster.json  # Canonical model slugs + job assignments (synced to subagents.mdc)
     |-- USER-RULE-PREFERENCES.md  # Canonical standing conflict resolutions
     |-- RULE-CONFLICTS.md         # Expanded conflict playbook (not auto-loaded)
+|-- lib/
+    |-- model-roster.py  # check/sync model assignments from model-roster.json
 ```
 
 ## The rule stack (credits & what each layer does)
@@ -134,15 +137,58 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 | **Everyday** | Spec gate in `workflow.mdc` → mini-grill when underspecified |
 | **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
 
-### Model routing (token cost)
+### Model routing (July 2026 — token cost + GPT primary)
 
-Job → slug lives in `subagents.mdc` (single source of truth):
+**Standing choice:** GPT is the **primary family** for Everyday work. Set Cursor's UI default to **GPT Terra** (`gpt-5.6-terra-medium`). **Do not use Auto** — it silent-routes mid-protocol and breaks Job routing.
 
-- **UI default:** GPT Terra — not Auto
-- **Everyday build / routine phase review:** Terra + Sonnet
-- **Hard gates only:** Sol + Fable (production merge, rebuild architecture/debate, trust-boundary, go-live)
-- **Wrong parent model:** spawn Task with the Job table slug; do not self-run judgment work on Auto/unknown/wrong tier
-- **Rollback snapshot:** branch `cursor/backup-pre-model-routing-120f`
+**Why we demoted Sol/Fable from Everyday:** Strong rules (ponytail, gates, Spec gate, expectations, CodeGraph) handle most process failures. Flagship models still matter for **hard-to-reverse judgment** — not for every feature commit. Terra is typically **2–3× cheaper** than Sonnet on comparable tasks ([CursorBench](https://cursor.com/cursorbench) eval-cost snapshot).
+
+| Tier | Models | When |
+|---|---|---|
+| **Everyday** | Terra (GPT primary), Sonnet (second family), Codex | Build, mini-grill, routine phase review (Terra Loop A + Sonnet Loop B/C) |
+| **Premier** | Sol + Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live |
+| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long autonomous loops, scripts |
+
+**What changed (2026-07-14):**
+
+1. **Spec gate** (`workflow.mdc`) — mechanical checklist before non-trivial build; fail → mini-grill, don't invent product direction.
+2. **Mini-grill** (`grill-protocol.mdc`) — 3–5 questions until goal/constraints/approach/validation exist.
+3. **Routine vs go-live review** (`review-protocol.mdc`) — Everyday dual-family for feature phases; Sol+Fable only for production/go-live.
+4. **Wrong parent → spawn** (`subagents.mdc`) — if main agent is Auto/unknown/wrong tier, spawn Task with the Job slug instead of self-running judgment work.
+5. **Adversarial spot-check** — routine reviewers must exercise one off-happy-path case, not only re-walk the author's EXPECTED list.
+6. **Rebuild Phase 0 auditors** — Terra + Sonnet by default; Sol+Fable only for contested architecture areas.
+7. **Redesign default proposals** — Gemini + Terra + Grok (add Sol/Fable when user wants more).
+
+**Job → slug (full table):** synced section in `subagents.mdc` (from `_meta/model-roster.json`). Highlights:
+
+| Job | Slug(s) |
+|---|---|
+| UI default / implement | `gpt-5.6-terra-medium` |
+| Routine review A / B / C | Terra / Sonnet / Sonnet |
+| Go-live review A / B / C | Sol / Fable / Fable |
+| Rebuild debate | Sol + Fable |
+| Rebuild area audit | Terra + Sonnet |
+| Trust-boundary | Sol or Fable |
+| Redesign proposals | Gemini + Terra + Grok |
+| Structure | CodeGraph (not a model) |
+
+**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
+
+**Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
+
+#### Keeping slugs up to date (automation)
+
+| What | Where |
+|---|---|
+| **Canonical data** | `_meta/model-roster.json` — edit slugs/jobs here |
+| **Synced rules** | `subagents.mdc` roster/tier/job tables (auto-generated between `MODEL_*` markers) |
+| **Check drift** | `python lib/model-roster.py check` |
+| **Regenerate tables** | `python lib/model-roster.py sync` (then commit JSON + both subagents files) |
+| **CI** | `.github/workflows/model-roster-check.yml` on PR/push when roster or rules change |
+
+Workflow when Cursor renames a model slug: update `model-roster.json` → `sync` → `check` → commit. Protocol files (`review-protocol.mdc`, etc.) reference jobs by name; only slug strings need to stay in the JSON roster.
+
+**Limits:** This cannot auto-discover Cursor's live model list — there is no stable public API. When a spawn rejects a slug, the Task tool returns the valid list; update JSON from that. Optional: run check after any rejected-slug session.
 
 ### CI guardrails — automated safety outside the agent (optional)
 

@@ -4,7 +4,7 @@ description: How to spawn subagents -- mechanics, model roster, family diversity
 
 # Subagents (single source of truth)
 
-If a model slug ever changes, it changes here and nowhere else. Other protocols **name the job**; this file picks the slug.
+If a model slug ever changes, change **`_meta/model-roster.json`** first, then run `python lib/model-roster.py sync`. Other protocols **name the job**; JSON + this file pick the slug.
 
 ## Mechanics
 
@@ -39,30 +39,36 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
 
 ## Roster (snapshot -- the tool's accepted list is the real source of truth)
 
+**Canonical machine data:** `_meta/model-roster.json`. Run `python lib/model-roster.py sync` after editing slugs; `check` runs in CI.
+
+<!-- MODEL_ROSTER:BEGIN -->
 | Slug | Family / role |
 |---|---|
-| `composer-2.5-fast` | Composer (cheapest; broad sweeps/audits) |
-| `gpt-5.6-sol-medium` | GPT Sol (flagship judgment — hard gates only) |
-| `gpt-5.6-terra-medium` | GPT Terra (everyday default) |
-| `gpt-5.2-codex` | GPT/Codex (code-focused) |
-| `gemini-3.1-pro` | Gemini (design/UX eye) |
-| `cursor-grok-4.5-high-fast` | Grok (cheap/fast/hotfix/scripts) |
-| `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (everyday Claude + phase re-pass) |
-| `claude-fable-5-thinking-medium` | Claude Fable (deep judgment — replaces Opus; hard gates) |
+| `composer-2.5-fast` | Composer (Cheapest; broad sweeps/audits) |
+| `gpt-5.6-sol-medium` | GPT Sol (Flagship judgment — hard gates only) |
+| `gpt-5.6-terra-medium` | GPT Terra (Everyday default (GPT primary family)) |
+| `gpt-5.2-codex` | GPT/Codex (Code-focused implementation) |
+| `gemini-3.1-pro` | Gemini (Design/UX eye) |
+| `cursor-grok-4.5-high-fast` | Grok (Cheap/fast/hotfix/scripts) |
+| `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (Everyday Claude + routine Loop B/C) |
+| `claude-fable-5-thinking-medium` | Claude Fable (Deep judgment — hard gates (replaces Opus)) |
+<!-- MODEL_ROSTER:END -->
 
 Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use more models" = reach across families.
 
 ### Tiers
 
+<!-- MODEL_TIERS:BEGIN -->
 | Tier | Slugs | Use for |
 |---|---|---|
-| **Premier** | Sol, Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
-| **Everyday** | Terra, Sonnet, Codex | Default build, mini-grill, routine phase review, plan-review of medium plans |
-| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long cost-sensitive loops, scripts |
+| **Premier** | `gpt-5.6-sol-medium`, `claude-fable-5-thinking-medium` | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
+| **Everyday** | `gpt-5.6-terra-medium`, `claude-4.6-sonnet-medium-thinking`, `gpt-5.2-codex` | Default build, mini-grill, routine phase review, plan-review of medium plans |
+| **Cheap** | `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Hotfix, sweeps, long cost-sensitive loops, scripts |
 
 GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
 
-**Recommended Cursor UI default (human):** `gpt-5.6-terra` (Terra). Prefer Terra over Sonnet for the main chat unless you specifically want Claude voice. **Do not use Auto** as the main agent for this stack — Auto can silent-route mid-protocol and defeat Job routing. Bump the UI to Sol/Fable only for sessions that are mostly hard-gate work.
+**Recommended Cursor UI default (human):** `gpt-5.6-terra-medium` (GPT Terra). GPT is the primary family for Everyday work. Sonnet is the deliberate second family for dual-pass review. **Do not use Auto** as the main agent — Auto can silent-route mid-protocol and defeat Job routing.
+<!-- MODEL_TIERS:END -->
 
 ## Wrong parent model → spawn (mandatory)
 
@@ -81,26 +87,32 @@ Protocols name a **required job/tier**. The parent must not run that job itself 
 
 ## Default picks (Rule Preference)
 
+<!-- MODEL_JOBS:BEGIN -->
 | Job | Slug(s) |
 |---|---|
-| **UI default / parent chat** | Human sets **Terra**. Agents assume Everyday unless detection says otherwise. |
-| **Implementation** (add / fix / refactor) | `gpt-5.6-terra-medium` (primary); `claude-4.6-sonnet-medium-thinking` OK; `gpt-5.2-codex` for code-heavy |
-| **Spec / mini-grill** | Everyday (Terra preferred). Full ladder only when Spec gate fails hard or user says grill me |
-| **Full grill / deep plan-review / architecture** | Premier pair when multi-model: `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium`. Single-model grill questions: Terra OK |
-| **Routine phase review** | Loop A: `gpt-5.6-terra-medium`; Loop B: `claude-4.6-sonnet-medium-thinking`; Loop C: Sonnet |
-| **Production merge / rebuild go-live / redesign final parity** | Loop A: `gpt-5.6-sol-medium`; Loop B: `claude-fable-5-thinking-medium`; Loop C: Fable |
-| **Trust-boundary / security** | `claude-fable-5-thinking-medium` or `gpt-5.6-sol-medium` — never Composer/Luna/Auto alone |
-| **Rebuild premier pair / debate** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` |
-| **Rebuild area auditors (Phase 0 judgment)** | 2 families Everyday: Terra + Sonnet (facts from CodeGraph digests). Escalate area to Sol+Fable only if architecture-load-bearing and contested |
-| **Hotfix** | `cursor-grok-4.5-high-fast` or Terra or Sonnet |
-| **Broad / cheap inventory sweep** | `composer-2.5-fast` (or Grok) |
-| **Long autonomous / cost-sensitive** | Grok-fast or Terra; Premier only at hard gates |
-| **Redesign proposals** | Different families: Gemini + Terra + Grok (default 3). Add Fable and/or Sol when user wants more options or "use more models" |
-| **UI polish** (after direction chosen) | Terra or `gemini-3.1-pro` |
-| **Shell / deploy / scripts** | Grok or Codex |
+| **UI default / parent chat** | `gpt-5.6-terra-medium` |
+| **Implementation (add / fix / refactor)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking`; `gpt-5.2-codex` |
+| **Spec / mini-grill** | `gpt-5.6-terra-medium` |
+| **Full grill / deep plan-review / architecture** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+| **Routine phase review Loop A** | `gpt-5.6-terra-medium` |
+| **Routine phase review Loop B** | `claude-4.6-sonnet-medium-thinking` |
+| **Routine phase review Loop C** | `claude-4.6-sonnet-medium-thinking` |
+| **Production merge / go-live Loop A** | `gpt-5.6-sol-medium` |
+| **Production merge / go-live Loop B** | `claude-fable-5-thinking-medium` |
+| **Production merge / go-live Loop C** | `claude-fable-5-thinking-medium` |
+| **Trust-boundary / security** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+| **Rebuild premier pair / debate** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+| **Rebuild area auditors (Phase 0)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking` |
+| **Hotfix** | `cursor-grok-4.5-high-fast`; `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking` |
+| **Broad / cheap inventory sweep** | `composer-2.5-fast`; `cursor-grok-4.5-high-fast` |
+| **Long autonomous / cost-sensitive** | `cursor-grok-4.5-high-fast`; `gpt-5.6-terra-medium` |
+| **Redesign proposals (default)** | `gemini-3.1-pro`; `gpt-5.6-terra-medium`; `cursor-grok-4.5-high-fast` |
+| **UI polish (after direction chosen)** | `gpt-5.6-terra-medium`; `gemini-3.1-pro` |
+| **Shell / deploy / scripts** | `cursor-grok-4.5-high-fast`; `gpt-5.2-codex` |
 | **Structure facts** | CodeGraph — not a model contest |
 
 **Routing rule:** hard-to-reverse judgment → Premier (Sol/Fable); everyday build + routine gates → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; design competition → Gemini + Everyday (+ Premier if user asks); facts → CodeGraph. **Harden with Spec gate + expectation checklists** so Everyday can replace Premier on thumbtack work.
+<!-- MODEL_JOBS:END -->
 
 ## When to use multiple models (Rule Preference)
 

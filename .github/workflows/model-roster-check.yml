@@ -1,0 +1,28 @@
+name: Model roster check
+
+on:
+  pull_request:
+    paths:
+      - "_meta/model-roster.json"
+      - ".cursor/rules/**"
+      - "template/.cursor/rules/**"
+      - "lib/model-roster.py"
+  push:
+    branches: [main]
+    paths:
+      - "_meta/model-roster.json"
+      - ".cursor/rules/**"
+      - "template/.cursor/rules/**"
+      - "lib/model-roster.py"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate model roster sync
+        run: python lib/model-roster.py check

@@ -133,13 +133,70 @@ Not an agent rule layer — **infrastructure** that backs up what agents and pro
 
 ---
 
+## Model routing — why GPT primary, when multi-model still pays (July 2026)
+
+### The original metaphor (and what we kept)
+
+Early experience: one model family held **large scope** well; another held **local detail** well — like a building vs the offices inside. That was a useful **design heuristic**, not a permanent org chart. Model generations move; process rules (gates, expectations, CodeGraph) fix a lot of what used to require a second family on every task.
+
+**What we kept:** don't trust a single viewpoint on **load-bearing choices** (architecture debate, production merge, trust-boundary). Use **different families** when disagreement would change the decision.
+
+**What we dropped:** running Sol+Fable on every feature phase, using flagship models as the default parent chat, and treating "GPT = building / Claude = offices" as fixed law.
+
+### Standing choice: GPT primary, Terra Everyday
+
+Set Cursor's UI default to **GPT Terra** (`gpt-5.6-terra-medium`). **Not Auto** — Auto can silent-route mid-protocol and defeat explicit Job routing.
+
+| Role | Model | Why |
+|---|---|---|
+| **Primary family (Everyday)** | GPT Terra | Cheapest solid GPT tier for orchestration + implementation; matches "good GPT + strong rules" workflow |
+| **Second family (routine review)** | Claude Sonnet | Deliberate cross-family re-pass — not because Sonnet is "detail only," but to decorrelate misses |
+| **Premier (hard gates)** | GPT Sol + Claude Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live — decisions expensive to reverse |
+| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long cost-sensitive loops |
+
+Terra vs Sonnet cost: on comparable tasks Terra is often **~2–3× cheaper** than Sonnet (CursorBench eval-cost snapshot). Sonnet stays for **Loop B/C** and second-family coverage, not as the default workhorse.
+
+### What rules harden so Everyday can replace Premier
+
+Cheaper models fail on **underspecified prompts** and **rubber-stamp review**. We encoded countermeasures:
+
+1. **Spec gate** (`workflow.mdc`) — six-item mechanical checklist before non-trivial build; fail → mini-grill.
+2. **Mini-grill** (`grill-protocol.mdc`) — cap at goal / constraints / approach / validation.
+3. **Expectation files** — observable acceptance written before build; verified with evidence after.
+4. **Wrong parent → spawn** (`subagents.mdc`) — judgment jobs run on the Job-table slug via Task, not silently on Auto/wrong tier.
+5. **Adversarial spot-check** (`review-protocol.mdc`) — reviewers must test one off-happy-path case.
+6. **BLOCKED on business logic** — never silently invent domain rules.
+
+**Still needs Premier:** adversarial taste on go-live, architecture debate, trust-boundary — rules can't fully substitute.
+
+### Review tiers
+
+| Gate | Loop A | Loop B | Loop C |
+|---|---|---|---|
+| **Routine feature phase** | Terra | Sonnet | Sonnet |
+| **Production / go-live / rebuild parity** | Sol | Fable | Fable |
+
+### Canonical slug data + automation
+
+- **Edit slugs here:** `_meta/model-roster.json`
+- **Sync into rules:** `python lib/model-roster.py sync` → updates marked tables in `subagents.mdc` (repo + template)
+- **Validate:** `python lib/model-roster.py check` (also runs in CI: `model-roster-check.yml`)
+
+**What automation can do:** keep JSON, `subagents.mdc` tables, and protocol slug references consistent; fail CI on drift.
+
+**What it cannot do (yet):** auto-fetch Cursor's live accepted slug list — no stable public API. When a spawn rejects a slug, the Task tool returns valid slugs; update JSON from that.
+
+**Rollback:** branch `cursor/backup-pre-model-routing-120f` snapshots pre-change routing.
+
+---
+
 ## Token strategy
 
 Rules are expensive — every always-on file loads every session. This system optimizes deliberately:
 
 - **~6 always-on files + 1 auto-attach deploy rule**, ~15 on demand (rebuild, review, subagents load only when triggered).
 - **Walkthrough headers off** — archived `code-walkthrough.mdc`; codegraph + clear naming replace file-navigation overhead.
-- **Model routing:** Terra Everyday default; Premier (Sol/Fable) only at hard gates. Spec gate + mini-grill harden cheaper models so they don't improvise product direction.
+- **Model routing:** GPT Terra primary; Premier (Sol/Fable) only at hard gates. Spec gate + mini-grill harden Everyday models. Canonical slugs: `_meta/model-roster.json` + `lib/model-roster.py` check/sync.
 - **Wrong parent → spawn** — judgment jobs always run on the Job table slug via Task, not silently on Auto.
 - **Subagents:** pass paths, not pasted documents; ≤10-line replies; graph-backbone instead of six blind tree walks.
 - **Anti-slop + terse routine chat** — shorter outputs.
