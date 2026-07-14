@@ -120,7 +120,7 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 
 | Skill (upstream) | What we took | Rule file |
 |---|---|---|
-| **grill-me** | Calibrated planning interview — one Q at a time, recommended answers | `grill-protocol.mdc` |
+| **grill-me** | Calibrated planning interview — Spec-gate mini-grill + full ladder | `grill-protocol.mdc` |
 | **junior-to-senior** | Staff plan review — fog/tunnel, evidence, promoted plan v2 | `plan-review.mdc` |
 | **interface-kit** | UI implementation priority stack + anti-generic aesthetics | `interface-kit.mdc` |
 | **f\*ck-slop** | Deep prose de-slop loop (negative parallelism, verify passes) | `prose-deslop.mdc` |
@@ -131,7 +131,18 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 |---|---|
 | **Rebuild** | Asks user (y/n) before Phase 0 whether to run grill |
 | **Redesign** | Grill gate after REDESIGN-BRIEF, before audit |
+| **Everyday** | Spec gate in `workflow.mdc` → mini-grill when underspecified |
 | **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
+
+### Model routing (token cost)
+
+Job → slug lives in `subagents.mdc` (single source of truth):
+
+- **UI default:** GPT Terra — not Auto
+- **Everyday build / routine phase review:** Terra + Sonnet
+- **Hard gates only:** Sol + Fable (production merge, rebuild architecture/debate, trust-boundary, go-live)
+- **Wrong parent model:** spawn Task with the Job table slug; do not self-run judgment work on Auto/unknown/wrong tier
+- **Rollback snapshot:** branch `cursor/backup-pre-model-routing-120f`
 
 ### CI guardrails — automated safety outside the agent (optional)
 
@@ -248,7 +259,7 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 |---|---|
 | `review-protocol.mdc` | Phase complete, review, production merge |
 | `plan-review.mdc` | "senior review" / "junior to senior" / large agent-written plan |
-| `grill-protocol.mdc` | "grill me" / redesign grill gate / rebuild if user opts in |
+| `grill-protocol.mdc` | "grill me" / Spec gate fail / redesign grill / rebuild if user opts in |
 | `autonomous-mode.mdc` | "run autonomously" / decision logging |
 | `testing-protocol.mdc` | Writing tests |
 | `subagents.mdc` | Spawning any subagent |

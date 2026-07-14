@@ -41,5 +41,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 - Orient: HANDOFF → run-state (if present) → README (Rule Preferences) → this file → DECISION-LOG (recent). **`codegraph status` before structural work** — init if missing.
 - **No structural Grep:** when index is healthy, Grep/SemanticSearch for symbols, callers, or layout is forbidden (`codegraph.mdc`).
 - Gate discipline + command output discipline (`workflow.mdc`); ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
+- **Spec gate** before non-trivial build (`workflow.mdc`) — underspecified → mini-grill, don't invent product direction.
+- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. Wrong/Auto/unknown parent on judgment work → **spawn** the correct model.
 - **PowerShell:** no inline `$` — script file in `.scratch/` + `-File` (`workflow.mdc`).
 - Subagents: explicit model, paths not pastes, proof-of-read, `codegraph status` first, terse replies.

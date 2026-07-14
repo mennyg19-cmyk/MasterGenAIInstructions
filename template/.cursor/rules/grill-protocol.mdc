@@ -1,5 +1,5 @@
 ---
-description: Calibrated planning interview — one question at a time with recommended answers. Stress-test plans before building. Read when user says "grill me", during redesign Phase 0, or when rebuild user opts in.
+description: Calibrated planning interview — one question at a time with recommended answers. Stress-test plans before building. Read when user says "grill me", Spec gate fails, redesign Phase 0, or rebuild user opts in.
 ---
 
 # Grill Protocol
@@ -7,6 +7,29 @@ description: Calibrated planning interview — one question at a time with recom
 Adapted from [Julius Brussee / grill-me](https://github.com/JuliusBrussee/skills/tree/main/skills/grill-me) (MIT). Calibrated pressure — not hostile debate. Plain English (`workflow.mdc` tone), not caveman.
 
 **Governing rule:** automate implementation and verification, not product decisions. Grill fills gaps before code.
+
+**Models:** Everyday (Terra) for mini-grill and single-model grilling. Premier pair (Sol + Fable) only when multi-model / rebuild architecture / user says **"use more models."** Wrong parent → spawn per `subagents.mdc`.
+
+## When this fires
+
+- User says **grill me** / stress-test / challenge my plan
+- **Spec gate** fails in `workflow.mdc` (underspecified non-trivial build)
+- Redesign Phase 0 (mandatory)
+- Rebuild if user opts in
+- Autonomous mode before the user leaves (ambiguous / multi-phase scope)
+
+## Mini-grill (default for Spec gate)
+
+Cap **3–5 questions** (or fewer if cleared sooner). Skip calibration if Working+Standard is obvious. Cover only until these four exist:
+
+1. Goal / user-visible outcome
+2. Constraints (or "none")
+3. Chosen approach (one option)
+4. Validation — observable proof of done
+
+Then stop, write `.scratch/grill-notes.md`, implement. Do **not** run the full 7-rung ladder for routine feature asks.
+
+Vague blacklist to challenge: *simple, scalable, clean, fast, polish, better, improve, robust, flexible.*
 
 ## Core rules
 
@@ -29,7 +52,7 @@ If context already has a plan, summarize in 3–6 bullets and ask for correction
 
 ## Phase 2 — Calibration
 
-Unless level is obvious from context, ask once:
+Unless level is obvious from context (mini-grill often skips), ask once:
 
 > What is your comfort with this topic, and how hard should the pressure be?
 >
@@ -40,7 +63,9 @@ Unless level is obvious from context, ask once:
 | **Knowledge** | **New** (needs framing) · **Working** (default) · **Expert** (skip basics) |
 | **Pressure** | **Light** (clarify) · **Standard** (default) · **Hard** (failure modes, reversibility) |
 
-## Phase 3 — Question ladder
+## Phase 3 — Question ladder (full grill)
+
+Use for rebuild/redesign/architecture/"grill me" with Hard pressure. Mini-grill stops after goal/constraints/approach/validation.
 
 Pick the next highest-value gap from the private map. Ladder (stop when clear enough):
 
@@ -55,7 +80,7 @@ Pick the next highest-value gap from the private map. Ladder (stop when clear en
 ### Pressure adaptation
 
 - **New + any pressure:** 2–4 sentence concept teach before next question; model good reasoning in recommended answers.
-- **Working + Standard:** challenge vague words ("simple", "scalable", "clean", "fast"); push for smallest shippable version.
+- **Working + Standard:** challenge vague words; push for smallest shippable version.
 - **Expert + Hard:** counterfactuals, hidden costs, maintenance, evidence that would change their mind.
 - **Light:** stop after top ambiguities resolved.
 
@@ -71,6 +96,7 @@ Why it matters: ... (one sentence)
 
 - User says stop.
 - Plan has: clear goal, constraints, chosen approach, validation, next concrete step.
+- Mini-grill four bullets written.
 - Remaining gaps need external research or code exploration only.
 - Knowledge gap blocks useful grilling → brief teach + propose one learning step.
 

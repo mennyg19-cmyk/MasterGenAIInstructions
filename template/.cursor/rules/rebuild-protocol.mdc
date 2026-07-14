@@ -42,7 +42,7 @@ Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep
 
 ### Step 2: Multi-model auditors (2 families × each area -- judgment layer)
 
-Per area, spawn **2 subagents on DIFFERENT model families** (`run_in_background: true`, one message). Each prompt must include:
+Per area, spawn **2 subagents on DIFFERENT Everyday families** (default: Terra + Sonnet) unless the area is architecture-load-bearing and contested — then use Premier (Sol + Fable). `run_in_background: true`, one message. Each prompt must include:
 
 - Path to `rebuild-audit/graph-backbone/[area].md` (REQUIRED READING + proof-of-read per `subagents.mdc`).
 - **First action:** `codegraph status` (CLI) or `codegraph_status` (MCP). If healthy, use **codegraph CLI or MCP** for drill-down — **no Grep, SemanticSearch, or Read/grep tree scans.** If MCP unavailable in subagent, use graph-backbone + request parent run CLI queries; note "graph via parent digest" in the report header.
@@ -73,7 +73,7 @@ Gate: no Phase 2 until the inventory is page-by-page, ID'd, tied to old-code fil
 
 ## Phase 2: Architecture Proposals
 
-Spawn exactly 2 subagents on different premier families (e.g. `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium`), in parallel, each given the PATHS to FEATURE-INVENTORY.md + BUILD-HISTORY.md with the required-reading + proof-of-read instructions from `subagents.mdc` (do not paste the documents):
+Spawn exactly 2 subagents on different **premier** families (`claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium`), in parallel, each given the PATHS to FEATURE-INVENTORY.md + BUILD-HISTORY.md with the required-reading + proof-of-read instructions from `subagents.mdc` (do not paste the documents). Parent must **spawn** even if it is already Sol or Fable for one side — both proposals need the assigned models (`subagents.mdc` Wrong parent / Job table):
 
 > "REQUIRED READING: read FEATURE-INVENTORY.md and BUILD-HISTORY.md at [paths] IN FULL before proposing anything; open your proposal with a 3-5 line proof-of-read summary of each (ID and route counts included). Then: propose a clean architecture AND information/UI structure from scratch. All technical choices open. Hard constraint: EVERY inventory feature preserved. Fix the structure: address every to-fix item -- relocate, group, resolve clashes, fix interactions, clean consistent layout. Old code = reference for WHAT, not HOW. Justify choices in plain English."
 
@@ -131,7 +131,7 @@ Answers: (1) did every feature survive? (2) was it built better? Exhaustive and 
 
 1. **Reconciliation ledger first** (→ REBUILD-COMPLETION-REPORT.md): route diff (every manifest route → working new route, opened, not from code) + inventory-ID ledger (EVERY ID in order: built where, verified PRESENT/PARTIAL/STUB/MISSING with evidence). Unaccountable = MISSING.
 2. **Running-app review**: walk every screen -- keep list complete, to-fix items applied, layout consistent at different widths. Code-only verification is not allowed.
-3. **Multi-model audit**: 2 subagents, different premier families, each given the codebase path + the PATH to the full inventory + reference screenshots (required-reading + proof-of-read per `subagents.mdc`), enumerating every route and ID (no sampling), returning a per-ID table; unverifiable = MISSING.
+3. **Multi-model audit**: 2 subagents, different **premier** families (Sol + Fable), each given the codebase path + the PATH to the full inventory + reference screenshots (required-reading + proof-of-read per `subagents.mdc`), enumerating every route and ID (no sampling), returning a per-ID table; unverifiable = MISSING. Spawn — do not self-run as both reviewers.
 4. **Loop**: fix EVERY finding → fresh reviewer (new family, no prior context) re-runs the full check → repeat until a pass returns **zero findings**.
 5. **Done gate** (all must be true): route diff fully green; every ID PRESENT and functional; every to-fix item addressed or user-approved deferred; latest review pass clean on fresh eyes; deploy green per `deploy-awareness.mdc`.
 

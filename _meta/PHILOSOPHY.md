@@ -137,8 +137,10 @@ Not an agent rule layer — **infrastructure** that backs up what agents and pro
 
 Rules are expensive — every always-on file loads every session. This system optimizes deliberately:
 
-- **~6 always-on files + 1 auto-attach deploy rule**, ~10 on demand (rebuild, review, subagents load only when triggered).
+- **~6 always-on files + 1 auto-attach deploy rule**, ~15 on demand (rebuild, review, subagents load only when triggered).
 - **Walkthrough headers off** — archived `code-walkthrough.mdc`; codegraph + clear naming replace file-navigation overhead.
+- **Model routing:** Terra Everyday default; Premier (Sol/Fable) only at hard gates. Spec gate + mini-grill harden cheaper models so they don't improvise product direction.
+- **Wrong parent → spawn** — judgment jobs always run on the Job table slug via Task, not silently on Auto.
 - **Subagents:** pass paths, not pasted documents; ≤10-line replies; graph-backbone instead of six blind tree walks.
 - **Anti-slop + terse routine chat** — shorter outputs.
 - **Command output discipline** — don't burn context on test logs.

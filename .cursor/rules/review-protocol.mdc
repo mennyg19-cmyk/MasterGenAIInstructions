@@ -8,6 +8,8 @@ A "phase" = a feature, module, or protocol step spanning more than one commit.
 
 **Plan vs code:** `plan-review.mdc` reviews agent-written **plans**. This file reviews **implementation**. Models: `subagents.mdc` Job routing. Hotfix deviations: below + `hotfix-protocol.mdc`.
 
+**Wrong parent:** Loops A/B/C and trust-boundary are judgment jobs. If the parent is not the Job table model (or is Auto/unknown/Cheap on a Premier job), **spawn** — do not self-review as a substitute for Loops A/B/C (`subagents.mdc` Wrong parent model).
+
 ## Mandatory stop (gate discipline)
 
 No phase marked done, no production merge, no next-phase work until: self-review done, ponytail clean, correctness Loops A+B green, quality Loop C green, trust-boundary done if triggered, platform green after push, no open **BLOCKED**, `.scratch/run-state.md` updated if used.
@@ -19,6 +21,15 @@ No phase marked done, no production merge, no next-phase work until: self-review
 3. **Per phase gate** and **before production merge**: full pipeline below (mandatory).
 4. **Hotfix**: short path in Deviations — not the full pipeline.
 
+## Which model tier (routine vs go-live)
+
+| Gate | Loop A | Loop B | Loop C | Trust-boundary |
+|---|---|---|---|---|
+| **Routine phase** (feature/module, not merging to production) | `gpt-5.6-terra-medium` | `claude-4.6-sonnet-medium-thinking` | Sonnet | Sol or Fable if triggered |
+| **Production merge / rebuild go-live / redesign final parity** | `gpt-5.6-sol-medium` | `claude-fable-5-thinking-medium` | Fable | Sol or Fable if triggered |
+
+Premier stays where reversibility is expensive. Everyday covers thumbtack phases; Spec gate + expectation evidence harden the cheaper pass.
+
 ## Phase / production pipeline (ordered)
 
 Run in order. Do not start the next stage until the current one is green.
@@ -27,15 +38,15 @@ Run in order. Do not start the next stage until the current one is green.
 |---|---|---|---|
 | 1 | **Self-review** | Parent | Expectations re-walked; own fixes applied |
 | 2 | **Ponytail-review** | Parent (`ponytail.mdc`) | `Lean already. Ship.` or zero actionable cuts (or DECISION-LOG deferral) |
-| 3 | **Correctness Loop A** | `gpt-5.6-sol-medium` | Checklist all `[x]` with evidence → `.scratch/review-pass-A*.md` |
-| 4 | **Correctness Loop B** | `claude-fable-5-thinking-medium` | Same → `.scratch/review-pass-B*.md` |
-| 5 | **Quality Loop C** | `claude-fable-5-thinking-medium` | Quality checklist green → `.scratch/review-pass-quality-*.md` |
-| 6 | **Trust-boundary** | Sol or Fable | Only if phase touches auth/payments/roles/orders — see below |
-| 7 | **Go-live parity** | Per rebuild/redesign | Production / rebuild Phase 5 only — enumerate, don't sample |
+| 3 | **Correctness Loop A** | Terra (routine) or Sol (go-live) | Checklist all `[x]` with evidence → `.scratch/review-pass-A*.md` |
+| 4 | **Correctness Loop B** | Sonnet (routine) or Fable (go-live) | Same → `.scratch/review-pass-B*.md` |
+| 5 | **Quality Loop C** | Sonnet (routine) or Fable (go-live) | Quality checklist green → `.scratch/review-pass-quality-*.md` |
+| 6 | **Trust-boundary** | Sol or Fable only | Only if phase touches auth/payments/roles/orders — see below |
+| 7 | **Go-live parity** | Premier pair when multi-model | Production / rebuild Phase 5 only — enumerate, don't sample |
 
 ### Family loop rules (A, B, and C)
 
-1. Spawn **readonly** reviewer (`model` explicit per `subagents.mdc`). Diff-scoped for phase gates (phase diff, goal, PATHS to expectations / invariant ledger / README / AGENTS — required-reading + proof-of-read). Go-live = whole-app when required.
+1. Spawn **readonly** reviewer (`model` explicit per `subagents.mdc` tier table). Diff-scoped for phase gates (phase diff, goal, PATHS to expectations / invariant ledger / README / AGENTS — required-reading + proof-of-read). Go-live = whole-app when required.
 2. Reviewer fills the checklist; every item needs evidence or `N/A` + why. Unchecked / no evidence = not done.
 3. Parent fixes **every** finding. Before each fix batch: write/update **`.scratch/fix-canary.md`**, then run the expect steps after the fix (see Fix canary).
 4. Re-pass = **fresh spawn, same family, empty context** (never resume the prior reviewer chat). Repeat until that family's pass file is all green / zero findings.
@@ -77,7 +88,8 @@ Every pass file lists these. Each line: `[x]` + evidence, or `N/A` + why.
 7. **Invariants** — ledger IDs checked if present; else N/A
 8. **Tests/checks** — applicable typecheck/lint/tests green (cite command)
 9. **Secrets / trust** — no secrets in diff; if auth/money/roles touched → trust-boundary stage required (don't skip silently)
-10. **Findings** — numbered list or explicit `zero findings`
+10. **Adversarial spot-check** — one empty-state, misuse, or off-happy-path exercise with evidence (or N/A + why). Do not only re-walk the author's EXPECTED list.
+11. **Findings** — numbered list or explicit `zero findings`
 
 Evidence examples: `route /orders — clicked New — saw form`; `login review-auth — /admin — saw user table`; `` `npm run typecheck` exit 0 ``; `F1: Settings save no-ops (SettingsForm.tsx:88)`.
 
@@ -114,4 +126,4 @@ Hard domain rules (money, auth/roles, inventory, shipping, orders): numbered inv
 ## Deviations
 
 - **Rebuild/redesign**: extra gates in those protocols; still use this pipeline at their phase boundaries.
-- **Hotfix** (`hotfix-protocol.mdc`): skip Loops A/B/C. Parent writes fix canary → fix → run expect workflow (review admin if gated) → self-review → push + platform green. Log `hotfix deviation` in DECISION-LOG. **Exception:** auth/money/roles touch → one Sol correctness checklist pass; large diff (roughly >100 lines) → add Loop C once.
+- **Hotfix** (`hotfix-protocol.mdc`): skip Loops A/B/C. Parent writes fix canary → fix → run expect workflow (review admin if gated) → self-review → push + platform green. Log `hotfix deviation` in DECISION-LOG. **Exception:** auth/money/roles touch → one **Sol or Fable** correctness checklist pass (spawn if parent wrong); large diff (roughly >100 lines) → add Loop C once (Sonnet OK unless auth/money).

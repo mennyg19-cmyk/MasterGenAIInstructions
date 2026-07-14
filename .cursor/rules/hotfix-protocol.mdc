@@ -21,5 +21,5 @@ Deviations from normal workflow -- speed matters. Full review pipeline lives in 
 
 Per `review-protocol.mdc` Deviations:
 
-- Touches **auth / money / roles** → one Sol correctness checklist pass before merge.
-- Diff roughly **>100 lines** → add quality Loop C once.
+- Touches **auth / money / roles** → one **Sol or Fable** correctness checklist pass before merge (spawn if parent is not Premier).
+- Diff roughly **>100 lines** → add quality Loop C once (Sonnet OK unless auth/money).

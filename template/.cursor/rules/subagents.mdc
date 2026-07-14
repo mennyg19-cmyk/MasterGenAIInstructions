@@ -4,7 +4,7 @@ description: How to spawn subagents -- mechanics, model roster, family diversity
 
 # Subagents (single source of truth)
 
-If a model slug ever changes, it changes here and nowhere else.
+If a model slug ever changes, it changes here and nowhere else. Other protocols **name the job**; this file picks the slug.
 
 ## Mechanics
 
@@ -42,43 +42,71 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
 | Slug | Family / role |
 |---|---|
 | `composer-2.5-fast` | Composer (cheapest; broad sweeps/audits) |
-| `gpt-5.6-sol-medium` | GPT (default reviewer — see Default picks) |
-| `gpt-5.6-terra-medium` | GPT (everyday / cheaper GPT slot) |
+| `gpt-5.6-sol-medium` | GPT Sol (flagship judgment — hard gates only) |
+| `gpt-5.6-terra-medium` | GPT Terra (everyday default) |
 | `gpt-5.2-codex` | GPT/Codex (code-focused) |
 | `gemini-3.1-pro` | Gemini (design/UX eye) |
-| `cursor-grok-4.5-high-fast` | Grok |
-| `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (fast) |
-| `claude-fable-5-thinking-medium` | Claude Fable (deep analysis — replaces Opus slot) |
+| `cursor-grok-4.5-high-fast` | Grok (cheap/fast/hotfix/scripts) |
+| `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (everyday Claude + phase re-pass) |
+| `claude-fable-5-thinking-medium` | Claude Fable (deep judgment — replaces Opus; hard gates) |
 
 Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use more models" = reach across families.
 
-### Default picks (Rule Preference)
+### Tiers
 
-GPT-5.6 tiers: **Sol** (flagship) > **Terra** (everyday) > **Luna** (fast/cheap). Reviews need Sol. Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
+| Tier | Slugs | Use for |
+|---|---|---|
+| **Premier** | Sol, Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
+| **Everyday** | Terra, Sonnet, Codex | Default build, mini-grill, routine phase review, plan-review of medium plans |
+| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long cost-sensitive loops, scripts |
+
+GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
+
+**Recommended Cursor UI default (human):** `gpt-5.6-terra` (Terra). Prefer Terra over Sonnet for the main chat unless you specifically want Claude voice. **Do not use Auto** as the main agent for this stack — Auto can silent-route mid-protocol and defeat Job routing. Bump the UI to Sol/Fable only for sessions that are mostly hard-gate work.
+
+## Wrong parent model → spawn (mandatory)
+
+Protocols name a **required job/tier**. The parent must not run that job itself when it is the wrong model.
+
+1. **Detect parent model** when possible (cloud `cursor-cloud` `run-info`, system/run metadata, or an explicit user statement). If detection fails → treat parent as **unknown**.
+2. **Auto / unknown / Composer / Luna alone** on a judgment job → **spawn** the Job table slug. Do not self-run premier or review loops.
+3. **Match rule:**
+   - Required **premier** → parent may self-run only if it *is* Sol or Fable (correct family for that step). Otherwise **spawn**.
+   - Required **everyday** → parent may self-run if it is Everyday or Premier. If parent is Cheap/Auto/unknown → **spawn** Terra (or the Job table slug).
+   - Required **cheap** → parent may self-run on any tier (don't force a down-spawn).
+4. Spawn with Task + **`model` set to the Job table slug**. Orchestrate, merge artifacts, enforce gates — don't silently substitute yourself for the assigned model.
+5. Record on the artifact: `Model: <slug>` and `Runner: spawn | parent`.
+
+**Yes, this is possible** in Cursor: Task subagents accept an explicit `model`. That is how wrong-parent correction works.
+
+## Default picks (Rule Preference)
 
 | Job | Slug(s) |
 |---|---|
-| **Phase / production review** | Correctness Loop A: `gpt-5.6-sol-medium`; Loop B: `claude-fable-5-thinking-medium` (each until clean, fresh spawn). See `review-protocol.mdc` |
-| **Code quality (Loop C)** | `claude-fable-5-thinking-medium` — clean-code checklist after correctness |
-| **Security / trust-boundary** | `claude-fable-5-thinking-medium` or `gpt-5.6-sol-medium` — never Composer/Luna alone |
-| **Grill / plan-review / architecture debate** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` (pair when multi-model) |
-| **Rebuild premier pair / area auditors** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` |
-| **Implementation** (add / fix / refactor) | `gpt-5.6-sol-medium` or `claude-fable-5-thinking-medium`; `gpt-5.2-codex` for code-heavy |
-| **Medium everyday build** | `gpt-5.6-terra-medium` or `claude-4.6-sonnet-medium-thinking` |
-| **Hotfix** (speed, smallest fix) | `cursor-grok-4.5-high-fast` or `gpt-5.6-terra-medium` or Sonnet |
+| **UI default / parent chat** | Human sets **Terra**. Agents assume Everyday unless detection says otherwise. |
+| **Implementation** (add / fix / refactor) | `gpt-5.6-terra-medium` (primary); `claude-4.6-sonnet-medium-thinking` OK; `gpt-5.2-codex` for code-heavy |
+| **Spec / mini-grill** | Everyday (Terra preferred). Full ladder only when Spec gate fails hard or user says grill me |
+| **Full grill / deep plan-review / architecture** | Premier pair when multi-model: `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium`. Single-model grill questions: Terra OK |
+| **Routine phase review** | Loop A: `gpt-5.6-terra-medium`; Loop B: `claude-4.6-sonnet-medium-thinking`; Loop C: Sonnet |
+| **Production merge / rebuild go-live / redesign final parity** | Loop A: `gpt-5.6-sol-medium`; Loop B: `claude-fable-5-thinking-medium`; Loop C: Fable |
+| **Trust-boundary / security** | `claude-fable-5-thinking-medium` or `gpt-5.6-sol-medium` — never Composer/Luna/Auto alone |
+| **Rebuild premier pair / debate** | `claude-fable-5-thinking-medium` + `gpt-5.6-sol-medium` |
+| **Rebuild area auditors (Phase 0 judgment)** | 2 families Everyday: Terra + Sonnet (facts from CodeGraph digests). Escalate area to Sol+Fable only if architecture-load-bearing and contested |
+| **Hotfix** | `cursor-grok-4.5-high-fast` or Terra or Sonnet |
 | **Broad / cheap inventory sweep** | `composer-2.5-fast` (or Grok) |
-| **Long autonomous / cost-sensitive** | `cursor-grok-4.5-high-fast` or `gpt-5.6-terra-medium`; Sol/Fable only at hard gates |
-| **Redesign proposals** | Different families: Gemini + Sol + Fable (+ Grok if more options) |
-| **UI polish** (after direction chosen) | `gpt-5.6-sol-medium` or `gemini-3.1-pro` |
-| **Shell / deploy / scripts** | Grok, Codex, or Sol |
+| **Long autonomous / cost-sensitive** | Grok-fast or Terra; Premier only at hard gates |
+| **Redesign proposals** | Different families: Gemini + Terra + Grok (default 3). Add Fable and/or Sol when user wants more options or "use more models" |
+| **UI polish** (after direction chosen) | Terra or `gemini-3.1-pro` |
+| **Shell / deploy / scripts** | Grok or Codex |
 | **Structure facts** | CodeGraph — not a model contest |
 
-**Routing rule:** precision/judgment → Sol or Fable; everyday build → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; design competition → Gemini + Sol + Fable; facts → CodeGraph.
+**Routing rule:** hard-to-reverse judgment → Premier (Sol/Fable); everyday build + routine gates → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; design competition → Gemini + Everyday (+ Premier if user asks); facts → CodeGraph. **Harden with Spec gate + expectation checklists** so Everyday can replace Premier on thumbtack work.
 
 ## When to use multiple models (Rule Preference)
 
-- **Multi-family required:** rebuild and redesign protocols (audits, proposals, debate, final parity review).
-- **Single subagent default:** normal features, fixes, phase reviews, hotfixes -- unless the user says **"use more models."**
+- **Multi-family required:** rebuild and redesign protocols (audits, proposals, debate, final parity review); production-merge correctness loops.
+- **Routine phase reviews:** two Everyday families (Terra + Sonnet) — not Sol+Fable unless user says **"use more models"** or the phase is production/go-live.
+- **Single subagent default:** normal features, fixes, hotfixes -- unless the user says **"use more models."**
 - When multi-model IS required: N subagents = N different families; never the same slug twice per job.
 
 ## Three Hard Rules
@@ -99,6 +127,8 @@ Use when 2+ subagents return competing proposals for the SAME decision that must
 ## Pre-Spawn Checklist
 
 - [ ] `model` set explicitly on every Task call?
+- [ ] Job table slug matches the protocol stage (Premier only when required)?
+- [ ] Wrong/unknown/Auto parent → spawned instead of self-running judgment work?
 - [ ] Multi-subagent job on different families, no repeats?
 - [ ] Rejected slug → picked another valid one (not your own model)?
 - [ ] Prompt self-contained (paths + orientation; subagent can't see this chat)?

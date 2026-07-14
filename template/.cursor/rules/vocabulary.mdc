@@ -34,6 +34,7 @@ Definitions are exact. Do not under-scope or over-scope.
 | **"use canvas" / "show this visually"** | Use canvas for analytical/visual artifacts instead of large markdown dumps. |
 | **"use context7" / "check latest docs"** | Use Context7 MCP/docs lookup before using unfamiliar library APIs. |
 | **"grill me" / "stress-test this" / "challenge my plan"** | Read and follow `grill-protocol.mdc`. |
+| **"spec gate" / "is this underspecified"** | Run Spec gate in `workflow.mdc`; mini-grill if it fails. |
 | **"senior review" / "junior to senior" / "review this plan"** | Read and follow `plan-review.mdc` on the plan artifact. |
 | **"canary" / "context canary" / "you lost context"** | Read and follow `context-canary.mdc`. |
 | **"build UI" / "polish UI" / "make it look good"** (implementation) | Read `interface-kit.mdc` after design direction is chosen. |
@@ -48,7 +49,9 @@ Read the rule file BEFORE starting the activity -- not from memory:
 - **Writing tests or planning testing** → `testing-protocol.mdc`.
 - **Working unattended** → `autonomous-mode.mdc` (owns the DECISION-LOG.md format).
 - **Grilling a plan** → `grill-protocol.mdc`.
+- **Underspecified feature ask** → Spec gate in `workflow.mdc`, then mini-grill.
 - **Reviewing an agent-written plan** → `plan-review.mdc`.
+- **Spawning / model routing / wrong-parent spawn** → `subagents.mdc`.
 - **Long high-stakes session / context rot** → `context-canary.mdc` (on demand).
 - **UI implementation** → `interface-kit.mdc`.
 - **Publishable long-form prose** → `prose-deslop.mdc`.

@@ -38,11 +38,14 @@ Canonical preferences: `_meta/USER-RULE-PREFERENCES.md`.
 | Testing depth vs minimal | Hybrid — `testing-protocol.mdc` floor, ponytail-shaped minimal tests. |
 | God files vs fewest files | Split on refactor, >500 lines, or mixed concerns. |
 | Multi-model vs minimal process | Rebuild/redesign only unless "use more models." |
-| Fix-don't-suggest vs question | Build what was asked. |
+| Fix-don't-suggest vs question | Build what was asked — **except** Spec gate fail → grill first. |
+| Spec gate vs fix-don't-suggest | Product ambiguity → grill wins; clear bug + known expected → build wins. |
 | Artifacts vs terse chat | Artifacts follow protocol formats; anti-slop = direct facts, not padding. |
 | CodeGraph vs grep | Hybrid — MCP or CLI for structure when indexed; Read/grep for literals only. No MCP ≠ grep. |
 | Gate discipline vs hotfix | Hotfix skips multi-agent review loop; single self-review per `hotfix-protocol.mdc` / `review-protocol.mdc` deviations. |
 | Don't stop until done vs mandatory stop | Finish the whole run; **do not skip gates** on the way (`workflow.mdc`). |
+| Flagship vs Everyday model | Terra default; Premier only at hard gates. Spec gate + expectations harden Everyday. |
+| Wrong parent vs self-run | Spawn Job table model — never silently self-run a Premier/review job on Auto/unknown/wrong tier. |
 
 ---
 

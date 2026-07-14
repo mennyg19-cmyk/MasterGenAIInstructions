@@ -69,14 +69,16 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Testing:** Hybrid — testing-protocol floor, ponytail-minimal tests (no fixture forests).
 - **Walkthrough headers:** Off (saves tokens). Say `enable walkthroughs` to restore archived rule.
 - **Chat:** Terse routine; full explain when needed; anti-slop always (no sycophancy/stock vocab/hedging).
-- **Reviews:** Mandatory ponytail-review at every phase gate + correctness Loops A/B (Sol then Fable) + quality Loop C + trust-boundary when triggered. Checklist + evidence; review-admin; fix-canary. See `review-protocol.mdc`.
+- **Reviews:** Routine phase = Terra + Sonnet (+ Sonnet quality). Production/go-live = Sol + Fable (+ Fable quality). Trust-boundary = Premier only. Checklist + evidence; review-admin; fix-canary. See `review-protocol.mdc`.
 - **Complex requests:** Fix-don't-suggest — build what was asked.
+- **Spec gate vs fix-don't-suggest:** Product ambiguity → grill wins; clear bug fix with known expected behavior → build wins. Spec gate in `workflow.mdc`.
 - **God files:** Split on refactor or >500 lines / mixed concerns.
-- **Multi-model subagents:** Rebuild/redesign only unless I say "use more models".
-- **Default models:** Job → model routing in `subagents.mdc` (reviews = Sol, re-pass = Fable; deep Claude = Fable medium; cheap/wide = Composer/Grok; design = Gemini+Sol+Fable; facts = CodeGraph).
+- **Multi-model subagents:** Rebuild/redesign + production-merge loops; routine phase Everyday dual-family; else single-model unless I say "use more models".
+- **Default models:** Job table in `subagents.mdc`. **UI default = Terra** (not Auto). Everyday = Terra/Sonnet/Codex. Premier (Sol/Fable) only at hard gates. Redesign default = Gemini+Terra+Grok.
+- **Wrong parent model:** Spawn the Job table model — do not self-run judgment protocols if parent is wrong/Auto/unknown.
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
-- **Grill:** Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.
+- **Grill:** Spec gate → mini-grill. Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.
 - **Plan review:** `senior review` / `junior to senior` on agent-written plans.
 - **Canary:** on demand for long sessions (`canary` / `context canary`).
 - **UI craft:** `interface-kit.mdc` after direction chosen — not during redesign model competition.
