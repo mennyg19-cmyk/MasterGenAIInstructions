@@ -28,7 +28,7 @@ Resolved 2026-06-10 (ponytail). Updated 2026-06-16 (codegraph, babysitter Tier 1
 | **Spec gate vs fix-don't-suggest** | Product ambiguity / Spec gate fail → **grill wins** (stop, mini-grill). Clear bug fix with known expected behavior → **build wins** |
 | **God files** | Split on refactor or >500 lines / mixed concerns — token-aware |
 | **Multi-model subagents** | Full protocol for rebuild/redesign + production-merge loops; routine phase = Everyday dual-family; single-model elsewhere unless "use more models" |
-| **Default models** | Full Job table in `subagents.mdc`. **UI default = Terra** (not Auto). Everyday build = Terra/Sonnet/Codex. Premier (Sol/Fable) only at hard gates. Redesign default = Gemini+Terra+Grok |
+| **Default models** | Canonical slugs: `_meta/model-roster.json`. Sync: `python lib/model-roster.py sync`; CI: `model-roster-check.yml`. Job table in `subagents.mdc`. **UI default = Terra** (GPT primary, not Auto). Everyday = Terra/Sonnet/Codex. Premier (Sol/Fable) only at hard gates |
 | **Wrong parent model** | If parent ≠ Job slug (or Auto/unknown on judgment work) → **spawn** Task with the correct model; do not self-run the protocol as a substitute |
 | **Verification** | Tiered — smoke for small fixes; full checklist for features/rebuilds/phases |
 | **Protocol artifacts** | Ask when an artifact feels heavy; otherwise use protocol formats |
