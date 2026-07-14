@@ -1,0 +1,145 @@
+name: Model roster refresh
+
+# Weekly check against Cursor's model catalog. Notifies when assigned Job slugs
+# are missing or when interesting new models appear since the last snapshot.
+# Does NOT auto-remap jobs (that is a human judgment call).
+
+on:
+  schedule:
+    - cron: "0 14 * * 1" # Mondays 14:00 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "_meta/model-roster.json"
+      - "_meta/model-catalog-snapshot.json"
+      - ".cursor/rules/**"
+      - "template/.cursor/rules/**"
+      - "lib/model-roster.py"
+  push:
+    branches: [main]
+    paths:
+      - "_meta/model-roster.json"
+      - "_meta/model-catalog-snapshot.json"
+      - ".cursor/rules/**"
+      - "template/.cursor/rules/**"
+      - "lib/model-roster.py"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate model roster sync
+        run: python lib/model-roster.py check
+
+  refresh-catalog:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: check-sync
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Require CURSOR_API_KEY
+        id: key
+        run: |
+          if [ -z "${{ secrets.CURSOR_API_KEY }}" ]; then
+            echo "missing=1" >> "$GITHUB_OUTPUT"
+            echo "::warning::CURSOR_API_KEY secret not set — catalog refresh skipped. Add a Cursor Dashboard API key as repo secret CURSOR_API_KEY."
+          else
+            echo "missing=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch + report
+        id: report
+        if: steps.key.outputs.missing == '0'
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          mkdir -p .scratch
+          set +e
+          python lib/model-roster.py report --out .scratch/model-roster-report.md
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          cat .scratch/model-roster-report.md
+
+      - name: Upload report artifact
+        if: steps.key.outputs.missing == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-roster-report
+          path: |
+            .scratch/model-roster-report.md
+            _meta/model-catalog-latest.json
+
+      - name: Open or update notification issue
+        if: steps.key.outputs.missing == '0' && steps.report.outputs.exit_code == '2'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('.scratch/model-roster-report.md', 'utf8');
+            const title = 'Model roster: Cursor catalog needs review';
+            const label = 'model-roster';
+            try {
+              await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label });
+            } catch (e) {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label,
+                color: 'FBCA04',
+                description: 'Cursor model catalog drift vs Job table'
+              });
+            }
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+              per_page: 10
+            });
+            const existing = issues.data.find(i => i.title === title);
+            const footer = `\n\n---\n_Automated by \`model-roster-refresh\` on ${new Date().toISOString()}. After you edit \`_meta/model-roster.json\`: \`python lib/model-roster.py sync\` then \`update-all.ps1 -AutoCommit\` on Windows to push into registered apps._`;
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: body + footer
+              });
+              core.info(`Updated issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: body + footer,
+                labels: [label]
+              });
+              core.info(`Opened issue #${created.data.number}`);
+            }
+
+      - name: Commit catalog latest (no job remap)
+        if: steps.key.outputs.missing == '0' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _meta/model-catalog-latest.json
+          if git diff --cached --quiet; then
+            echo "No catalog file changes"
+          else
+            git commit -m "chore: refresh model-catalog-latest from Cursor API"
+            git push
+          fi

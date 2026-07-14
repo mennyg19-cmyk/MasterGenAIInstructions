@@ -1,0 +1,14 @@
+{
+  "fetched_at": "2026-07-01T00:00:00+00:00",
+  "source": "seed snapshot — baseline before fixture new models",
+  "models": [
+    {"id": "composer-2.5-fast", "displayName": "Composer 2.5 Fast", "aliases": [], "description": ""},
+    {"id": "gpt-5.6-sol-medium", "displayName": "GPT 5.6 Sol Medium", "aliases": [], "description": ""},
+    {"id": "gpt-5.6-terra-medium", "displayName": "GPT 5.6 Terra Medium", "aliases": [], "description": ""},
+    {"id": "gpt-5.2-codex", "displayName": "GPT 5.2 Codex", "aliases": [], "description": ""},
+    {"id": "gemini-3.1-pro", "displayName": "Gemini 3.1 Pro", "aliases": [], "description": ""},
+    {"id": "cursor-grok-4.5-high-fast", "displayName": "Grok 4.5 High Fast", "aliases": [], "description": ""},
+    {"id": "claude-4.6-sonnet-medium-thinking", "displayName": "Claude 4.6 Sonnet Medium Thinking", "aliases": [], "description": ""},
+    {"id": "claude-fable-5-thinking-medium", "displayName": "Claude Fable 5 Thinking Medium", "aliases": [], "description": ""}
+  ]
+}

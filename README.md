@@ -27,13 +27,16 @@ MasterGenAIInstructions/
 |   |-- README.md        # Project README template
 |   |-- .github/workflows/
 |       |-- agent-guardrails.yml  # Optional CI: gitleaks + semgrep + zizmor
+|-- check-models.ps1     # Fetch Cursor catalog, diff Job table, optional update-all
+|-- lib/
+    |-- model-roster.py  # check/sync/fetch/diff/report model assignments
 |-- _meta/
     |-- PHILOSOPHY.md    # Why this exists, credits, how layers fit
     |-- model-roster.json  # Canonical model slugs + job assignments (synced to subagents.mdc)
+    |-- model-catalog-latest.json   # Last fetched Cursor catalog
+    |-- model-catalog-snapshot.json # Baseline for "what’s new" diffs
     |-- USER-RULE-PREFERENCES.md  # Canonical standing conflict resolutions
     |-- RULE-CONFLICTS.md         # Expanded conflict playbook (not auto-loaded)
-|-- lib/
-    |-- model-roster.py  # check/sync model assignments from model-roster.json
 ```
 
 ## The rule stack (credits & what each layer does)
@@ -178,17 +181,34 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 
 #### Keeping slugs up to date (automation)
 
-| What | Where |
+**Yes — partially automated.** Detecting Cursor catalog drift and notifying you is automatic. Remapping Everyday/Premier jobs is still a human judgment call (then one command pushes to all apps).
+
+| Layer | What it does |
 |---|---|
-| **Canonical data** | `_meta/model-roster.json` — edit slugs/jobs here |
-| **Synced rules** | `subagents.mdc` roster/tier/job tables (auto-generated between `MODEL_*` markers) |
-| **Check drift** | `python lib/model-roster.py check` |
-| **Regenerate tables** | `python lib/model-roster.py sync` (then commit JSON + both subagents files) |
-| **CI** | `.github/workflows/model-roster-check.yml` on PR/push when roster or rules change |
+| **Canonical jobs** | `_meta/model-roster.json` |
+| **Synced rules tables** | `python lib/model-roster.py sync` → marked sections in `subagents.mdc` |
+| **Local drift check** | `python lib/model-roster.py check` |
+| **Fetch live catalog** | `CURSOR_API_KEY` → `GET https://api.cursor.com/v1/models`, or `cursor-agent --list-models` / `agent models` |
+| **Diff + report** | `python lib/model-roster.py report` (or `.\check-models.ps1`) |
+| **Weekly CI notify** | `.github/workflows/model-roster-refresh.yml` — Mondays + manual; opens/updates a GitHub issue labeled `model-roster` when assigned slugs are missing or interesting new models appear |
+| **Push into all apps** | After you edit JSON + sync + commit: `.\update-all.ps1 -AutoCommit` (or `.\check-models.ps1 -SyncOnly -PushApps`) |
 
-Workflow when Cursor renames a model slug: update `model-roster.json` → `sync` → `check` → commit. Protocol files (`review-protocol.mdc`, etc.) reference jobs by name; only slug strings need to stay in the JSON roster.
+**One-time setup for weekly notify:** add a [Cursor Dashboard API key](https://cursor.com/dashboard) as GitHub repo secret **`CURSOR_API_KEY`**. Without it, sync-check still runs on PRs; catalog refresh is skipped with a warning.
 
-**Limits:** This cannot auto-discover Cursor's live model list — there is no stable public API. When a spawn rejects a slug, the Task tool returns the valid list; update JSON from that. Optional: run check after any rejected-slug session.
+**When Cursor renames or ships a new model:**
+
+1. CI (or `.\check-models.ps1`) notices and opens/comments on the `model-roster` issue — that is your **notification**.
+2. You edit `_meta/model-roster.json` (Job assignment = judgment; script only suggests cousin slugs).
+3. `python lib/model-roster.py sync` && `check`
+4. Commit this repo.
+5. `.\update-all.ps1 -AutoCommit` — stamps rules into every path in `registry.json`.
+6. After the new mapping feels stable, copy `model-catalog-latest.json` → `model-catalog-snapshot.json` so “what’s new” resets.
+
+**What stays manual (on purpose):** picking which new slug becomes Terra’s replacement, which reviews stay Sol+Fable, UI default in Cursor settings. Auto-remapping those would silently wrong-route protocols.
+
+**Catalog sources differ slightly:** Cloud Agents API, CLI `--list-models`, and IDE Task accepted lists are related but not always identical. If Task rejects a slug, treat the returned valid list as ground truth and update JSON.
+
+**Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
 
 ### CI guardrails — automated safety outside the agent (optional)
 

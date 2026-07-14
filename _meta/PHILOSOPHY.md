@@ -178,15 +178,25 @@ Cheaper models fail on **underspecified prompts** and **rubber-stamp review**. W
 
 ### Canonical slug data + automation
 
-- **Edit slugs here:** `_meta/model-roster.json`
-- **Sync into rules:** `python lib/model-roster.py sync` → updates marked tables in `subagents.mdc` (repo + template)
-- **Validate:** `python lib/model-roster.py check` (also runs in CI: `model-roster-check.yml`)
+**Detect + notify = automated. Remap Job table = human. Stamp into apps = `update-all`.**
 
-**What automation can do:** keep JSON, `subagents.mdc` tables, and protocol slug references consistent; fail CI on drift.
+| Piece | Role |
+|---|---|
+| `_meta/model-roster.json` | Edit Job→slug here |
+| `python lib/model-roster.py sync` | Regenerates marked tables in `subagents.mdc` |
+| `python lib/model-roster.py check` | Fails CI on table drift / unknown rule slugs |
+| `python lib/model-roster.py fetch\|diff\|report` | Pulls Cursor catalog (`CURSOR_API_KEY` or `cursor-agent`) and diffs against assignments |
+| `.\check-models.ps1` | Windows wrapper; `-SyncOnly -PushApps` after you remapped JSON |
+| `.github/workflows/model-roster-refresh.yml` | Weekly Mondays + manual: opens/updates GitHub issue `model-roster` when something actionable appears |
+| `.\update-all.ps1 -AutoCommit` | Pushes `.cursor/rules` + `AGENTS.md` into every `registry.json` project |
 
-**What it cannot do (yet):** auto-fetch Cursor's live accepted slug list — no stable public API. When a spawn rejects a slug, the Task tool returns valid slugs; update JSON from that.
+**Setup:** repo secret `CURSOR_API_KEY` from Cursor Dashboard → API Keys.
 
-**Rollback:** branch `cursor/backup-pre-model-routing-120f` snapshots pre-change routing.
+**Why not fully auto-remap?** Choosing the new Everyday default (Terra’s successor) or whether Sonnet’s Loop B moves to a new Claude slug is product judgment. The automation’s job is to **yell quickly** when Cursor rotates names, then you decide, then one command updates every app.
+
+**Catalog caveats:** Cloud Agents `GET /v1/models`, CLI `agent models`, and IDE Task accepted lists can differ. Task rejection lists win for spawnable subagent slugs.
+
+**Rollback:** branch `cursor/backup-pre-model-routing-120f`.
 
 ---
 
