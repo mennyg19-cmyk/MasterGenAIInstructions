@@ -1,53 +1,300 @@
 {
-  "fetched_at": "2026-07-14T00:00:00+00:00",
-  "source": "fixture for offline tests",
+  "fetched_at": "2026-07-20T15:53:30.008718+00:00",
+  "source": "api.cursor.com/v1/models",
   "models": [
     {
-      "id": "composer-2.5-fast",
-      "displayName": "Composer 2.5 Fast",
-      "aliases": [],
+      "id": "claude-fable-5",
+      "displayName": "Fable 5",
+      "aliases": [
+        "fable",
+        "fable-5",
+        "fable-5"
+      ],
       "description": ""
     },
     {
-      "id": "gpt-5.6-sol-medium",
-      "displayName": "GPT 5.6 Sol Medium",
-      "aliases": [],
+      "id": "claude-haiku-4-5",
+      "displayName": "Haiku 4.5",
+      "aliases": [
+        "haiku-latest",
+        "haiku",
+        "haiku-4.5",
+        "haiku-4-5"
+      ],
       "description": ""
     },
     {
-      "id": "gpt-5.2-codex",
-      "displayName": "GPT 5.2 Codex",
+      "id": "claude-opus-4-5",
+      "displayName": "Opus 4.5",
+      "aliases": [
+        "opus",
+        "opus-4.5",
+        "opus-4-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-opus-4-6",
+      "displayName": "Opus 4.6",
+      "aliases": [
+        "opus",
+        "opus-4.6",
+        "opus-4-6"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-opus-4-7",
+      "displayName": "Opus 4.7",
+      "aliases": [
+        "opus-4.7",
+        "opus-4-7"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-opus-4-8",
+      "displayName": "Opus 4.8",
+      "aliases": [
+        "opus-latest",
+        "opus",
+        "opus-4.8",
+        "opus-4-8"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-sonnet-4",
+      "displayName": "Sonnet 4",
+      "aliases": [
+        "sonnet",
+        "sonnet-4"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-sonnet-4-5",
+      "displayName": "Sonnet 4.5",
+      "aliases": [
+        "sonnet",
+        "sonnet-4.5",
+        "sonnet-4-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "displayName": "Sonnet 4.6",
+      "aliases": [
+        "sonnet-latest",
+        "sonnet",
+        "sonnet-4.6",
+        "sonnet-4-6"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-sonnet-5",
+      "displayName": "Sonnet 5",
+      "aliases": [
+        "sonnet-latest",
+        "sonnet-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "composer-2.5",
+      "displayName": "Composer 2.5",
+      "aliases": [
+        "composer-latest",
+        "composer",
+        "composer-2-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "default",
+      "displayName": "Auto",
+      "aliases": [
+        "auto"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "displayName": "Gemini 2.5 Flash",
+      "aliases": [
+        "gemini-flash"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gemini-3-flash",
+      "displayName": "Gemini 3 Flash",
       "aliases": [],
       "description": ""
     },
     {
       "id": "gemini-3.1-pro",
       "displayName": "Gemini 3.1 Pro",
+      "aliases": [
+        "gemini-latest",
+        "gemini-pro-latest",
+        "gemini",
+        "gemini-pro"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "displayName": "Gemini 3.5 Flash",
+      "aliases": [
+        "gemini-flash-latest",
+        "gemini-flash"
+      ],
+      "description": ""
+    },
+    {
+      "id": "glm-5.2",
+      "displayName": "GLM 5.2",
       "aliases": [],
       "description": ""
     },
     {
-      "id": "cursor-grok-4.5-high-fast",
-      "displayName": "Grok 4.5 High Fast",
+      "id": "gpt-5-mini",
+      "displayName": "GPT-5 Mini",
+      "aliases": [
+        "gpt-mini"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.1",
+      "displayName": "GPT-5.1",
+      "aliases": [
+        "gpt"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.1-codex-max",
+      "displayName": "Codex 5.1 Max",
+      "aliases": [
+        "codex",
+        "codex-5.1-max"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.1-codex-mini",
+      "displayName": "Codex 5.1 Mini",
+      "aliases": [
+        "codex-mini-latest",
+        "codex-mini"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.2",
+      "displayName": "GPT-5.2",
+      "aliases": [
+        "gpt"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.2-codex",
+      "displayName": "Codex 5.2",
+      "aliases": [
+        "codex",
+        "codex-5.2"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "displayName": "Codex 5.3",
+      "aliases": [
+        "codex-latest",
+        "codex",
+        "codex-5.3"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.4",
+      "displayName": "GPT-5.4",
+      "aliases": [
+        "gpt"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "displayName": "GPT-5.4 Mini",
+      "aliases": [
+        "gpt-mini-latest",
+        "gpt-mini"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.4-nano",
+      "displayName": "GPT-5.4 Nano",
+      "aliases": [
+        "gpt-nano-latest",
+        "gpt-nano"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.5",
+      "displayName": "GPT-5.5",
+      "aliases": [
+        "gpt-5-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "displayName": "GPT-5.6 Luna",
+      "aliases": [
+        "gpt-5-6-luna"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "displayName": "GPT-5.6 Sol",
+      "aliases": [
+        "gpt-latest",
+        "gpt",
+        "gpt-5-6-sol",
+        "gpt-5.6"
+      ],
+      "description": ""
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "displayName": "GPT-5.6 Terra",
+      "aliases": [
+        "gpt-5-6-terra"
+      ],
+      "description": ""
+    },
+    {
+      "id": "grok-4.5",
+      "displayName": "Cursor Grok 4.5",
       "aliases": [],
       "description": ""
     },
     {
-      "id": "claude-4.6-sonnet-medium-thinking",
-      "displayName": "Claude 4.6 Sonnet Medium Thinking",
-      "aliases": [],
-      "description": ""
-    },
-    {
-      "id": "claude-fable-5-thinking-medium",
-      "displayName": "Claude Fable 5 Thinking Medium",
-      "aliases": [],
-      "description": ""
-    },
-    {
-      "id": "gpt-5.7-terra-medium",
-      "displayName": "GPT 5.7 Terra Medium (fixture new)",
-      "aliases": [],
+      "id": "kimi-k2.7-code",
+      "displayName": "Kimi K2.7 Code",
+      "aliases": [
+        "kimi-latest",
+        "kimi"
+      ],
       "description": ""
     }
   ]
