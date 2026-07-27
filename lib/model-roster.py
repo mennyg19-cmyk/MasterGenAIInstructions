@@ -294,6 +294,7 @@ def fetch_catalog_from_api(api_key: str) -> dict[str, Any]:
         },
         method="GET",
     )
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected -- URL is a fixed Cursor API constant; auth via Basic header, not user-controlled URL
     with urllib.request.urlopen(req, timeout=60) as resp:
         payload = json.loads(resp.read().decode())
     items = payload.get("items") or payload.get("models") or []
