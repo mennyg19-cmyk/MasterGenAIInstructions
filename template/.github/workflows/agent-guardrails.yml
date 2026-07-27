@@ -1,9 +1,12 @@
 name: Agent Guardrails
 
+# Optional CI rails: secrets scan, static scan, Actions lint.
+# Keep this file simple — a prior version never parsed on GitHub (0s "workflow file issue").
+
 on:
   pull_request:
   push:
-    branches: ["main"]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -15,42 +18,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Required for organization-owned repositories; not required for personal accounts.
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   semgrep:
     name: Static scan (semgrep)
     runs-on: ubuntu-latest
-    container:
-      image: semgrep/semgrep:latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
+      - name: Install semgrep
+        run: pip install --quiet semgrep
       - name: Run semgrep (language-agnostic defaults)
-        run: semgrep scan --config p/default --error
+        run: semgrep scan --config p/default --error --metrics=off
 
   zizmor:
     name: GitHub Actions lint (zizmor)
     runs-on: ubuntu-latest
-    # Keep this focused: only relevant when workflow files are present.
-    if: ${{ hashFiles('.github/workflows/*.yml', '.github/workflows/*.yaml') != '' }}
     permissions:
-      security-events: write
       contents: read
       actions: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        uses: zizmorcore/zizmor-action@v0.6.1
