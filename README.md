@@ -140,42 +140,41 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 | **Everyday** | Spec gate in `workflow.mdc` → mini-grill when underspecified |
 | **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
 
-### Model routing (July 2026 — token cost + GPT primary)
+### Model routing (July 2026 — duel-informed, cost-aware)
 
-**Standing choice:** GPT is the **primary family** for Everyday work. Set Cursor's UI default to **GPT Terra** (`gpt-5.6-terra-medium`). **Do not use Auto** — it silent-routes mid-protocol and breaks Job routing.
+**Standing choice:** UI default stays **GPT Terra** (`gpt-5.6-terra-medium`) until a Terra vs Grok build duel settles Everyday builder. **Do not use Auto.**
 
-**Why we demoted Sol/Fable from Everyday:** Strong rules (ponytail, gates, Spec gate, expectations, CodeGraph) handle most process failures. Flagship models still matter for **hard-to-reverse judgment** — not for every feature commit. Terra is typically **2–3× cheaper** than Sonnet on comparable tasks ([CursorBench](https://cursor.com/cursorbench) eval-cost snapshot).
+**Event models (spend rarely):** Opus for **grill me** + rebuild inventory; Fable for autonomous phase review; Sol for detect/go-live. **Cheap builder:** Grok high for autonomous implement.
 
 | Tier | Models | When |
 |---|---|---|
-| **Everyday** | Terra (GPT primary), Sonnet (second family), Codex | Build, mini-grill, routine phase review (Terra Loop A + Sonnet Loop B/C) |
-| **Premier** | Sol + Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live |
-| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long autonomous loops, scripts |
+| **Everyday** | Terra, Sonnet, Codex | Day-to-day build, mini-grill, routine review (Terra pending duel vs Grok) |
+| **Premier (event)** | Opus, Fable, Sol | Opus = grill + Phase 0 inventory; Fable = autonomous review / go-live; Sol = detect / trust-boundary |
+| **Cheap** | Grok high, Grok-fast, Composer-fast | Autonomous build (Grok high); hotfix/scripts (fast) |
 
-**What changed (2026-07-14):**
+**What changed (2026-07-27, Tomchei duel):**
 
-1. **Spec gate** (`workflow.mdc`) — mechanical checklist before non-trivial build; fail → mini-grill, don't invent product direction.
-2. **Mini-grill** (`grill-protocol.mdc`) — 3–5 questions until goal/constraints/approach/validation exist.
-3. **Routine vs go-live review** (`review-protocol.mdc`) — Everyday dual-family for feature phases; Sol+Fable only for production/go-live.
-4. **Wrong parent → spawn** (`subagents.mdc`) — if main agent is Auto/unknown/wrong tier, spawn Task with the Job slug instead of self-running judgment work.
-5. **Adversarial spot-check** — routine reviewers must exercise one off-happy-path case, not only re-walk the author's EXPECTED list.
-6. **Rebuild Phase 0 auditors** — Terra + Sonnet by default; Sol+Fable only for contested architecture areas.
-7. **Redesign default proposals** — Gemini + Terra + Grok (add Sol/Fable when user wants more).
+1. **Full grill / "grill me"** → Opus 5 only. Wrong parent → **STOP** and tell user to switch (no spawn).
+2. **Rebuild Phase 0 inventory** → Opus exclusively (not Terra+Sonnet).
+3. **Autonomous** → Grok builds; **spawn Fable** for phase review/fix.
+4. Mini-grill (Spec gate) stays Terra.
 
 **Job → slug (full table):** synced section in `subagents.mdc` (from `_meta/model-roster.json`). Highlights:
 
 | Job | Slug(s) |
 |---|---|
 | UI default / implement | `gpt-5.6-terra-medium` |
+| Full grill / grill me | `claude-opus-5-thinking-high` (switch gate) |
+| Rebuild codebase inventory | `claude-opus-5-thinking-high` |
+| Autonomous build | `cursor-grok-4.5-high` |
+| Autonomous review | `claude-fable-5-thinking-medium` (spawn) |
 | Routine review A / B / C | Terra / Sonnet / Sonnet |
 | Go-live review A / B / C | Sol / Fable / Fable |
 | Rebuild debate | Sol + Fable |
-| Rebuild area audit | Terra + Sonnet |
-| Trust-boundary | Sol or Fable |
-| Redesign proposals | Gemini + Terra + Grok |
+| Trust-boundary | Sol (primary) |
 | Structure | CodeGraph (not a model) |
 
-**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
+**Hardening:** Spec gate, expectation files, verify-in-app, wrong-parent spawn (except grill switch gate), BLOCKED on business logic, adversarial review spot-check.
 
 **Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
 

@@ -9,11 +9,18 @@ Scope the full task, surface ALL foreseeable questions at once, confirm understa
 
 For multi-phase or ambiguous scope: run Spec gate + `grill-protocol.mdc` (mini or full) on the scope summary **or** confirm the user already grilled / answered product questions. Record grill outcomes in `.scratch/grill-notes.md` or DECISION-LOG.
 
-**Models while away:** Everyday (Terra / Grok-fast) for implementation; Premier only at hard gates (production merge, trust-boundary, rebuild architecture). Wrong parent → spawn per `subagents.mdc`.
+**Models while away** (Job table in `subagents.mdc`):
+
+| Role | Model | How |
+|---|---|---|
+| **Implement / build** | **Grok** (`cursor-grok-4.5-high`) | Prefer parent is Grok. If parent is not Grok → **spawn** Grok for implementation (don’t block the leave-behind asking the user to switch). |
+| **Phase / post-build review → fix** | **Fable** (`claude-fable-5-thinking-medium`) | **Always spawn** Fable for critique + one fix pass at phase gates. Never leave Grok to self-review alone. |
+| **Go-live / trust-boundary** | Premier per Job table (Sol / Fable) | Unchanged hard gates |
 
 ## While away
 - Decide ambiguous items and log every one to DECISION-LOG.md (format below).
-- Commits per `git-discipline.mdc` (push each step so progress is visible remotely). Reviews per `review-protocol.mdc` at phase boundaries (Everyday loops for routine phases; Premier for go-live).
+- Commits per `git-discipline.mdc` (push each step so progress is visible remotely).
+- **At each phase gate:** spawn **Fable** for review (and fix blockers once) before advancing. Go-live still uses full `review-protocol.mdc` Premier loops.
 - **Gate discipline** per `workflow.mdc` — no next phase while a gate is incomplete.
 - Maintain `.scratch/run-state.md` (protocol, phase, last_gate_passed, open_blocked, last_commit, next_action); update on every gate pass.
 - **High-risk decisions** (data loss, security, breaking changes, business logic): log with status **BLOCKED**, commit + push the log, and do NOT proceed past that point.

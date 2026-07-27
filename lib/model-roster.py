@@ -108,7 +108,7 @@ def render_tiers_table(data: dict) -> str:
         lines.append(f"| **{tier['label']}** | {slug_list} | {tier['use_for']} |")
     gpt_note = (
         "GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). "
-        "Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**."
+        "Task currently accepts Sol/Terra at **medium** only. Opus = grill + rebuild inventory (event); Fable = autonomous/go-live review (event)."
     )
     ui = (
         f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` ({data['ui_default_label']}). "
@@ -130,10 +130,12 @@ def render_jobs_table(data: dict) -> str:
             slug_cell = "CodeGraph — not a model contest"
         lines.append(f"| **{job['job']}** | {slug_cell} |")
     routing = (
-        "**Routing rule:** hard-to-reverse judgment → Premier (Sol/Fable); "
-        "everyday build + routine gates → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; "
-        "design competition → Gemini + Everyday (+ Premier if user asks); facts → CodeGraph. "
-        "**Harden with Spec gate + expectation checklists** so Everyday can replace Premier on thumbtack work."
+        "**Routing rule:** grill me + rebuild inventory -> Opus (event); "
+        "autonomous build -> Grok, autonomous review -> spawn Fable; "
+        "detect/go-live/trust -> Sol (+ Fable on go-live B); "
+        "everyday build + routine gates -> Terra/Sonnet; "
+        "hotfix/scripts -> Grok-fast; design -> Gemini + Everyday; facts -> CodeGraph. "
+        "Full grill wrong parent -> STOP and ask user to switch (do not spawn)."
     )
     return "\n".join(lines) + "\n\n" + routing
 

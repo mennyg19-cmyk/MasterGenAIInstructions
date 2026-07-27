@@ -8,15 +8,28 @@ Adapted from [Julius Brussee / grill-me](https://github.com/JuliusBrussee/skills
 
 **Governing rule:** automate implementation and verification, not product decisions. Grill fills gaps before code.
 
-**Models:** Everyday (Terra) for mini-grill and single-model grilling. Premier pair (Sol + Fable) only when multi-model / rebuild architecture / user says **"use more models."** Wrong parent → spawn per `subagents.mdc`.
+**Models:**
+- **Mini-grill** (Spec gate): Everyday Terra (`gpt-5.6-terra-medium`).
+- **Full grill / "grill me"** (and stress-test / challenge my plan): **Opus 5 only** — `claude-opus-5-thinking-high`.
+
+### Opus parent gate (full grill / "grill me" only)
+
+Before the first grill question, confirm the parent chat is Opus 5 (`claude-opus-5-thinking-high` or clearly labeled Opus 5 high).
+
+- **If parent is Opus** → grill.
+- **If parent is anything else (including Auto / unknown / Terra / Fable / Sol / Grok)** → **STOP.** Do **not** ask grill questions. Do **not** spawn an Opus subagent to grill. Tell the user, plainly:
+
+> Full grill requires **Opus 5** (`claude-opus-5-thinking-high`). Switch this chat’s model to Opus 5, then say **grill me** again.
+
+Only resume grilling after the user has switched (or explicitly confirms they are now on Opus).
 
 ## When this fires
 
-- User says **grill me** / stress-test / challenge my plan
-- **Spec gate** fails in `workflow.mdc` (underspecified non-trivial build)
-- Redesign Phase 0 (mandatory)
-- Rebuild if user opts in
-- Autonomous mode before the user leaves (ambiguous / multi-phase scope)
+- User says **grill me** / stress-test / challenge my plan → **full grill** (Opus parent gate first)
+- **Spec gate** fails in `workflow.mdc` (underspecified non-trivial build) → **mini-grill** (Terra OK)
+- Redesign Phase 0 (mandatory) → full grill path (Opus parent gate)
+- Rebuild if user opts in → full grill path (Opus parent gate)
+- Autonomous mode before the user leaves (ambiguous / multi-phase scope) → mini or full per scope; full → Opus gate
 
 ## Mini-grill (default for Spec gate)
 

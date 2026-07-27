@@ -29,9 +29,9 @@ Before Phase 0 Step 1, ask:
 - **Yes** → read and follow `grill-protocol.mdc`; record outcomes in `rebuild-audit/GRILL-NOTES.md`. Do not start Step 1 until grill completes per that protocol or the user says to stop grilling.
 - **No** → proceed to Step 1.
 
-## Phase 0: Multi-Model Audit + History Mining (CodeGraph A+B hybrid)
+## Phase 0: Audit + History Mining (CodeGraph + Opus inventory)
 
-Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep the whole tree either. **CodeGraph is deterministic; models differ in judgment, not in graph facts.**
+CodeGraph is deterministic; Opus owns **inventory judgment** (Tomchei duel: best recall + novel finds). Do **not** dual-family Terra+Sonnet inventory anymore.
 
 ### Step 1: Parent graph backbone (orchestrator -- you)
 
@@ -40,17 +40,21 @@ Do NOT skip multi-model coverage -- but do NOT make six agents blindly Read/grep
 3. Per area, run CodeGraph (`codegraph_context`, `codegraph_files`, targeted `codegraph_explore`) and write **factual** digests to `rebuild-audit/graph-backbone/[area].md` -- routes, symbols, endpoints, models (no interpretation yet).
 4. Spawn history miner → **BUILD-HISTORY.md** (unchanged).
 
-### Step 2: Multi-model auditors (2 families × each area -- judgment layer)
+### Step 2: Opus inventory auditors (exclusive -- judgment layer)
 
-Per area, spawn **2 subagents on DIFFERENT Everyday families** (default: Terra + Sonnet) unless the area is architecture-load-bearing and contested — then use Premier (Sol + Fable). `run_in_background: true`, one message. Each prompt must include:
+**Job:** Rebuild codebase inventory (Phase 0) → `claude-opus-5-thinking-high` only (`subagents.mdc`).
+
+Per area, spawn **Opus** subagent(s) — inventory exclusively on Opus. Do **not** spawn Terra, Sonnet, Sol, or Fable for inventory. Optional: same Opus model for a separate structure pass (inventory + structure roles), still Opus-only — never a second family for cross-check.
+
+`run_in_background: true` when parallelizing areas. Each prompt must include:
 
 - Path to `rebuild-audit/graph-backbone/[area].md` (REQUIRED READING + proof-of-read per `subagents.mdc`).
 - **First action:** `codegraph status` (CLI) or `codegraph_status` (MCP). If healthy, use **codegraph CLI or MCP** for drill-down — **no Grep, SemanticSearch, or Read/grep tree scans.** If MCP unavailable in subagent, use graph-backbone + request parent run CLI queries; note "graph via parent digest" in the report header.
-- **Split roles (unchanged):**
-  - **Inventory auditor:** exhaustive feature/behavior list (what must NOT be lost).
-  - **Structure auditor:** what's WRONG/messy + coverage skeleton (names/paths only).
+- **Roles:**
+  - **Inventory auditor (required):** exhaustive feature/behavior list (what must NOT be lost). Header: `Model: claude-opus-5-thinking-high`.
+  - **Structure auditor (optional, Opus):** what's WRONG/messy + coverage skeleton (names/paths only).
 
-The multi-model step is **interpretation and cross-check**, not duplicate file walks.
+This step is **interpretation**, not duplicate file walks. Parent orchestrates; Opus writes the inventory artifacts.
 
 ### Step 3: Wait for ALL reports before Phase 1.
 

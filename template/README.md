@@ -63,22 +63,23 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Command output:** summarize long terminal output; full logs to `.scratch/last-command.log`.
 - **PowerShell:** never inline `$` in agent shell — use `.scratch/agent-run.ps1` + `-File` (`workflow.mdc`).
 - **CodeGraph:** Hybrid lookup; auto init/sync on bootstrap/apply/update-all. **No Grep/SemanticSearch for structure when index healthy** — MCP or CLI only; Read/grep for literals.
-- **Rebuild Phase 0:** A+B hybrid -- parent deterministic graph backbone, then 2 model families per area for judgment (not six blind file walks).
+- **Rebuild Phase 0:** Parent graph backbone, then **Opus-exclusive** inventory (not Terra+Sonnet dual).
 - **Rebuild scope:** Ask when a feature feels speculative; never auto-drop inventory IDs.
 - **Dependencies:** Ponytail ladder — no new package unless stdlib + native + existing deps fail.
 - **Testing:** Hybrid — testing-protocol floor, ponytail-minimal tests (no fixture forests).
 - **Walkthrough headers:** Off (saves tokens). Say `enable walkthroughs` to restore archived rule.
 - **Chat:** Terse routine; full explain when needed; anti-slop always (no sycophancy/stock vocab/hedging).
-- **Reviews:** Routine phase = Terra + Sonnet (+ Sonnet quality). Production/go-live = Sol + Fable (+ Fable quality). Trust-boundary = Premier only. Checklist + evidence; review-admin; fix-canary. See `review-protocol.mdc`.
+- **Reviews:** Routine phase = Terra + Sonnet (+ Sonnet quality). Production/go-live = Sol + Fable (+ Fable quality). Autonomous phase gates = **spawn Fable**. Trust-boundary = Sol primary. Checklist + evidence; review-admin; fix-canary. See `review-protocol.mdc`.
 - **Complex requests:** Fix-don't-suggest — build what was asked.
 - **Spec gate vs fix-don't-suggest:** Product ambiguity → grill wins; clear bug fix with known expected behavior → build wins. Spec gate in `workflow.mdc`.
 - **God files:** Split on refactor or >500 lines / mixed concerns.
-- **Multi-model subagents:** Rebuild/redesign + production-merge loops; routine phase Everyday dual-family; else single-model unless I say "use more models".
-- **Default models:** Job table in `subagents.mdc`. **UI default = Terra** (not Auto). Everyday = Terra/Sonnet/Codex. Premier (Sol/Fable) only at hard gates. Redesign default = Gemini+Terra+Grok.
-- **Wrong parent model:** Spawn the Job table model — do not self-run judgment protocols if parent is wrong/Auto/unknown.
+- **Multi-model subagents:** Rebuild/redesign + production-merge loops; inventory = Opus only; routine phase Everyday dual-family; else single-model unless I say "use more models".
+- **Default models:** Job table in `subagents.mdc`. **UI default = Terra** (not Auto). **Grill me = Opus** (switch gate). **Autonomous = Grok build + spawn Fable review**. Redesign default = Gemini+Terra+Grok.
+- **Wrong parent model:** Spawn the Job table model — **except full grill / grill me**: STOP and tell me to switch to Opus 5 (do not spawn grill).
+- **Autonomous models:** Grok high implements; spawn Fable for phase review → fix.
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
-- **Grill:** Spec gate → mini-grill. Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.
+- **Grill:** Spec gate → mini-grill (Terra). `grill me` / full grill → Opus 5 parent required.
 - **Plan review:** `senior review` / `junior to senior` on agent-written plans.
 - **Canary:** on demand for long sessions (`canary` / `context canary`).
 - **UI craft:** `interface-kit.mdc` after direction chosen — not during redesign model competition.

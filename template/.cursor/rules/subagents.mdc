@@ -45,27 +45,29 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
 | Slug | Family / role |
 |---|---|
 | `composer-2.5-fast` | Composer (Cheapest; broad sweeps/audits) |
-| `gpt-5.6-sol-medium` | GPT Sol (Flagship judgment — hard gates only) |
-| `gpt-5.6-terra-medium` | GPT Terra (Everyday default (GPT primary family)) |
+| `gpt-5.6-sol-medium` | GPT Sol (Flagship judgment — detect/go-live/trust-boundary) |
+| `gpt-5.6-terra-medium` | GPT Terra (Everyday default (pending Terra vs Grok build duel)) |
 | `gpt-5.2-codex` | GPT/Codex (Code-focused implementation) |
 | `gemini-3.1-pro` | Gemini (Design/UX eye) |
-| `cursor-grok-4.5-high-fast` | Grok (Cheap/fast/hotfix/scripts) |
+| `cursor-grok-4.5-high` | Grok (Autonomous / long cost-sensitive builder) |
+| `cursor-grok-4.5-high-fast` | Grok (Hotfix, sweeps, scripts) |
 | `claude-4.6-sonnet-medium-thinking` | Claude Sonnet (Everyday Claude + routine Loop B/C) |
-| `claude-fable-5-thinking-medium` | Claude Fable (Deep judgment — hard gates (replaces Opus)) |
+| `claude-fable-5-thinking-medium` | Claude Fable (Autonomous review + go-live critique (event model)) |
+| `claude-opus-5-thinking-high` | Claude Opus (Full grill + rebuild codebase inventory (event model)) |
 <!-- MODEL_ROSTER:END -->
 
-Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use more models" = reach across families.
+Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable+Opus)**. "Use more models" = reach across families.
 
 ### Tiers
 
 <!-- MODEL_TIERS:BEGIN -->
 | Tier | Slugs | Use for |
 |---|---|---|
-| **Premier** | `gpt-5.6-sol-medium`, `claude-fable-5-thinking-medium` | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
-| **Everyday** | `gpt-5.6-terra-medium`, `claude-4.6-sonnet-medium-thinking`, `gpt-5.2-codex` | Default build, mini-grill, routine phase review, plan-review of medium plans |
-| **Cheap** | `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Hotfix, sweeps, long cost-sensitive loops, scripts |
+| **Premier** | `gpt-5.6-sol-medium`, `claude-fable-5-thinking-medium`, `claude-opus-5-thinking-high` | Opus for grill + rebuild inventory; Fable for autonomous review; Sol for detect/go-live; rare hard gates |
+| **Everyday** | `gpt-5.6-terra-medium`, `claude-4.6-sonnet-medium-thinking`, `gpt-5.2-codex` | Default build, mini-grill, routine phase review (Terra pending duel vs Grok) |
+| **Cheap** | `cursor-grok-4.5-high`, `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Autonomous build (Grok high), hotfix/scripts (Grok-fast), sweeps |
 
-GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
+GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Opus = grill + rebuild inventory (event); Fable = autonomous/go-live review (event).
 
 **Recommended Cursor UI default (human):** `gpt-5.6-terra-medium` (GPT Terra). GPT is the primary family for Everyday work. Sonnet is the deliberate second family for dual-pass review. **Do not use Auto** as the main agent — Auto can silent-route mid-protocol and defeat Job routing.
 <!-- MODEL_TIERS:END -->
@@ -75,13 +77,14 @@ GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts S
 Protocols name a **required job/tier**. The parent must not run that job itself when it is the wrong model.
 
 1. **Detect parent model** when possible (cloud `cursor-cloud` `run-info`, system/run metadata, or an explicit user statement). If detection fails → treat parent as **unknown**.
-2. **Auto / unknown / Composer / Luna alone** on a judgment job → **spawn** the Job table slug. Do not self-run premier or review loops.
-3. **Match rule:**
-   - Required **premier** → parent may self-run only if it *is* Sol or Fable (correct family for that step). Otherwise **spawn**.
+2. **Exception — full grill / "grill me":** do **not** spawn. **STOP** and tell the user to switch the chat model to Opus 5 (`claude-opus-5-thinking-high`). See `grill-protocol.mdc`.
+3. **Auto / unknown / Composer / Luna alone** on a judgment job → **spawn** the Job table slug. Do not self-run premier or review loops.
+4. **Match rule:**
+   - Required **premier** → parent may self-run only if it *is* the Job slug’s family for that step (Opus for inventory spawn; Sol/Fable for debate/go-live). Otherwise **spawn** (except grill-me switch gate above).
    - Required **everyday** → parent may self-run if it is Everyday or Premier. If parent is Cheap/Auto/unknown → **spawn** Terra (or the Job table slug).
-   - Required **cheap** → parent may self-run on any tier (don't force a down-spawn).
-4. Spawn with Task + **`model` set to the Job table slug**. Orchestrate, merge artifacts, enforce gates — don't silently substitute yourself for the assigned model.
-5. Record on the artifact: `Model: <slug>` and `Runner: spawn | parent`.
+   - Required **cheap / autonomous build** → spawn **Grok** (`cursor-grok-4.5-high`) if parent is not Grok. Autonomous **review** → always spawn **Fable**.
+5. Spawn with Task + **`model` set to the Job table slug**. Orchestrate, merge artifacts, enforce gates — don't silently substitute yourself for the assigned model.
+6. Record on the artifact: `Model: <slug>` and `Runner: spawn | parent`.
 
 **Yes, this is possible** in Cursor: Task subagents accept an explicit `model`. That is how wrong-parent correction works.
 
@@ -93,25 +96,27 @@ Protocols name a **required job/tier**. The parent must not run that job itself 
 | **UI default / parent chat** | `gpt-5.6-terra-medium` |
 | **Implementation (add / fix / refactor)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking`; `gpt-5.2-codex` |
 | **Spec / mini-grill** | `gpt-5.6-terra-medium` |
-| **Full grill / deep plan-review / architecture** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+| **Full grill / grill me** | `claude-opus-5-thinking-high` |
+| **Deep plan-review / architecture** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
 | **Routine phase review Loop A** | `gpt-5.6-terra-medium` |
 | **Routine phase review Loop B** | `claude-4.6-sonnet-medium-thinking` |
 | **Routine phase review Loop C** | `claude-4.6-sonnet-medium-thinking` |
 | **Production merge / go-live Loop A** | `gpt-5.6-sol-medium` |
 | **Production merge / go-live Loop B** | `claude-fable-5-thinking-medium` |
 | **Production merge / go-live Loop C** | `claude-fable-5-thinking-medium` |
-| **Trust-boundary / security** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+| **Trust-boundary / security** | `gpt-5.6-sol-medium`; `claude-fable-5-thinking-medium` |
 | **Rebuild premier pair / debate** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
-| **Rebuild area auditors (Phase 0)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking` |
+| **Rebuild codebase inventory (Phase 0)** | `claude-opus-5-thinking-high` |
 | **Hotfix** | `cursor-grok-4.5-high-fast`; `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking` |
 | **Broad / cheap inventory sweep** | `composer-2.5-fast`; `cursor-grok-4.5-high-fast` |
-| **Long autonomous / cost-sensitive** | `cursor-grok-4.5-high-fast`; `gpt-5.6-terra-medium` |
+| **Long autonomous / cost-sensitive** | `cursor-grok-4.5-high` |
+| **Autonomous review / post-build critique** | `claude-fable-5-thinking-medium` |
 | **Redesign proposals (default)** | `gemini-3.1-pro`; `gpt-5.6-terra-medium`; `cursor-grok-4.5-high-fast` |
 | **UI polish (after direction chosen)** | `gpt-5.6-terra-medium`; `gemini-3.1-pro` |
 | **Shell / deploy / scripts** | `cursor-grok-4.5-high-fast`; `gpt-5.2-codex` |
 | **Structure facts** | CodeGraph — not a model contest |
 
-**Routing rule:** hard-to-reverse judgment → Premier (Sol/Fable); everyday build + routine gates → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; design competition → Gemini + Everyday (+ Premier if user asks); facts → CodeGraph. **Harden with Spec gate + expectation checklists** so Everyday can replace Premier on thumbtack work.
+**Routing rule:** grill me + rebuild inventory -> Opus (event); autonomous build -> Grok, autonomous review -> spawn Fable; detect/go-live/trust -> Sol (+ Fable on go-live B); everyday build + routine gates -> Terra/Sonnet; hotfix/scripts -> Grok-fast; design -> Gemini + Everyday; facts -> CodeGraph. Full grill wrong parent -> STOP and ask user to switch (do not spawn).
 <!-- MODEL_JOBS:END -->
 
 ## When to use multiple models (Rule Preference)
