@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-20T15:53:30.008718+00:00",
+  "fetched_at": "2026-07-27T16:23:40.761874+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -60,6 +60,16 @@
         "opus",
         "opus-4.8",
         "opus-4-8"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-opus-5",
+      "displayName": "Opus 5",
+      "aliases": [
+        "opus-latest",
+        "opus",
+        "opus-5"
       ],
       "description": ""
     },
@@ -155,6 +165,15 @@
       "description": ""
     },
     {
+      "id": "gemini-3.6-flash",
+      "displayName": "Gemini 3.6 Flash",
+      "aliases": [
+        "gemini-flash-latest",
+        "gemini-flash"
+      ],
+      "description": ""
+    },
+    {
       "id": "glm-5.2",
       "displayName": "GLM 5.2",
       "aliases": [],
@@ -177,37 +196,10 @@
       "description": ""
     },
     {
-      "id": "gpt-5.1-codex-max",
-      "displayName": "Codex 5.1 Max",
-      "aliases": [
-        "codex",
-        "codex-5.1-max"
-      ],
-      "description": ""
-    },
-    {
-      "id": "gpt-5.1-codex-mini",
-      "displayName": "Codex 5.1 Mini",
-      "aliases": [
-        "codex-mini-latest",
-        "codex-mini"
-      ],
-      "description": ""
-    },
-    {
       "id": "gpt-5.2",
       "displayName": "GPT-5.2",
       "aliases": [
         "gpt"
-      ],
-      "description": ""
-    },
-    {
-      "id": "gpt-5.2-codex",
-      "displayName": "Codex 5.2",
-      "aliases": [
-        "codex",
-        "codex-5.2"
       ],
       "description": ""
     },
