@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-27T16:23:40.761874+00:00",
+  "fetched_at": "2026-08-03T16:28:40.466988+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -287,6 +287,12 @@
         "kimi-latest",
         "kimi"
       ],
+      "description": ""
+    },
+    {
+      "id": "kimi-k3",
+      "displayName": "Kimi K3",
+      "aliases": [],
       "description": ""
     }
   ]
