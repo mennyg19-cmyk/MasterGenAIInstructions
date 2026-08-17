@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-10T15:01:23.833135+00:00",
+  "fetched_at": "2026-08-17T14:30:44.473291+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -174,6 +174,15 @@
       "description": ""
     },
     {
+      "id": "gemini-3.7-flash",
+      "displayName": "Gemini 3.7 Flash",
+      "aliases": [
+        "gemini-flash-latest",
+        "gemini-flash"
+      ],
+      "description": ""
+    },
+    {
       "id": "glm-5.2",
       "displayName": "GLM 5.2",
       "aliases": [],
@@ -277,6 +286,12 @@
     {
       "id": "grok-4.5",
       "displayName": "Cursor Grok 4.5",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "grok-4.6",
+      "displayName": "Cursor Grok 4.6",
       "aliases": [],
       "description": ""
     },
