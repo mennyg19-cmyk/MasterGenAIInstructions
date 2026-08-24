@@ -1,10 +1,10 @@
 {
-  "fetched_at": "2026-08-17T14:30:44.473291+00:00",
+  "fetched_at": "2026-08-24T14:45:09.101645+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
       "id": "claude-fable-5",
-      "displayName": "Fable 5",
+      "displayName": "Claude Fable 5",
       "aliases": [
         "fable",
         "fable-5",
@@ -14,7 +14,7 @@
     },
     {
       "id": "claude-haiku-4-5",
-      "displayName": "Haiku 4.5",
+      "displayName": "Claude Haiku 4.5",
       "aliases": [
         "haiku-latest",
         "haiku",
@@ -25,7 +25,7 @@
     },
     {
       "id": "claude-opus-4-5",
-      "displayName": "Opus 4.5",
+      "displayName": "Claude Opus 4.5",
       "aliases": [
         "opus",
         "opus-4.5",
@@ -35,7 +35,7 @@
     },
     {
       "id": "claude-opus-4-6",
-      "displayName": "Opus 4.6",
+      "displayName": "Claude Opus 4.6",
       "aliases": [
         "opus",
         "opus-4.6",
@@ -45,7 +45,7 @@
     },
     {
       "id": "claude-opus-4-7",
-      "displayName": "Opus 4.7",
+      "displayName": "Claude Opus 4.7",
       "aliases": [
         "opus-4.7",
         "opus-4-7"
@@ -54,7 +54,7 @@
     },
     {
       "id": "claude-opus-4-8",
-      "displayName": "Opus 4.8",
+      "displayName": "Claude Opus 4.8",
       "aliases": [
         "opus-latest",
         "opus",
@@ -65,7 +65,7 @@
     },
     {
       "id": "claude-opus-5",
-      "displayName": "Opus 5",
+      "displayName": "Claude Opus 5",
       "aliases": [
         "opus-latest",
         "opus",
@@ -75,7 +75,7 @@
     },
     {
       "id": "claude-sonnet-4",
-      "displayName": "Sonnet 4",
+      "displayName": "Claude Sonnet 4",
       "aliases": [
         "sonnet",
         "sonnet-4"
@@ -84,7 +84,7 @@
     },
     {
       "id": "claude-sonnet-4-5",
-      "displayName": "Sonnet 4.5",
+      "displayName": "Claude Sonnet 4.5",
       "aliases": [
         "sonnet",
         "sonnet-4.5",
@@ -94,7 +94,7 @@
     },
     {
       "id": "claude-sonnet-4-6",
-      "displayName": "Sonnet 4.6",
+      "displayName": "Claude Sonnet 4.6",
       "aliases": [
         "sonnet-latest",
         "sonnet",
@@ -105,7 +105,7 @@
     },
     {
       "id": "claude-sonnet-5",
-      "displayName": "Sonnet 5",
+      "displayName": "Claude Sonnet 5",
       "aliases": [
         "sonnet-latest",
         "sonnet-5"
