@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-31T19:52:23.725841+00:00",
+  "fetched_at": "2026-09-07T18:38:39.067195+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -9,6 +9,14 @@
         "fable",
         "fable-5",
         "fable-5"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-fable-5-1",
+      "displayName": "Claude Fable 5.1",
+      "aliases": [
+        "fable-5-1"
       ],
       "description": ""
     },
@@ -180,6 +188,12 @@
         "gemini-flash-latest",
         "gemini-flash"
       ],
+      "description": ""
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "displayName": "Gemini 3.8 Flash",
+      "aliases": [],
       "description": ""
     },
     {
