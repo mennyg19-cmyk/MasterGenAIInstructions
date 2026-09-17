@@ -45,6 +45,7 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
 | Slug | Family / role |
 |---|---|
 | `composer-2.5-fast` | Composer (Cheapest; broad sweeps/audits) |
+| `gpt-5.6-luna-medium` | GPT Luna (Codebase walkthrough only (hard-locked); cheap high-context GPT) |
 | `gpt-5.6-sol-medium` | GPT Sol (Flagship judgment — hard gates only) |
 | `gpt-5.6-terra-medium` | GPT Terra (Everyday default (GPT primary family)) |
 | `gpt-5.2-codex` | GPT/Codex (Code-focused implementation) |
@@ -63,7 +64,7 @@ Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use mo
 |---|---|---|
 | **Premier** | `gpt-5.6-sol-medium`, `claude-fable-5-thinking-medium` | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
 | **Everyday** | `gpt-5.6-terra-medium`, `claude-4.6-sonnet-medium-thinking`, `gpt-5.2-codex` | Default build, mini-grill, routine phase review, plan-review of medium plans |
-| **Cheap** | `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Hotfix, sweeps, long cost-sensitive loops, scripts |
+| **Cheap** | `gpt-5.6-luna-medium`, `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Walkthrough (Luna only), hotfix, sweeps, long cost-sensitive loops, scripts |
 
 GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
 
@@ -85,12 +86,15 @@ Protocols name a **required job/tier**. The parent must not run that job itself 
 
 **Yes, this is possible** in Cursor: Task subagents accept an explicit `model`. That is how wrong-parent correction works.
 
+**Hard-stop exception:** `walkthrough-protocol.mdc` does **not** spawn. Wrong model → stop and tell the user to switch to Luna.
+
 ## Default picks (Rule Preference)
 
 <!-- MODEL_JOBS:BEGIN -->
 | Job | Slug(s) |
 |---|---|
 | **UI default / parent chat** | `gpt-5.6-terra-medium` |
+| **Codebase walkthrough** | `gpt-5.6-luna-medium` |
 | **Implementation (add / fix / refactor)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking`; `gpt-5.2-codex` |
 | **Spec / mini-grill** | `gpt-5.6-terra-medium` |
 | **Full grill / deep plan-review / architecture** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |

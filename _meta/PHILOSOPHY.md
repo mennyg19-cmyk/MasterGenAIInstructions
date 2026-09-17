@@ -31,6 +31,8 @@ Different tools solve different problems. They are **layered**, not merged into 
 
 **Protocols stay in charge of scope and quality.** Integrations make day-to-day work leaner without quietly dropping features or skipping reviews. CI guardrails run outside the agent — zero token cost, catches slips after push.
 
+**CodeGraph on Cloud Agents:** local installs don’t follow you into the cloud VM. Put `codegraph` install + `init`/`sync` in the environment `install` script (see `codegraph.mdc` and `template/.cursor/environment.json`), then rebuild the environment snapshot. Cloud agents should use the **CLI**; MCP is optional.
+
 When layers disagree, agents use the conflict protocol in `ponytail.mdc`: name it, offer options, default protocol-safe, tell me, offer to record in README § Rule Preferences. Expanded playbook: `_meta/RULE-CONFLICTS.md`. Canonical choices: `_meta/USER-RULE-PREFERENCES.md`.
 
 **Integration style:** External repos are mostly **Tier 1** — ideas and patterns baked into `.mdc` rule files. No competing plugin stacks, no extra npm in every project. CodeGraph is the exception: it's an optional external CLI/MCP you install once per machine and init per repo. **CI guardrails** are the other exception: a template workflow (`.github/workflows/agent-guardrails.yml`), not an always-on rule — agents reference it from `deploy-awareness.mdc`; GitHub runs it on PR/push.

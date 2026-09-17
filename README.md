@@ -18,7 +18,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 22 Cursor rule files (6 always-on + 1 auto-attach)
+|   |-- .cursor/rules/   # 23 Cursor rule files (6 always-on + 1 auto-attach)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -150,9 +150,9 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 |---|---|---|
 | **Everyday** | Terra (GPT primary), Sonnet (second family), Codex | Build, mini-grill, routine phase review (Terra Loop A + Sonnet Loop B/C) |
 | **Premier** | Sol + Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live |
-| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long autonomous loops, scripts |
+| **Cheap** | **Luna** (walkthrough only), Grok-fast, Composer-fast | Teaching tours, hotfix, sweeps, long autonomous loops |
 
-**What changed (2026-07-14):**
+**What changed (2026-07-14 / walkthrough add):**
 
 1. **Spec gate** (`workflow.mdc`) — mechanical checklist before non-trivial build; fail → mini-grill, don't invent product direction.
 2. **Mini-grill** (`grill-protocol.mdc`) — 3–5 questions until goal/constraints/approach/validation exist.
@@ -161,12 +161,15 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 5. **Adversarial spot-check** — routine reviewers must exercise one off-happy-path case, not only re-walk the author's EXPECTED list.
 6. **Rebuild Phase 0 auditors** — Terra + Sonnet by default; Sol+Fable only for contested architecture areas.
 7. **Redesign default proposals** — Gemini + Terra + Grok (add Sol/Fable when user wants more).
+8. **Codebase walkthrough** (`walkthrough-protocol.mdc`) — Luna-only interactive tour; hard stop if wrong model; `review` stays for ship gates.
+9. **CodeGraph on Cloud Agents** — environment `install` installs CLI + indexes (template `.cursor/environment.json`).
 
 **Job → slug (full table):** synced section in `subagents.mdc` (from `_meta/model-roster.json`). Highlights:
 
 | Job | Slug(s) |
 |---|---|
 | UI default / implement | `gpt-5.6-terra-medium` |
+| Codebase walkthrough | `gpt-5.6-luna-medium` **only** (hard stop) |
 | Routine review A / B / C | Terra / Sonnet / Sonnet |
 | Go-live review A / B / C | Sol / Fable / Fable |
 | Rebuild debate | Sol + Fable |
@@ -174,6 +177,21 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 | Trust-boundary | Sol or Fable |
 | Redesign proposals | Gemini + Terra + Grok |
 | Structure | CodeGraph (not a model) |
+
+**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
+
+#### CodeGraph on Cloud Agents
+
+Your local Windows CodeGraph install is **invisible** to Cloud Agents. Fix it in the **environment**:
+
+1. New projects: template ships `.cursor/environment.json` with `install` that installs the CLI and runs `codegraph init`/`sync`.
+2. Existing cloud apps: copy/merge those install lines into the repo or dashboard environment, then **rebuild / snapshot** so new agents boot with `codegraph` on PATH.
+3. In cloud, prefer **CLI** (`codegraph status`, `explore`, …). MCP is optional.
+4. Full notes: `codegraph.mdc` § Cloud Agents.
+
+**Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
+
+#### Keeping slugs up to date (automation)
 
 **Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
 
@@ -271,7 +289,8 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **22 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 15 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1), and [Julius Brussee skills](https://github.com/JuliusBrussee/skills) (Tier 1) — rules only, no extra npm.
+- **23 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 16 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1), and [Julius Brussee skills](https://github.com/JuliusBrussee/skills) (Tier 1) — rules only, no extra npm.
+- **`.cursor/environment.json`** (template) — Cloud Agent `install` installs CodeGraph CLI + indexes the project.
 - **`.github/workflows/agent-guardrails.yml`** — optional CI: [gitleaks](https://github.com/gitleaks/gitleaks) + [semgrep](https://github.com/semgrep/semgrep) + [zizmor](https://github.com/zizmor/zizmor). Language-agnostic; tune per project.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
@@ -319,11 +338,12 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 |---|---|
 | `deploy-awareness.mdc` | Deploy/env/workflow safety; auto-attaches on deploy-related files |
 
-### Load on Demand (15 files)
+### Load on Demand (16 files)
 
 | File | Trigger |
 |---|---|
 | `review-protocol.mdc` | Phase complete, review, production merge |
+| `walkthrough-protocol.mdc` | "walkthrough" / "walk me through" / "give me a walkthrough" / "codebase tour" — **Luna only** |
 | `plan-review.mdc` | "senior review" / "junior to senior" / large agent-written plan |
 | `grill-protocol.mdc` | "grill me" / Spec gate fail / redesign grill / rebuild if user opts in |
 | `autonomous-mode.mdc` | "run autonomously" / decision logging |
@@ -337,7 +357,7 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |
-| `code-walkthrough.mdc` | **Disabled** (saves tokens). Say `enable walkthroughs` to restore |
+| `code-walkthrough.mdc` | **Disabled** file-header comments (saves tokens). Say `enable walkthroughs` to restore — different from **codebase walkthrough** |
 
 Conflict playbook (human reference, not auto-loaded): `_meta/RULE-CONFLICTS.md`.
 

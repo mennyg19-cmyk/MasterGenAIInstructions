@@ -1,0 +1,125 @@
+---
+description: Interactive codebase walkthrough — Luna only, chapter-by-chapter teaching with understanding checks. Read when user says walkthrough, walk me through, give me a walkthrough, codebase tour, teach me this repo.
+---
+
+# Codebase Walkthrough Protocol
+
+**Not** `review-protocol.mdc` (ship/correctness gates). **Not** archived file-header walkthroughs (`code-walkthrough.mdc`).
+
+This protocol **teaches** how the app works, top-down, with real snippets and understanding checks. Audience: technical enough to read code, not expected to write it from scratch. Plain English (`workflow.mdc`). No baby talk, no lecture padding.
+
+## Model lock (hard stop — no exceptions)
+
+**Required parent model:** GPT-5.6 **Luna** only (Standard — not Fast, not Auto, not Terra/Sol/Sonnet/Fable/Composer).
+
+Preferred slug: `gpt-5.6-luna-medium` (or the picker label **GPT-5.6 Luna** / Luna Standard).
+
+### Gate (run before any tour content)
+
+1. Detect parent model when possible (run metadata, user statement, cloud `run-info`).
+2. If model is **not** Luna (including Auto, unknown, Terra, Composer, Fast variants, Premier):
+   - **STOP.** Do not tour. Do not spawn a substitute. Do not “start anyway.”
+   - Reply with exactly this shape (fill the picker name for their UI):
+
+```text
+You are using the wrong model for a codebase walkthrough.
+
+Switch this Cloud Agent / chat model to: GPT-5.6 Luna (Standard — not Fast, not Auto).
+Then say "walkthrough" (or "continue walkthrough") again.
+
+Why: walkthroughs are long, interactive, and must stay on the cheap high-context Luna slot. Other models burn budget or skip the teaching style this protocol requires.
+```
+
+3. If detection fails → ask once: “Confirm you are on **GPT-5.6 Luna** (yes/no).” No → same stop message. Yes → proceed and record `Model: gpt-5.6-luna-medium` / `Runner: parent` in the progress file.
+
+**Exception to `subagents.mdc` wrong-parent→spawn:** this protocol **hard-stops**; it does not spawn Luna for you.
+
+## Triggers (vocabulary)
+
+Any of: **walkthrough**, **give me a walkthrough**, **walk me through**, **codebase tour**, **teach me this repo**, **teach me this codebase**, **full walkthrough**.
+
+- **Full walkthrough** = every area/chapter until done (still one chapter per turn).
+- Scoped: “walk me through auth” = that area only, same rules.
+
+## Before chapter 1
+
+1. Pass model gate.
+2. `codegraph status` (CLI). If missing CLI/index → install/init if possible (`codegraph.mdc` + cloud install notes); else say you’ll use Read/path maps and quality will be lower.
+3. Build a **chapter map** (routes, major folders, entrypoints). Prefer CodeGraph (`files` / `explore`). Write to `.scratch/codebase-tour.md`:
+
+```
+model: gpt-5.6-luna-medium
+depth: overview | standard | full
+chapters:
+  - id: C1
+    title: ...
+    status: pending | current | done
+current: C1
+smells: []
+```
+
+4. Show the map (numbered). Ask: start at C1, pick a chapter, or set depth (`overview` / `standard` / **`full`** = every function in each area).
+5. Wait for the user’s answer before teaching.
+
+## Chapter turn shape (mandatory)
+
+One chapter (or one major function chain) per reply. Then **stop and wait**.
+
+```text
+## Chapter N: <title>
+**Job of this area:** one sentence.
+
+**How it connects:** link to prior chapters / user-visible flow.
+
+### Snippet
+(cite real code with ```startLine:endLine:path — small, focused)
+
+**What to notice:** plain English; assume they can read the snippet.
+
+### Call chain (full depth)
+Top → down: who calls whom; open the next snippet only for the hot path.
+
+### Smell flags (this chapter)
+- `duplicate:` / `dead:` / `confusing:` / `extract?` — or `none`
+
+### Check (answer before we continue)
+1. …
+2. … (optional second)
+
+Reply with your answers (or "got it — next") when ready.
+```
+
+### Teaching rules
+
+- Snippets from **real files** only. Never invent code. Prefer CodeGraph + Read.
+- Explain connections and “when a user does X, this runs.” Don’t recite syntax they can see.
+- **Full** depth: walk functions in that area from entrypoints down; don’t sample.
+- **Standard:** main paths + important helpers. **Overview:** map + one key snippet per area.
+- Questions are adult checks (“Where would a failed login surface?”), not quizzes for kids.
+- Wrong / vague answer → reteach that piece with another snippet; don’t advance the chapter.
+- “Got it — next” is enough when they clearly followed; still offer one optional check on hard chapters.
+- Accumulate smells in `.scratch/codebase-tour.md`; don’t stop the tour to refactor unless they ask.
+- Skip dumping secrets / `.env` values; name where auth/config lives.
+- No drive-by edits during walkthrough unless they explicitly ask to fix a smell.
+
+## Pause / resume
+
+- Progress lives in `.scratch/codebase-tour.md`.
+- “Continue walkthrough” / “next” → load progress, model gate again, resume `current`.
+- Session start mid-tour: read progress file before re-mapping from scratch.
+
+## End deliverable
+
+When all chapters are `done` (or user stops):
+
+1. Short “how this app works” summary (bullets).
+2. Smell ledger path + top smells.
+3. Optional next step: “Want to turn smells into a tidy/refactor pass?” — don’t start it unprompted.
+
+## Anti-collision
+
+| Phrase | Protocol |
+|---|---|
+| walkthrough / walk me through / give me a walkthrough / codebase tour | **This file** |
+| review / phase review / production merge / security review | `review-protocol.mdc` |
+| enable walkthroughs (file headers) | Archived `code-walkthrough.mdc` — different feature |

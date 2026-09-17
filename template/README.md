@@ -79,6 +79,7 @@ Menny's standing resolutions. Agents check here before re-asking.
 - **Verification:** Tiered — smoke for small fixes; full checklist for features/rebuilds/phases.
 - **Artifacts:** Ask when an artifact feels heavy; otherwise use protocol formats.
 - **Grill:** Spec gate → mini-grill. Rebuild asks y/n before Phase 0; redesign grills after brief; say `grill me` anytime.
+- **Walkthrough:** `walkthrough` / `walk me through` / `give me a walkthrough` → `walkthrough-protocol.mdc`. **Luna only** (hard stop if wrong model). Different from `review`.
 - **Plan review:** `senior review` / `junior to senior` on agent-written plans.
 - **Canary:** on demand for long sessions (`canary` / `context canary`).
 - **UI craft:** `interface-kit.mdc` after direction chosen — not during redesign model competition.

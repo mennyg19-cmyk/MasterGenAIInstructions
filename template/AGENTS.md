@@ -7,7 +7,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat, **anti-slop always on** (no CLI).
 2. **CodeGraph (always on when indexed)** -- `codegraph.mdc`: deterministic structural index via MCP **or CLI**; hybrid with Read/grep.
 3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `vocabulary.mdc` (+ `deploy-awareness.mdc` auto-attached on deploy/env/workflow files).
-4. **Protocols (on demand)** -- rebuild, redesign, review, grill, plan-review, testing, autonomous, subagents, interface-kit, prose-deslop, context-canary.
+4. **Protocols (on demand)** -- rebuild, redesign, review, walkthrough, grill, plan-review, testing, autonomous, subagents, interface-kit, prose-deslop, context-canary.
 5. **README § Rule Preferences** -- standing choices when rules disagree.
 
 ## Read-Before-Acting Index
@@ -18,6 +18,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 | Structural code questions | `codegraph.mdc` (MCP or CLI before grep-for-symbol) |
 | Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
 | Grill / stress-test a plan | `grill-protocol.mdc` |
+| Codebase walkthrough (Luna only) | `walkthrough-protocol.mdc` |
 | Senior review of a plan | `plan-review.mdc` |
 | Context rot / long session | `context-canary.mdc` (on demand) |
 | UI implementation (direction chosen) | `interface-kit.mdc` |
@@ -42,6 +43,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 - **No structural Grep:** when index is healthy, Grep/SemanticSearch for symbols, callers, or layout is forbidden (`codegraph.mdc`).
 - Gate discipline + command output discipline (`workflow.mdc`); ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
 - **Spec gate** before non-trivial build (`workflow.mdc`) — underspecified → mini-grill, don't invent product direction.
-- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. Wrong/Auto/unknown parent on judgment work → **spawn** the correct model.
+- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. **Walkthrough = Luna only** (hard stop if wrong model). Wrong/Auto/unknown parent on other judgment work → **spawn** the correct model.
 - **PowerShell:** no inline `$` — script file in `.scratch/` + `-File` (`workflow.mdc`).
 - Subagents: explicit model, paths not pastes, proof-of-read, `codegraph status` first, terse replies.
+- **CodeGraph on Cloud Agents:** install CLI + `codegraph init` in environment `install` (see `codegraph.mdc` § Cloud Agents; template ships `.cursor/environment.json`).

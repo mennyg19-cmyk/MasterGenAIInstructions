@@ -18,12 +18,13 @@
     },
     "cheap": {
       "label": "Cheap",
-      "slugs": ["cursor-grok-4.5-high-fast", "composer-2.5-fast"],
-      "use_for": "Hotfix, sweeps, long cost-sensitive loops, scripts"
+      "slugs": ["gpt-5.6-luna-medium", "cursor-grok-4.5-high-fast", "composer-2.5-fast"],
+      "use_for": "Walkthrough (Luna only), hotfix, sweeps, long cost-sensitive loops, scripts"
     }
   },
   "roster": [
     {"slug": "composer-2.5-fast", "family": "Composer", "role": "Cheapest; broad sweeps/audits", "tier": "cheap"},
+    {"slug": "gpt-5.6-luna-medium", "family": "GPT Luna", "role": "Codebase walkthrough only (hard-locked); cheap high-context GPT", "tier": "cheap"},
     {"slug": "gpt-5.6-sol-medium", "family": "GPT Sol", "role": "Flagship judgment — hard gates only", "tier": "premier"},
     {"slug": "gpt-5.6-terra-medium", "family": "GPT Terra", "role": "Everyday default (GPT primary family)", "tier": "everyday"},
     {"slug": "gpt-5.2-codex", "family": "GPT/Codex", "role": "Code-focused implementation", "tier": "everyday"},
@@ -34,6 +35,7 @@
   ],
   "jobs": [
     {"job": "UI default / parent chat", "slugs": ["gpt-5.6-terra-medium"], "tier": "everyday", "notes": "Human sets Terra in Cursor UI. Not Auto."},
+    {"job": "Codebase walkthrough", "slugs": ["gpt-5.6-luna-medium"], "tier": "cheap", "notes": "walkthrough-protocol.mdc — Luna ONLY; hard stop if wrong model; do not spawn"},
     {"job": "Implementation (add / fix / refactor)", "slugs": ["gpt-5.6-terra-medium", "claude-4.6-sonnet-medium-thinking", "gpt-5.2-codex"], "tier": "everyday", "notes": "Terra primary; Codex for code-heavy"},
     {"job": "Spec / mini-grill", "slugs": ["gpt-5.6-terra-medium"], "tier": "everyday", "notes": "Full ladder when Spec gate fails hard or user says grill me"},
     {"job": "Full grill / deep plan-review / architecture", "slugs": ["claude-fable-5-thinking-medium", "gpt-5.6-sol-medium"], "tier": "premier", "notes": "Pair when multi-model; Terra OK for single-model grill Qs"},
@@ -68,6 +70,7 @@
     "Spec gate + mini-grill before non-trivial build (workflow.mdc)",
     "Expectation files with observable acceptance (workflow.mdc)",
     "Wrong parent → spawn Task with Job slug (subagents.mdc)",
+    "Walkthrough → hard stop if not Luna (walkthrough-protocol.mdc; no spawn)",
     "Adversarial spot-check on routine review (review-protocol.mdc)",
     "Never silently choose business logic — ask or BLOCKED (workflow.mdc)"
   ]

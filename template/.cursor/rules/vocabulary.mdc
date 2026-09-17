@@ -18,11 +18,12 @@ Definitions are exact. Do not under-scope or over-scope.
 | **"add"** | New feature, follow existing patterns. |
 | **"update" / "enhance"** | Extend an existing feature. |
 | **"run autonomously"** | Read and follow `autonomous-mode.mdc`. |
-| **"review"** | Read and follow `review-protocol.mdc`. |
+| **"review"** | Read and follow `review-protocol.mdc` (ship/correctness gates — not teaching). |
+| **"walkthrough" / "give me a walkthrough" / "walk me through" / "codebase tour" / "teach me this repo" / "full walkthrough"** | Read and follow `walkthrough-protocol.mdc`. **Luna only** — hard stop if wrong model. |
 | **"hotfix" / "production is broken"** | Read and follow `hotfix-protocol.mdc`. Speed over ceremony. |
 | **"hand off" / "save state"** | Read `session-handoff.mdc`; write HANDOFF.md. |
 | **"cleanup"** (codebase) | Read and follow `cleanup-protocol.mdc`. |
-| **"enable walkthroughs"** | Re-enable archived `code-walkthrough.mdc` (was disabled to save tokens). |
+| **"enable walkthroughs"** | Re-enable archived **file-header** `code-walkthrough.mdc` (disabled to save tokens). Different from **codebase walkthrough** above. |
 | **"ponytail lite" / "full" / "ultra"** | Adjust lazy intensity (ponytail is always on at full by default). |
 | **"stop ponytail" / "normal mode"** | Suspend lazy posture until `ponytail` is said again. |
 | **"review for over-engineering" / "ponytail-review"** | `ponytail.mdc` on-demand review section. Complements `review-protocol.mdc`. |
@@ -50,6 +51,7 @@ Read the rule file BEFORE starting the activity -- not from memory:
 - **Working unattended** → `autonomous-mode.mdc` (owns the DECISION-LOG.md format).
 - **Grilling a plan** → `grill-protocol.mdc`.
 - **Underspecified feature ask** → Spec gate in `workflow.mdc`, then mini-grill.
+- **Codebase walkthrough / teach me this repo** → `walkthrough-protocol.mdc` (Luna hard gate).
 - **Reviewing an agent-written plan** → `plan-review.mdc`.
 - **Spawning / model routing / wrong-parent spawn** → `subagents.mdc`.
 - **Long high-stakes session / context rot** → `context-canary.mdc` (on demand).
