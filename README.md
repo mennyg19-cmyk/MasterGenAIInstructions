@@ -189,10 +189,6 @@ Your local Windows CodeGraph install is **invisible** to Cloud Agents. Fix it in
 3. In cloud, prefer **CLI** (`codegraph status`, `explore`, …). MCP is optional.
 4. Full notes: `codegraph.mdc` § Cloud Agents.
 
-**Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
-
-#### Keeping slugs up to date (automation)
-
 **Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
 
 **Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
