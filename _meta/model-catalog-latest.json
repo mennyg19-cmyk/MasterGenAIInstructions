@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-14T19:06:05.818150+00:00",
+  "fetched_at": "2026-09-21T19:08:04.905910+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -299,13 +299,19 @@
     },
     {
       "id": "grok-4.5",
-      "displayName": "Cursor Grok 4.5",
+      "displayName": "Grok 4.5",
       "aliases": [],
       "description": ""
     },
     {
       "id": "grok-4.6",
-      "displayName": "Cursor Grok 4.6",
+      "displayName": "Grok 4.6",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "grok-4.7",
+      "displayName": "Grok 4.7",
       "aliases": [],
       "description": ""
     },
