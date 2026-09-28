@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-21T19:08:04.905910+00:00",
+  "fetched_at": "2026-09-28T20:25:32.881485+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -82,6 +82,17 @@
       "description": ""
     },
     {
+      "id": "claude-opus-5-5",
+      "displayName": "Claude Opus 5.5",
+      "aliases": [
+        "opus-latest",
+        "opus",
+        "opus-5.5",
+        "opus-5-5"
+      ],
+      "description": ""
+    },
+    {
       "id": "claude-sonnet-4",
       "displayName": "Claude Sonnet 4",
       "aliases": [
@@ -118,6 +129,12 @@
         "sonnet-latest",
         "sonnet-5"
       ],
+      "description": ""
+    },
+    {
+      "id": "claude-sonnet-5-5",
+      "displayName": "Claude Sonnet 5.5",
+      "aliases": [],
       "description": ""
     },
     {
@@ -318,10 +335,7 @@
     {
       "id": "kimi-k2.7-code",
       "displayName": "Kimi K2.7 Code",
-      "aliases": [
-        "kimi-latest",
-        "kimi"
-      ],
+      "aliases": [],
       "description": ""
     },
     {
