@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-28T20:25:32.881485+00:00",
+  "fetched_at": "2026-10-05T21:24:35.988179+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -216,6 +216,18 @@
     {
       "id": "glm-5.2",
       "displayName": "GLM 5.2",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "glm-5p3",
+      "displayName": "GLM 5.3",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "glm-5p3-flash",
+      "displayName": "GLM 5.3 Flash",
       "aliases": [],
       "description": ""
     },
