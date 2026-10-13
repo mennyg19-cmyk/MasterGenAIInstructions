@@ -1,0 +1,4 @@
+{
+  "name": "master-genai-instructions",
+  "install": "export PATH=\"$HOME/.local/bin:$PATH\"; command -v codegraph >/dev/null || curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh; export PATH=\"$HOME/.local/bin:$PATH\"; if [ -d .codegraph ]; then codegraph sync || true; else codegraph init || true; fi"
+}

@@ -18,7 +18,7 @@ MasterGenAIInstructions/
 |-- update-all.ps1       # PowerShell: push rule updates to all registered projects
 |-- registry.json        # List of projects using these rules
 |-- template/            # Everything below gets copied into new projects
-|   |-- .cursor/rules/   # 22 Cursor rule files (6 always-on + 1 auto-attach)
+|   |-- .cursor/rules/   # 23 Cursor rule files (6 always-on + 1 auto-attach)
 |   |-- AGENTS.md        # Portable playbook for non-Cursor environments
 |   |-- DECISION-LOG.md  # Template for autonomous decisions
 |   |-- TESTING-STRATEGY.md
@@ -140,41 +140,55 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 | **Everyday** | Spec gate in `workflow.mdc` → mini-grill when underspecified |
 | **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
 
-### Model routing (July 2026 — duel-informed, cost-aware)
+### Model routing (October 2026 — post-OpenAI / Composer orchestrator)
 
-**Standing choice:** UI default stays **GPT Terra** (`gpt-5.6-terra-medium`) until a Terra vs Grok build duel settles Everyday builder. **Do not use Auto.**
+**Standing choice:** Set Cursor's UI default to **Composer 2.5 Standard** (`composer-2.5`). Composer is the **orchestrator** — you talk to it; it **spawns** Job-table models (Grok / Sonnet / Opus) with Task prompt templates. **Do not use Auto** — it silent-routes mid-protocol and breaks Job routing. Prefer **Standard**, not Fast.
 
-**Event models (spend rarely):** Opus for **grill me** + rebuild inventory; Fable for autonomous phase review; Sol for detect/go-live. **Cheap builder:** Grok high for autonomous implement.
+**Why this mix:** OpenAI models in Cursor wind down ~November 2026. **Composer + Grok** sit in the Cursor Models included pool; **Claude Sonnet/Opus** cover second-family and premier judgment without Fable-priced loops. Strong rules (ponytail, Spec gate, expectations, CodeGraph) still do the process work; models do the judgment.
 
 | Tier | Models | When |
 |---|---|---|
-| **Everyday** | Terra, Sonnet, Codex | Day-to-day build, mini-grill, routine review (Terra pending duel vs Grok) |
-| **Premier (event)** | Opus, Fable, Sol | Opus = grill + Phase 0 inventory; Fable = autonomous review / go-live; Sol = detect / trust-boundary |
-| **Cheap** | Grok high, Grok-fast, Composer-fast | Autonomous build (Grok high); hotfix/scripts (fast) |
+| **Cheap / parent** | Composer 2.5 Standard | UI chat, Spec/mini-grill, walkthrough, sweeps, single-file tidy |
+| **Everyday** | Grok 4.7 (implement + Loop A), Sonnet 5.5 (Loop B) | Build + routine dual-family review; Loop C only if large/messy |
+| **Premier** | Opus 5.5 (+ Sonnet/Grok second family) | Production merge, rebuild debate, trust-boundary, go-live |
 
-**What changed (2026-07-27, Tomchei duel):**
+**What changed (2026-10-13):**
 
-1. **Full grill / "grill me"** → Opus 5 only. Wrong parent → **STOP** and tell user to switch (no spawn).
-2. **Rebuild Phase 0 inventory** → Opus exclusively (not Terra+Sonnet).
-3. **Autonomous** → Grok builds; **spawn Fable** for phase review/fix.
-4. Mini-grill (Spec gate) stays Terra.
+1. **UI default → Composer** — parent orchestrates; does not self-run implement/review/premier.
+2. **Everyday implement → Grok 4.7** — Cursor Models pool; spawn from Composer.
+3. **Premier → Opus 5.5** — replaces Sol/Fable defaults; Sonnet is go-live Loop B/C.
+4. **Routine Loop C skipped** unless ~>100 lines, messy, or user asks.
+5. **Walkthrough → Composer Standard** — hard stop if wrong model (`walkthrough-protocol.mdc`).
+6. **Task prompt templates** in `subagents.mdc` — shared header + job blocks for handoffs.
+7. Kept: Spec gate, mini-grill, adversarial spot-check, CodeGraph cloud install, roster automation.
 
 **Job → slug (full table):** synced section in `subagents.mdc` (from `_meta/model-roster.json`). Highlights:
 
 | Job | Slug(s) |
 |---|---|
-| UI default / implement | `gpt-5.6-terra-medium` |
-| Full grill / grill me | `claude-opus-5-thinking-high` (switch gate) |
-| Rebuild codebase inventory | `claude-opus-5-thinking-high` |
-| Autonomous build | `cursor-grok-4.5-high` |
-| Autonomous review | `claude-fable-5-thinking-medium` (spawn) |
-| Routine review A / B / C | Terra / Sonnet / Sonnet |
-| Go-live review A / B / C | Sol / Fable / Fable |
-| Rebuild debate | Sol + Fable |
-| Trust-boundary | Sol (primary) |
+| UI default / parent | `composer-2.5` |
+| Codebase walkthrough | `composer-2.5` **only** (hard stop) |
+| Implement | `cursor-grok-4.7-medium` (spawn) |
+| Routine review A / B / C | Grok / Sonnet / Sonnet (C optional) |
+| Go-live review A / B / C | Opus / Sonnet / Sonnet |
+| Rebuild debate | Opus + Grok |
+| Rebuild area audit | Grok + Sonnet |
+| Trust-boundary | Opus |
+| Redesign proposals | Gemini Flash + Grok + Sonnet |
 | Structure | CodeGraph (not a model) |
 
-**Hardening:** Spec gate, expectation files, verify-in-app, wrong-parent spawn (except grill switch gate), BLOCKED on business logic, adversarial review spot-check.
+**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, Composer→spawn handoff, BLOCKED on business logic, adversarial review spot-check.
+
+#### CodeGraph on Cloud Agents
+
+Your local Windows CodeGraph install is **invisible** to Cloud Agents. Fix it in the **environment**:
+
+1. New projects: template ships `.cursor/environment.json` with `install` that installs the CLI and runs `codegraph init`/`sync`.
+2. Existing cloud apps: copy/merge those install lines into the repo or dashboard environment, then **rebuild / snapshot** so new agents boot with `codegraph` on PATH.
+3. In cloud, prefer **CLI** (`codegraph status`, `explore`, …). MCP is optional.
+4. Full notes: `codegraph.mdc` § Cloud Agents.
+
+**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
 
 **Rollback** of pre-change rules: branch `cursor/backup-pre-model-routing-120f`.
 
@@ -203,7 +217,7 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 5. `.\update-all.ps1 -AutoCommit` — stamps rules into every path in `registry.json`.
 6. After the new mapping feels stable, copy `model-catalog-latest.json` → `model-catalog-snapshot.json` so “what’s new” resets.
 
-**What stays manual (on purpose):** picking which new slug becomes Terra’s replacement, which reviews stay Sol+Fable, UI default in Cursor settings. Auto-remapping those would silently wrong-route protocols.
+**What stays manual (on purpose):** picking Composer/Grok/Sonnet/Opus successors, which gates stay Premier, UI default in Cursor settings. Auto-remapping those would silently wrong-route protocols.
 
 **Catalog sources differ slightly:** Cloud Agents API, CLI `--list-models`, and IDE Task accepted lists are related but not always identical. If Task rejects a slug, treat the returned valid list as ground truth and update JSON.
 
@@ -270,7 +284,8 @@ It copies the template files, replaces placeholders, initializes git, and option
 ### What You Get
 
 A new project directory with:
-- **22 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 15 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1), and [Julius Brussee skills](https://github.com/JuliusBrussee/skills) (Tier 1) — rules only, no extra npm.
+- **23 Cursor rule files** — 6 always-on, 1 auto-attach (`deploy-awareness.mdc`), 16 on demand (see below). Integrates [ponytail](https://github.com/DietrichGebert/ponytail), [unslop](https://github.com/MohamedAbdallah-14/unslop) anti-slop (Tier 1), [codegraph](https://github.com/colbymchenry/codegraph), [babysitter](https://github.com/a5c-ai/babysitter) gate discipline (Tier 1), and [Julius Brussee skills](https://github.com/JuliusBrussee/skills) (Tier 1) — rules only, no extra npm.
+- **`.cursor/environment.json`** (template) — Cloud Agent `install` installs CodeGraph CLI + indexes the project.
 - **`.github/workflows/agent-guardrails.yml`** — optional CI: [gitleaks](https://github.com/gitleaks/gitleaks) + [semgrep](https://github.com/semgrep/semgrep) + [zizmor](https://github.com/zizmor/zizmor). Language-agnostic; tune per project.
 - **AGENTS.md** -- same rules in portable format for Claude Code, Codex, or any AI tool.
 - **DECISION-LOG.md**, **TESTING-STRATEGY.md**, **HANDOFF.md** -- seeded templates ready to use.
@@ -318,11 +333,12 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 |---|---|
 | `deploy-awareness.mdc` | Deploy/env/workflow safety; auto-attaches on deploy-related files |
 
-### Load on Demand (15 files)
+### Load on Demand (16 files)
 
 | File | Trigger |
 |---|---|
 | `review-protocol.mdc` | Phase complete, review, production merge |
+| `walkthrough-protocol.mdc` | "walkthrough" / "walk me through" / "give me a walkthrough" / "codebase tour" — **Composer 2.5 Standard only** |
 | `plan-review.mdc` | "senior review" / "junior to senior" / large agent-written plan |
 | `grill-protocol.mdc` | "grill me" / Spec gate fail / redesign grill / rebuild if user opts in |
 | `autonomous-mode.mdc` | "run autonomously" / decision logging |
@@ -336,7 +352,7 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 | `hotfix-protocol.mdc` | User says "hotfix" or "production is broken" |
 | `cleanup-protocol.mdc` | User says "cleanup" or "clean up the codebase" |
 | `session-handoff.mdc` | End of session or context limit |
-| `code-walkthrough.mdc` | **Disabled** (saves tokens). Say `enable walkthroughs` to restore |
+| `code-walkthrough.mdc` | **Disabled** file-header comments (saves tokens). Say `enable walkthroughs` to restore — different from **codebase walkthrough** |
 
 Conflict playbook (human reference, not auto-loaded): `_meta/RULE-CONFLICTS.md`.
 

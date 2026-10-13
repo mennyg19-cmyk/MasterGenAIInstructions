@@ -106,16 +106,20 @@ def render_tiers_table(data: dict) -> str:
         tier = data["tiers"][key]
         slug_list = ", ".join(f"`{s}`" for s in tier["slugs"])
         lines.append(f"| **{tier['label']}** | {slug_list} | {tier['use_for']} |")
-    gpt_note = (
-        "GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). "
-        "Task currently accepts Sol/Terra at **medium** only. Opus = grill + rebuild inventory (event); Fable = autonomous/go-live review (event)."
+    tier_notes = data.get(
+        "tier_notes",
+        "Prefer Standard / medium — avoid Fast unless latency-blocked.",
     )
-    ui = (
-        f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` ({data['ui_default_label']}). "
-        "GPT is the primary family for Everyday work. Sonnet is the deliberate second family for dual-pass review. "
-        "**Do not use Auto** as the main agent — Auto can silent-route mid-protocol and defeat Job routing."
+    ui_blurb = data.get("ui_default_blurb") or (
+        f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` "
+        f"({data['ui_default_label']}). **Do not use Auto** as the main agent."
     )
-    return "\n".join(lines) + "\n\n" + gpt_note + "\n\n" + ui
+    if not ui_blurb.startswith("**Recommended"):
+        ui_blurb = (
+            f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` "
+            f"({data['ui_default_label']}). {ui_blurb}"
+        )
+    return "\n".join(lines) + "\n\n" + tier_notes + "\n\n" + ui_blurb
 
 
 def render_jobs_table(data: dict) -> str:
@@ -129,14 +133,12 @@ def render_jobs_table(data: dict) -> str:
         else:
             slug_cell = "CodeGraph — not a model contest"
         lines.append(f"| **{job['job']}** | {slug_cell} |")
-    routing = (
-        "**Routing rule:** grill me + rebuild inventory -> Opus (event); "
-        "autonomous build -> Grok, autonomous review -> spawn Fable; "
-        "detect/go-live/trust -> Sol (+ Fable on go-live B); "
-        "everyday build + routine gates -> Terra/Sonnet; "
-        "hotfix/scripts -> Grok-fast; design -> Gemini + Everyday; facts -> CodeGraph. "
-        "Full grill wrong parent -> STOP and ask user to switch (do not spawn)."
+    routing = data.get(
+        "routing_rule",
+        "**Routing rule:** see `_meta/model-roster.json`. Facts → CodeGraph.",
     )
+    if not routing.startswith("**Routing rule:**"):
+        routing = f"**Routing rule:** {routing}"
     return "\n".join(lines) + "\n\n" + routing
 
 
@@ -294,7 +296,6 @@ def fetch_catalog_from_api(api_key: str) -> dict[str, Any]:
         },
         method="GET",
     )
-    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected -- URL is a fixed Cursor API constant; auth via Basic header, not user-controlled URL
     with urllib.request.urlopen(req, timeout=60) as resp:
         payload = json.loads(resp.read().decode())
     items = payload.get("items") or payload.get("models") or []

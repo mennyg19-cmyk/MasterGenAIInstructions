@@ -10,7 +10,7 @@ Adapted from [Julius Brussee / junior-to-senior](https://github.com/JuliusBrusse
 
 **Senior scopes and upgrades; senior does not invent product direction.** Genuine product choices → "Open questions for you."
 
-**Models:** Everyday (Terra or Sonnet) for medium plans. Premier (Sol or Fable; pair when multi-model) for rebuild/architecture/`REBUILD-PLAN` class. Wrong parent → spawn per `subagents.mdc`.
+**Models:** Everyday (Grok or Sonnet) for medium plans — Composer parent spawns. Premier (Opus; + Grok when multi-model) for rebuild/architecture/`REBUILD-PLAN` class. See `subagents.mdc`.
 
 ## Phase 0 — Freeze the artifact
 

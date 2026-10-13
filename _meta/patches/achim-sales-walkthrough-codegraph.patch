@@ -1,0 +1,444 @@
+From 919bace1a50384c1f8549adefc4e3037175abd77 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 17 Sep 2026 06:29:38 +0000
+Subject: [PATCH] Add Luna codebase walkthrough and CodeGraph on Cloud Agents.
+
+Walkthrough protocol is Luna-only with a hard stop on wrong model.
+Brings in Cloud Agent install/run scripts (from pending env setup) and
+indexes CodeGraph during install so cloud walkthroughs can use the CLI.
+---
+ .cursor/environment.json               |  14 +++
+ .cursor/install.sh                     |  47 ++++++++++
+ .cursor/rules/codegraph.mdc            |  19 ++++
+ .cursor/rules/subagents.mdc            |   6 +-
+ .cursor/rules/vocabulary.mdc           |   6 +-
+ .cursor/rules/walkthrough-protocol.mdc | 125 +++++++++++++++++++++++++
+ .cursor/run-dev.sh                     |  34 +++++++
+ .gitignore                             |  13 ++-
+ AGENTS.md                              |   6 +-
+ README.md                              |   1 +
+ 10 files changed, 259 insertions(+), 12 deletions(-)
+ create mode 100644 .cursor/environment.json
+ create mode 100755 .cursor/install.sh
+ create mode 100644 .cursor/rules/walkthrough-protocol.mdc
+ create mode 100755 .cursor/run-dev.sh
+
+diff --git a/.cursor/environment.json b/.cursor/environment.json
+new file mode 100644
+index 0000000..2a007d2
+--- /dev/null
++++ b/.cursor/environment.json
+@@ -0,0 +1,14 @@
++{
++  "name": "D365 Sales Reports",
++  "install": "bash .cursor/install.sh",
++  "terminals": [
++    {
++      "name": "dev-server",
++      "command": "bash .cursor/run-dev.sh",
++      "description": "Full dispatcher on port 5002 with dev auth bypass: / (v3 home), /legacy (OData webapp), /test (v3 sandbox), /test-next (rebuild preview). No D365/Graph credentials needed; sign in via the dev-login page."
++    }
++  ],
++  "ports": [
++    { "name": "web", "port": 5002 }
++  ]
++}
+diff --git a/.cursor/install.sh b/.cursor/install.sh
+new file mode 100755
+index 0000000..2ff8bbd
+--- /dev/null
++++ b/.cursor/install.sh
+@@ -0,0 +1,47 @@
++#!/usr/bin/env bash
++# Cloud Agent environment bootstrap: Python deps (in a venv) + built v3 front-end assets.
++# Idempotent and non-interactive so it can be re-run or used to bake an environment build.
++set -euo pipefail
++
++cd "$(dirname "$0")/.."   # repo root
++
++# 1. Python venv. The stock image ships python3 without the venv module, so make
++#    sure the matching venv package is present before creating .venv.
++if ! python3 -c "import ensurepip" >/dev/null 2>&1; then
++  PY_MINOR="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
++  sudo apt-get update -q
++  sudo apt-get install -y -q "python${PY_MINOR}-venv"
++fi
++
++if [ ! -x .venv/bin/python ]; then
++  python3 -m venv .venv
++fi
++# shellcheck disable=SC1091
++. .venv/bin/activate
++python -m pip install -q --upgrade pip
++pip install -q -r webapp/requirements.txt   # superset: Flask + v3 + azure + gunicorn
++pip install -q -r v3/requirements.txt        # v3-only extras (pinned ranges)
++
++# 2. v3 front-end assets (esbuild). Needed by the home "/" and "/test" mounts.
++if ! command -v npm >/dev/null 2>&1; then
++  # Load nvm-managed node when npm is not already on PATH.
++  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
++  # shellcheck disable=SC1091
++  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
++fi
++( cd v3 && npm install --no-audit --no-fund && npm run build )
++
++
++# 3. CodeGraph CLI + project index (structural lookup for agents / walkthroughs)
++export PATH="$HOME/.local/bin:$PATH"
++if ! command -v codegraph >/dev/null 2>&1; then
++  curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
++  export PATH="$HOME/.local/bin:$PATH"
++fi
++if [ -d .codegraph ]; then
++  codegraph sync || true
++else
++  codegraph init || true
++fi
++
++echo "install.sh: environment ready"
+diff --git a/.cursor/rules/codegraph.mdc b/.cursor/rules/codegraph.mdc
+index 4b9d20b..d49f8c1 100644
+--- a/.cursor/rules/codegraph.mdc
++++ b/.cursor/rules/codegraph.mdc
+@@ -35,6 +35,25 @@ Violating this rule wastes tokens and misses cross-file facts. If you already gr
+ 
+ Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync`. If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
+ 
++## Cloud Agents (install CodeGraph in the environment)
++
++Cloud Agents do **not** inherit your local Windows `codegraph` install. Put CLI + index into the **environment bootstrap**:
++
++1. In the app repo (or team environment), set `install` in `.cursor/environment.json` (or the dashboard environment) to install the CLI and index the project, e.g.:
++
++```bash
++# Idempotent-ish bootstrap fragment for Linux cloud VMs
++export PATH="$HOME/.local/bin:$PATH"
++command -v codegraph >/dev/null || curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
++export PATH="$HOME/.local/bin:$PATH"
++if [ -d .codegraph ]; then codegraph sync || true; else codegraph init || true; fi
++```
++
++2. Prefer baking the CLI into an **environment build/snapshot** so every new agent boots with `codegraph` on PATH.
++3. **MCP is optional in cloud** — use shell CLI (`codegraph status`, `explore`, `query`, …). Same graph as MCP.
++4. Template ships `template/.cursor/environment.json` with this pattern for new projects. Existing cloud apps: add the same `install` lines (or merge into your current install script), then rebuild/snapshot the environment.
++5. Without CLI: agents fall back to Read (worse for walkthroughs/rebuilds). Fix the environment — don’t pretend the graph exists.
++
+ ## Surface selection (MCP or CLI)
+ 
+ | Situation | Use |
+diff --git a/.cursor/rules/subagents.mdc b/.cursor/rules/subagents.mdc
+index 91b7483..bbd9779 100644
+--- a/.cursor/rules/subagents.mdc
++++ b/.cursor/rules/subagents.mdc
+@@ -45,6 +45,7 @@ Review/audit subagents: same rule -- try codegraph on the phase diff's symbols f
+ | Slug | Family / role |
+ |---|---|
+ | `composer-2.5-fast` | Composer (Cheapest; broad sweeps/audits) |
++| `gpt-5.6-luna-medium` | GPT Luna (Codebase walkthrough only (hard-locked); cheap high-context GPT) |
+ | `gpt-5.6-sol-medium` | GPT Sol (Flagship judgment — hard gates only) |
+ | `gpt-5.6-terra-medium` | GPT Terra (Everyday default (GPT primary family)) |
+ | `gpt-5.2-codex` | GPT/Codex (Code-focused implementation) |
+@@ -63,7 +64,7 @@ Families: **Composer, GPT, Codex, Gemini, Grok, Claude (Sonnet+Fable)**. "Use mo
+ |---|---|---|
+ | **Premier** | `gpt-5.6-sol-medium`, `claude-fable-5-thinking-medium` | Production merge, rebuild architecture/debate, trust-boundary, go-live parity |
+ | **Everyday** | `gpt-5.6-terra-medium`, `claude-4.6-sonnet-medium-thinking`, `gpt-5.2-codex` | Default build, mini-grill, routine phase review, plan-review of medium plans |
+-| **Cheap** | `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Hotfix, sweeps, long cost-sensitive loops, scripts |
++| **Cheap** | `gpt-5.6-luna-medium`, `cursor-grok-4.5-high-fast`, `composer-2.5-fast` | Walkthrough (Luna only), hotfix, sweeps, long cost-sensitive loops, scripts |
+ 
+ GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**.
+ 
+@@ -85,12 +86,15 @@ Protocols name a **required job/tier**. The parent must not run that job itself
+ 
+ **Yes, this is possible** in Cursor: Task subagents accept an explicit `model`. That is how wrong-parent correction works.
+ 
++**Hard-stop exception:** `walkthrough-protocol.mdc` does **not** spawn. Wrong model → stop and tell the user to switch to Luna.
++
+ ## Default picks (Rule Preference)
+ 
+ <!-- MODEL_JOBS:BEGIN -->
+ | Job | Slug(s) |
+ |---|---|
+ | **UI default / parent chat** | `gpt-5.6-terra-medium` |
++| **Codebase walkthrough** | `gpt-5.6-luna-medium` |
+ | **Implementation (add / fix / refactor)** | `gpt-5.6-terra-medium`; `claude-4.6-sonnet-medium-thinking`; `gpt-5.2-codex` |
+ | **Spec / mini-grill** | `gpt-5.6-terra-medium` |
+ | **Full grill / deep plan-review / architecture** | `claude-fable-5-thinking-medium`; `gpt-5.6-sol-medium` |
+diff --git a/.cursor/rules/vocabulary.mdc b/.cursor/rules/vocabulary.mdc
+index e102c74..645e868 100644
+--- a/.cursor/rules/vocabulary.mdc
++++ b/.cursor/rules/vocabulary.mdc
+@@ -18,11 +18,12 @@ Definitions are exact. Do not under-scope or over-scope.
+ | **"add"** | New feature, follow existing patterns. |
+ | **"update" / "enhance"** | Extend an existing feature. |
+ | **"run autonomously"** | Read and follow `autonomous-mode.mdc`. |
+-| **"review"** | Read and follow `review-protocol.mdc`. |
++| **"review"** | Read and follow `review-protocol.mdc` (ship/correctness gates — not teaching). |
++| **"walkthrough" / "give me a walkthrough" / "walk me through" / "codebase tour" / "teach me this repo" / "full walkthrough"** | Read and follow `walkthrough-protocol.mdc`. **Luna only** — hard stop if wrong model. |
+ | **"hotfix" / "production is broken"** | Read and follow `hotfix-protocol.mdc`. Speed over ceremony. |
+ | **"hand off" / "save state"** | Read `session-handoff.mdc`; write HANDOFF.md. |
+ | **"cleanup"** (codebase) | Read and follow `cleanup-protocol.mdc`. |
+-| **"enable walkthroughs"** | Re-enable archived `code-walkthrough.mdc` (was disabled to save tokens). |
++| **"enable walkthroughs"** | Re-enable archived **file-header** `code-walkthrough.mdc` (disabled to save tokens). Different from **codebase walkthrough** above. |
+ | **"ponytail lite" / "full" / "ultra"** | Adjust lazy intensity (ponytail is always on at full by default). |
+ | **"stop ponytail" / "normal mode"** | Suspend lazy posture until `ponytail` is said again. |
+ | **"review for over-engineering" / "ponytail-review"** | `ponytail.mdc` on-demand review section. Complements `review-protocol.mdc`. |
+@@ -50,6 +51,7 @@ Read the rule file BEFORE starting the activity -- not from memory:
+ - **Working unattended** → `autonomous-mode.mdc` (owns the DECISION-LOG.md format).
+ - **Grilling a plan** → `grill-protocol.mdc`.
+ - **Underspecified feature ask** → Spec gate in `workflow.mdc`, then mini-grill.
++- **Codebase walkthrough / teach me this repo** → `walkthrough-protocol.mdc` (Luna hard gate).
+ - **Reviewing an agent-written plan** → `plan-review.mdc`.
+ - **Spawning / model routing / wrong-parent spawn** → `subagents.mdc`.
+ - **Long high-stakes session / context rot** → `context-canary.mdc` (on demand).
+diff --git a/.cursor/rules/walkthrough-protocol.mdc b/.cursor/rules/walkthrough-protocol.mdc
+new file mode 100644
+index 0000000..3f99d24
+--- /dev/null
++++ b/.cursor/rules/walkthrough-protocol.mdc
+@@ -0,0 +1,125 @@
++---
++description: Interactive codebase walkthrough — Luna only, chapter-by-chapter teaching with understanding checks. Read when user says walkthrough, walk me through, give me a walkthrough, codebase tour, teach me this repo.
++---
++
++# Codebase Walkthrough Protocol
++
++**Not** `review-protocol.mdc` (ship/correctness gates). **Not** archived file-header walkthroughs (`code-walkthrough.mdc`).
++
++This protocol **teaches** how the app works, top-down, with real snippets and understanding checks. Audience: technical enough to read code, not expected to write it from scratch. Plain English (`workflow.mdc`). No baby talk, no lecture padding.
++
++## Model lock (hard stop — no exceptions)
++
++**Required parent model:** GPT-5.6 **Luna** only (Standard — not Fast, not Auto, not Terra/Sol/Sonnet/Fable/Composer).
++
++Preferred slug: `gpt-5.6-luna-medium` (or the picker label **GPT-5.6 Luna** / Luna Standard).
++
++### Gate (run before any tour content)
++
++1. Detect parent model when possible (run metadata, user statement, cloud `run-info`).
++2. If model is **not** Luna (including Auto, unknown, Terra, Composer, Fast variants, Premier):
++   - **STOP.** Do not tour. Do not spawn a substitute. Do not “start anyway.”
++   - Reply with exactly this shape (fill the picker name for their UI):
++
++```text
++You are using the wrong model for a codebase walkthrough.
++
++Switch this Cloud Agent / chat model to: GPT-5.6 Luna (Standard — not Fast, not Auto).
++Then say "walkthrough" (or "continue walkthrough") again.
++
++Why: walkthroughs are long, interactive, and must stay on the cheap high-context Luna slot. Other models burn budget or skip the teaching style this protocol requires.
++```
++
++3. If detection fails → ask once: “Confirm you are on **GPT-5.6 Luna** (yes/no).” No → same stop message. Yes → proceed and record `Model: gpt-5.6-luna-medium` / `Runner: parent` in the progress file.
++
++**Exception to `subagents.mdc` wrong-parent→spawn:** this protocol **hard-stops**; it does not spawn Luna for you.
++
++## Triggers (vocabulary)
++
++Any of: **walkthrough**, **give me a walkthrough**, **walk me through**, **codebase tour**, **teach me this repo**, **teach me this codebase**, **full walkthrough**.
++
++- **Full walkthrough** = every area/chapter until done (still one chapter per turn).
++- Scoped: “walk me through auth” = that area only, same rules.
++
++## Before chapter 1
++
++1. Pass model gate.
++2. `codegraph status` (CLI). If missing CLI/index → install/init if possible (`codegraph.mdc` + cloud install notes); else say you’ll use Read/path maps and quality will be lower.
++3. Build a **chapter map** (routes, major folders, entrypoints). Prefer CodeGraph (`files` / `explore`). Write to `.scratch/codebase-tour.md`:
++
++```
++model: gpt-5.6-luna-medium
++depth: overview | standard | full
++chapters:
++  - id: C1
++    title: ...
++    status: pending | current | done
++current: C1
++smells: []
++```
++
++4. Show the map (numbered). Ask: start at C1, pick a chapter, or set depth (`overview` / `standard` / **`full`** = every function in each area).
++5. Wait for the user’s answer before teaching.
++
++## Chapter turn shape (mandatory)
++
++One chapter (or one major function chain) per reply. Then **stop and wait**.
++
++```text
++## Chapter N: <title>
++**Job of this area:** one sentence.
++
++**How it connects:** link to prior chapters / user-visible flow.
++
++### Snippet
++(cite real code with ```startLine:endLine:path — small, focused)
++
++**What to notice:** plain English; assume they can read the snippet.
++
++### Call chain (full depth)
++Top → down: who calls whom; open the next snippet only for the hot path.
++
++### Smell flags (this chapter)
++- `duplicate:` / `dead:` / `confusing:` / `extract?` — or `none`
++
++### Check (answer before we continue)
++1. …
++2. … (optional second)
++
++Reply with your answers (or "got it — next") when ready.
++```
++
++### Teaching rules
++
++- Snippets from **real files** only. Never invent code. Prefer CodeGraph + Read.
++- Explain connections and “when a user does X, this runs.” Don’t recite syntax they can see.
++- **Full** depth: walk functions in that area from entrypoints down; don’t sample.
++- **Standard:** main paths + important helpers. **Overview:** map + one key snippet per area.
++- Questions are adult checks (“Where would a failed login surface?”), not quizzes for kids.
++- Wrong / vague answer → reteach that piece with another snippet; don’t advance the chapter.
++- “Got it — next” is enough when they clearly followed; still offer one optional check on hard chapters.
++- Accumulate smells in `.scratch/codebase-tour.md`; don’t stop the tour to refactor unless they ask.
++- Skip dumping secrets / `.env` values; name where auth/config lives.
++- No drive-by edits during walkthrough unless they explicitly ask to fix a smell.
++
++## Pause / resume
++
++- Progress lives in `.scratch/codebase-tour.md`.
++- “Continue walkthrough” / “next” → load progress, model gate again, resume `current`.
++- Session start mid-tour: read progress file before re-mapping from scratch.
++
++## End deliverable
++
++When all chapters are `done` (or user stops):
++
++1. Short “how this app works” summary (bullets).
++2. Smell ledger path + top smells.
++3. Optional next step: “Want to turn smells into a tidy/refactor pass?” — don’t start it unprompted.
++
++## Anti-collision
++
++| Phrase | Protocol |
++|---|---|
++| walkthrough / walk me through / give me a walkthrough / codebase tour | **This file** |
++| review / phase review / production merge / security review | `review-protocol.mdc` |
++| enable walkthroughs (file headers) | Archived `code-walkthrough.mdc` — different feature |
+diff --git a/.cursor/run-dev.sh b/.cursor/run-dev.sh
+new file mode 100755
+index 0000000..f81c315
+--- /dev/null
++++ b/.cursor/run-dev.sh
+@@ -0,0 +1,34 @@
++#!/usr/bin/env bash
++# Run the full D365 Sales Reports dispatcher locally with dev auth bypass.
++# Serves: / (v3 beta home), /legacy (OData webapp), /test (v3 SQL sandbox),
++# /test-next (rebuild preview). No D365/Graph credentials are required; data
++# calls degrade gracefully and the UI still renders.
++set -u
++
++cd "$(dirname "$0")/.."   # repo root
++# shellcheck disable=SC1091
++. .venv/bin/activate
++
++# Dev signing secret: generated per boot so nothing secret is committed, and it
++# satisfies the >=16 char rule the v3/rebuild configs enforce.
++export FLASK_SECRET="${FLASK_SECRET:-$(python -c 'import secrets; print(secrets.token_hex(24))')}"
++export FLASK_SECRET_KEY="${FLASK_SECRET_KEY:-$FLASK_SECRET}"
++
++# Legacy webapp (/legacy)
++export DEV_BYPASS_AUTH=1
++
++# v3 home (/) + /test sandbox
++export APP_ENV=dev
++export AUTH_MODE=dev
++export BETA_MOUNT_ENABLED=1
++export V3_MOUNT_ENABLED=1
++
++# rebuild preview (/test-next)
++export REBUILD_MOUNT_ENABLED=1
++export REBUILD_APP_ENV=dev
++export REBUILD_AUTH_MODE=dev
++
++export PORT="${PORT:-5002}"
++
++exec gunicorn --bind=0.0.0.0:"${PORT}" --workers=1 --worker-class=gthread \
++  --threads=8 --timeout=230 --access-logfile=- --error-logfile=- wsgi:application
+diff --git a/.gitignore b/.gitignore
+index b96aa06..bdb4f31 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,10 +2,6 @@
+ *.db
+ *.db-shm
+ *.db-wal
+-*.sqlite
+-*.sqlite-shm
+-*.sqlite-wal
+-app/data/
+ __pycache__/
+ .pytest_cache/
+ _report_output/
+@@ -15,6 +11,9 @@ _history_backup/
+ *.xlsx
+ .cursor/*
+ !.cursor/rules/
++!.cursor/environment.json
++!.cursor/install.sh
++!.cursor/run-dev.sh
+ 
+ *.log
+ logs/*.err
+@@ -42,7 +41,7 @@ test/data/fixtures/*.csv
+ # Rebuild app local databases (never committed)
+ .rebuild-data/
+ rebuild/.rebuild-data/
+-app/.venv/
+ 
+-# CI-vendored Azure site-packages (workflow writes this)
+-/deps/
++# Local Python virtualenv and v3 local DB / runtime state
++.venv/
++.data/
+diff --git a/AGENTS.md b/AGENTS.md
+index d7b4624..ae636e6 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -7,7 +7,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
+ 1. **Ponytail (always on, full)** -- `ponytail.mdc`: ladder, anti-bloat, terse routine chat, **anti-slop always on** (no CLI).
+ 2. **CodeGraph (always on when indexed)** -- `codegraph.mdc`: deterministic structural index via MCP **or CLI**; hybrid with Read/grep.
+ 3. **Discipline** -- `workflow.mdc`, `clean-code.mdc`, `git-discipline.mdc`, `vocabulary.mdc` (+ `deploy-awareness.mdc` auto-attached on deploy/env/workflow files).
+-4. **Protocols (on demand)** -- rebuild, redesign, review, grill, plan-review, testing, autonomous, subagents, interface-kit, prose-deslop, context-canary.
++4. **Protocols (on demand)** -- rebuild, redesign, review, walkthrough, grill, plan-review, testing, autonomous, subagents, interface-kit, prose-deslop, context-canary.
+ 5. **README § Rule Preferences** -- standing choices when rules disagree.
+ 
+ ## Read-Before-Acting Index
+@@ -18,6 +18,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
+ | Structural code questions | `codegraph.mdc` (MCP or CLI before grep-for-symbol) |
+ | Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
+ | Grill / stress-test a plan | `grill-protocol.mdc` |
++| Codebase walkthrough (Luna only) | `walkthrough-protocol.mdc` |
+ | Senior review of a plan | `plan-review.mdc` |
+ | Context rot / long session | `context-canary.mdc` (on demand) |
+ | UI implementation (direction chosen) | `interface-kit.mdc` |
+@@ -42,6 +43,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
+ - **No structural Grep:** when index is healthy, Grep/SemanticSearch for symbols, callers, or layout is forbidden (`codegraph.mdc`).
+ - Gate discipline + command output discipline (`workflow.mdc`); ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
+ - **Spec gate** before non-trivial build (`workflow.mdc`) — underspecified → mini-grill, don't invent product direction.
+-- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. Wrong/Auto/unknown parent on judgment work → **spawn** the correct model.
++- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. **Walkthrough = Luna only** (hard stop if wrong model). Wrong/Auto/unknown parent on other judgment work → **spawn** the correct model.
+ - **PowerShell:** no inline `$` — script file in `.scratch/` + `-File` (`workflow.mdc`).
+ - Subagents: explicit model, paths not pastes, proof-of-read, `codegraph status` first, terse replies.
++- **CodeGraph on Cloud Agents:** install CLI + `codegraph init` in environment `install` (see `codegraph.mdc` § Cloud Agents; template ships `.cursor/environment.json`).
+diff --git a/README.md b/README.md
+index 0acd047..92558e4 100644
+--- a/README.md
++++ b/README.md
+@@ -303,6 +303,7 @@ Standing choices when rules disagree (also used by agents):
+ | After a requested product change | **Commit + push to `main`** (or merge a PR into `main`). Only `main` auto-deploys. Use `.\deploy.ps1` only when that Action cannot run. Do not leave finished UI/app changes sitting uncommitted/undeployed. |
+ | Home site rebuild (`app/`) | **Parked on `cursor/fastapi-rebuild-parked-0a24` (tag `fastapi-rebuild-parked-2026-09-16`).** Production `main` is Flask until Menny cuts over again. Do not merge leftover Flask PR #35 onto the FastAPI branch. |
+ | Rebuild review models until cutover | **Cheap/Everyday only (Grok, Composer, Terra).** Do not spawn Fable or Sol until Menny asks for go-live / whole-app premier loops. User override of `review-protocol.mdc` premier table for this rebuild. |
++| Codebase walkthrough | **`walkthrough-protocol.mdc`**, GPT **Luna only** (hard stop if wrong model). Triggers: walkthrough / walk me through / give me a walkthrough / codebase tour. Not the same as `review`. |
+ | Follow-up on an open PR | **Same agent → same branch / same PR.** Do not open a new Cloud Agent branch and PR for the next small ask. Stack it on this agent's last open PR so it can merge together. **Two agents at once → two PRs** (do not share a branch). Details in `git-discipline.mdc`. |
+ | Unrelated dirty tree | Stage only the files for this change; leave parity/scratch/other WIP alone. |
+ 
+-- 
+2.43.0
+

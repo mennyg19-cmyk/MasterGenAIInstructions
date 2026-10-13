@@ -35,6 +35,25 @@ Violating this rule wastes tokens and misses cross-file facts. If you already gr
 
 Requires: `codegraph install` (MCP wiring, auto on bootstrap/apply/update-all) + per-project `codegraph init`/`sync`. If `.codegraph/` missing and CLI is available, **run `codegraph init` yourself** -- don't only ask.
 
+## Cloud Agents (install CodeGraph in the environment)
+
+Cloud Agents do **not** inherit your local Windows `codegraph` install. Put CLI + index into the **environment bootstrap**:
+
+1. In the app repo (or team environment), set `install` in `.cursor/environment.json` (or the dashboard environment) to install the CLI and index the project, e.g.:
+
+```bash
+# Idempotent-ish bootstrap fragment for Linux cloud VMs
+export PATH="$HOME/.local/bin:$PATH"
+command -v codegraph >/dev/null || curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+if [ -d .codegraph ]; then codegraph sync || true; else codegraph init || true; fi
+```
+
+2. Prefer baking the CLI into an **environment build/snapshot** so every new agent boots with `codegraph` on PATH.
+3. **MCP is optional in cloud** — use shell CLI (`codegraph status`, `explore`, `query`, …). Same graph as MCP.
+4. Template ships `template/.cursor/environment.json` with this pattern for new projects. Existing cloud apps: add the same `install` lines (or merge into your current install script), then rebuild/snapshot the environment.
+5. Without CLI: agents fall back to Read (worse for walkthroughs/rebuilds). Fix the environment — don’t pretend the graph exists.
+
 ## Surface selection (MCP or CLI)
 
 | Situation | Use |

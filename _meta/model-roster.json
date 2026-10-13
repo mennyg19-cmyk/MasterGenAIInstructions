@@ -1,82 +1,79 @@
 {
-  "version": "2026-07-27",
-  "updated": "2026-07-27",
-  "ui_default_slug": "gpt-5.6-terra-medium",
-  "ui_default_label": "GPT Terra",
+  "version": "2026-10-13",
+  "updated": "2026-10-13",
+  "ui_default_slug": "composer-2.5",
+  "ui_default_label": "Composer 2.5",
+  "ui_default_blurb": "Composer 2.5 Standard is the orchestrator parent: you talk to Composer; it spawns Job-table models for build/review/premier work. Prefer Standard (not Fast). Do not use Auto — Auto silent-routes mid-protocol and defeats Job routing.",
+  "tier_notes": "Premier = Claude Opus 5.5 (hard gates). Everyday implement/review A = Grok 4.7. Second family = Claude Sonnet 5.5. Cheap = Composer (parent/walkthrough/sweeps). Prefer Standard / medium — avoid Fast unless latency-blocked. OpenAI (Terra/Sol/Luna) removed from defaults after Cursor OpenAI wind-down (~Nov 2026); BYOK local only if you still want GPT.",
+  "routing_rule": "Parent = Composer orchestrator → spawn Job slugs. Hard-to-reverse judgment → Premier (Opus). Everyday build + routine Loop A → Grok 4.7; Loop B → Sonnet. Routine Loop C skipped unless large/messy diff. Cheap/wide/walkthrough → Composer. Design competition → Gemini Flash + Grok + Sonnet. Facts → CodeGraph. Harden with Spec gate + expectation checklists.",
   "avoid_ui": ["auto"],
   "rollback_branch": "cursor/backup-pre-model-routing-120f",
-  "evidence": "Tomchei model_duel 2026-07-20 + MenEZmanim v1 — Opus best inventory/grill; Grok best $/build; Fable best affordable post-build critique; Sol best detect-heavy",
   "tiers": {
     "premier": {
       "label": "Premier",
-      "slugs": ["gpt-5.6-sol-medium", "claude-fable-5-thinking-medium", "claude-opus-5-thinking-high"],
-      "use_for": "Opus for grill + rebuild inventory; Fable for autonomous review; Sol for detect/go-live; rare hard gates"
+      "slugs": ["claude-opus-5-5-medium"],
+      "use_for": "Production merge, rebuild architecture/debate, trust-boundary, go-live parity"
     },
     "everyday": {
       "label": "Everyday",
-      "slugs": ["gpt-5.6-terra-medium", "claude-4.6-sonnet-medium-thinking", "gpt-5.2-codex"],
-      "use_for": "Default build, mini-grill, routine phase review (Terra pending duel vs Grok)"
+      "slugs": ["cursor-grok-4.7-medium", "claude-sonnet-5-5-medium"],
+      "use_for": "Implementation (spawn), mini-grill support, routine phase review Loop A/B, plan-review of medium plans"
     },
     "cheap": {
       "label": "Cheap",
-      "slugs": ["cursor-grok-4.5-high", "cursor-grok-4.5-high-fast", "composer-2.5-fast"],
-      "use_for": "Autonomous build (Grok high), hotfix/scripts (Grok-fast), sweeps"
+      "slugs": ["composer-2.5", "composer-2.5-fast"],
+      "use_for": "UI parent/orchestrator, walkthrough (Composer Standard hard-lock), sweeps, scripts, single-file tidy"
     }
   },
   "roster": [
-    {"slug": "composer-2.5-fast", "family": "Composer", "role": "Cheapest; broad sweeps/audits", "tier": "cheap"},
-    {"slug": "gpt-5.6-sol-medium", "family": "GPT Sol", "role": "Flagship judgment — detect/go-live/trust-boundary", "tier": "premier"},
-    {"slug": "gpt-5.6-terra-medium", "family": "GPT Terra", "role": "Everyday default (pending Terra vs Grok build duel)", "tier": "everyday"},
-    {"slug": "gpt-5.2-codex", "family": "GPT/Codex", "role": "Code-focused implementation", "tier": "everyday"},
-    {"slug": "gemini-3.1-pro", "family": "Gemini", "role": "Design/UX eye", "tier": "everyday"},
-    {"slug": "cursor-grok-4.5-high", "family": "Grok", "role": "Autonomous / long cost-sensitive builder", "tier": "cheap"},
-    {"slug": "cursor-grok-4.5-high-fast", "family": "Grok", "role": "Hotfix, sweeps, scripts", "tier": "cheap"},
-    {"slug": "claude-4.6-sonnet-medium-thinking", "family": "Claude Sonnet", "role": "Everyday Claude + routine Loop B/C", "tier": "everyday"},
-    {"slug": "claude-fable-5-thinking-medium", "family": "Claude Fable", "role": "Autonomous review + go-live critique (event model)", "tier": "premier"},
-    {"slug": "claude-opus-5-thinking-high", "family": "Claude Opus", "role": "Full grill + rebuild codebase inventory (event model)", "tier": "premier"}
+    {"slug": "composer-2.5", "family": "Composer", "role": "UI default orchestrator + walkthrough (Standard); hands off to Job table", "tier": "cheap"},
+    {"slug": "composer-2.5-fast", "family": "Composer", "role": "Optional fast sweeps only — not UI default", "tier": "cheap"},
+    {"slug": "cursor-grok-4.7-medium", "family": "Grok", "role": "Everyday implement + routine Loop A (Cursor Models pool)", "tier": "everyday"},
+    {"slug": "claude-sonnet-5-5-medium", "family": "Claude Sonnet", "role": "Second family — routine Loop B; optional Loop C; redesign", "tier": "everyday"},
+    {"slug": "claude-opus-5-5-medium", "family": "Claude Opus", "role": "Premier judgment — go-live, trust-boundary, rebuild debate", "tier": "premier"},
+    {"slug": "gemini-3.8-flash-medium", "family": "Gemini", "role": "Design/UX proposal eye (cheap Flash)", "tier": "everyday"}
   ],
   "jobs": [
-    {"job": "UI default / parent chat", "slugs": ["gpt-5.6-terra-medium"], "tier": "everyday", "notes": "Human sets Terra in Cursor UI. Not Auto. Pending Terra vs Grok builder duel."},
-    {"job": "Implementation (add / fix / refactor)", "slugs": ["gpt-5.6-terra-medium", "claude-4.6-sonnet-medium-thinking", "gpt-5.2-codex"], "tier": "everyday", "notes": "Terra primary until builder duel settles"},
-    {"job": "Spec / mini-grill", "slugs": ["gpt-5.6-terra-medium"], "tier": "everyday", "notes": "Short Spec-gate clarifying Qs only — not full grill me"},
-    {"job": "Full grill / grill me", "slugs": ["claude-opus-5-thinking-high"], "tier": "premier", "notes": "Parent MUST be Opus. Wrong parent → STOP and tell user to switch UI to Opus before grilling. Do not spawn grill."},
-    {"job": "Deep plan-review / architecture", "slugs": ["claude-fable-5-thinking-medium", "gpt-5.6-sol-medium"], "tier": "premier", "notes": "plan-review.mdc — not the grill-me path"},
-    {"job": "Routine phase review Loop A", "slugs": ["gpt-5.6-terra-medium"], "tier": "everyday", "notes": "review-protocol.mdc"},
-    {"job": "Routine phase review Loop B", "slugs": ["claude-4.6-sonnet-medium-thinking"], "tier": "everyday", "notes": "Second family — not Premier"},
-    {"job": "Routine phase review Loop C", "slugs": ["claude-4.6-sonnet-medium-thinking"], "tier": "everyday", "notes": "Craft pass after B clean"},
-    {"job": "Production merge / go-live Loop A", "slugs": ["gpt-5.6-sol-medium"], "tier": "premier", "notes": "review-protocol.mdc go-live tier"},
-    {"job": "Production merge / go-live Loop B", "slugs": ["claude-fable-5-thinking-medium"], "tier": "premier", "notes": "review-protocol.mdc go-live tier"},
-    {"job": "Production merge / go-live Loop C", "slugs": ["claude-fable-5-thinking-medium"], "tier": "premier", "notes": "review-protocol.mdc go-live tier"},
-    {"job": "Trust-boundary / security", "slugs": ["gpt-5.6-sol-medium", "claude-fable-5-thinking-medium"], "tier": "premier", "notes": "Sol primary (detection); never Composer/Luna/Auto alone"},
-    {"job": "Rebuild premier pair / debate", "slugs": ["claude-fable-5-thinking-medium", "gpt-5.6-sol-medium"], "tier": "premier", "notes": "rebuild-protocol.mdc Phase 3"},
-    {"job": "Rebuild codebase inventory (Phase 0)", "slugs": ["claude-opus-5-thinking-high"], "tier": "premier", "notes": "Opus exclusively — not Terra+Sonnet dual. Spawn Opus; do not dual-family inventory."},
-    {"job": "Hotfix", "slugs": ["cursor-grok-4.5-high-fast", "gpt-5.6-terra-medium", "claude-4.6-sonnet-medium-thinking"], "tier": "cheap", "notes": "Auth/money → spawn Sol correctness pass"},
-    {"job": "Broad / cheap inventory sweep", "slugs": ["composer-2.5-fast", "cursor-grok-4.5-high-fast"], "tier": "cheap", "notes": "Sweep only — not rebuild Phase 0 inventory"},
-    {"job": "Long autonomous / cost-sensitive", "slugs": ["cursor-grok-4.5-high"], "tier": "cheap", "notes": "Grok builds. Phase/self review → spawn Fable. Wrong parent → spawn Grok for implement."},
-    {"job": "Autonomous review / post-build critique", "slugs": ["claude-fable-5-thinking-medium"], "tier": "premier", "notes": "Always spawn Fable; never leave Grok to self-review alone on phase gates"},
-    {"job": "Redesign proposals (default)", "slugs": ["gemini-3.1-pro", "gpt-5.6-terra-medium", "cursor-grok-4.5-high-fast"], "tier": "everyday", "notes": "Add Fable/Sol when user wants more options"},
-    {"job": "UI polish (after direction chosen)", "slugs": ["gpt-5.6-terra-medium", "gemini-3.1-pro"], "tier": "everyday", "notes": "interface-kit.mdc after direction locked"},
-    {"job": "Shell / deploy / scripts", "slugs": ["cursor-grok-4.5-high-fast", "gpt-5.2-codex"], "tier": "cheap", "notes": "Grok-fast or Codex"},
+    {"job": "UI default / parent chat", "slugs": ["composer-2.5"], "tier": "cheap", "notes": "Human sets Composer 2.5 Standard in Cursor UI. Orchestrator — spawn for Job work. Not Auto, not Fast."},
+    {"job": "Codebase walkthrough", "slugs": ["composer-2.5"], "tier": "cheap", "notes": "walkthrough-protocol.mdc — Composer Standard ONLY; hard stop if wrong model; do not spawn"},
+    {"job": "Implementation (add / fix / refactor)", "slugs": ["cursor-grok-4.7-medium", "claude-sonnet-5-5-medium"], "tier": "everyday", "notes": "Composer parent spawns Grok; Sonnet if Claude voice preferred. Composer may self-run single-file tidy only."},
+    {"job": "Spec / mini-grill", "slugs": ["composer-2.5"], "tier": "cheap", "notes": "Conversational — stays on parent Composer. Full grill/architecture → spawn Premier/Sonnet."},
+    {"job": "Full grill / deep plan-review / architecture", "slugs": ["claude-opus-5-5-medium", "claude-sonnet-5-5-medium"], "tier": "premier", "notes": "Opus for deep; Sonnet OK for medium plan-review"},
+    {"job": "Routine phase review Loop A", "slugs": ["cursor-grok-4.7-medium"], "tier": "everyday", "notes": "review-protocol.mdc — spawn from Composer"},
+    {"job": "Routine phase review Loop B", "slugs": ["claude-sonnet-5-5-medium"], "tier": "everyday", "notes": "Second family — not Opus"},
+    {"job": "Routine phase review Loop C", "slugs": ["claude-sonnet-5-5-medium"], "tier": "everyday", "notes": "SKIP by default; run only if phase diff roughly >100 lines, messy, or user asks"},
+    {"job": "Production merge / go-live Loop A", "slugs": ["claude-opus-5-5-medium"], "tier": "premier", "notes": "review-protocol.mdc go-live tier"},
+    {"job": "Production merge / go-live Loop B", "slugs": ["claude-sonnet-5-5-medium"], "tier": "premier", "notes": "Second family at go-live (not a second Opus)"},
+    {"job": "Production merge / go-live Loop C", "slugs": ["claude-sonnet-5-5-medium"], "tier": "premier", "notes": "Quality pass after B clean"},
+    {"job": "Trust-boundary / security", "slugs": ["claude-opus-5-5-medium"], "tier": "premier", "notes": "Never Composer/Grok/Auto alone"},
+    {"job": "Rebuild premier pair / debate", "slugs": ["claude-opus-5-5-medium", "cursor-grok-4.7-medium"], "tier": "premier", "notes": "Opus + Grok (two families); spawn both"},
+    {"job": "Rebuild area auditors (Phase 0)", "slugs": ["cursor-grok-4.7-medium", "claude-sonnet-5-5-medium"], "tier": "everyday", "notes": "Escalate area to Opus if architecture-load-bearing"},
+    {"job": "Hotfix", "slugs": ["composer-2.5", "cursor-grok-4.7-medium"], "tier": "cheap", "notes": "Tiny non-auth on Composer; else spawn Grok. Auth/money → Opus correctness pass"},
+    {"job": "Broad / cheap inventory sweep", "slugs": ["composer-2.5", "composer-2.5-fast"], "tier": "cheap", "notes": "Composer Standard preferred; Fast only if blocked on latency"},
+    {"job": "Long autonomous / cost-sensitive", "slugs": ["cursor-grok-4.7-medium", "composer-2.5"], "tier": "everyday", "notes": "Grok for long agent loops; Premier only at hard gates"},
+    {"job": "Redesign proposals (default)", "slugs": ["gemini-3.8-flash-medium", "cursor-grok-4.7-medium", "claude-sonnet-5-5-medium"], "tier": "everyday", "notes": "Add Opus when user wants more options"},
+    {"job": "UI polish (after direction chosen)", "slugs": ["cursor-grok-4.7-medium", "gemini-3.8-flash-medium"], "tier": "everyday", "notes": "interface-kit.mdc after direction locked"},
+    {"job": "Shell / deploy / scripts", "slugs": ["composer-2.5", "cursor-grok-4.7-medium"], "tier": "cheap", "notes": "Composer or Grok"},
     {"job": "Structure facts", "slugs": [], "tier": "n/a", "notes": "CodeGraph — not a model contest"}
   ],
   "routine_review": {
-    "loop_a": "gpt-5.6-terra-medium",
-    "loop_b": "claude-4.6-sonnet-medium-thinking",
-    "loop_c": "claude-4.6-sonnet-medium-thinking"
+    "loop_a": "cursor-grok-4.7-medium",
+    "loop_b": "claude-sonnet-5-5-medium",
+    "loop_c": "claude-sonnet-5-5-medium"
   },
   "go_live_review": {
-    "loop_a": "gpt-5.6-sol-medium",
-    "loop_b": "claude-fable-5-thinking-medium",
-    "loop_c": "claude-fable-5-thinking-medium"
+    "loop_a": "claude-opus-5-5-medium",
+    "loop_b": "claude-sonnet-5-5-medium",
+    "loop_c": "claude-sonnet-5-5-medium"
   },
   "hardening": [
-    "Spec gate + mini-grill before non-trivial build (workflow.mdc)",
-    "Full grill me requires Opus parent — stop and ask user to switch (grill-protocol.mdc)",
-    "Rebuild Phase 0 inventory = Opus exclusively (rebuild-protocol.mdc)",
-    "Autonomous: Grok builds; spawn Fable for review (autonomous-mode.mdc)",
+    "Composer parent orchestrates; spawn Task with Job slug + prompt templates (subagents.mdc)",
+    "Spec gate + mini-grill on Composer before non-trivial build (workflow.mdc)",
     "Expectation files with observable acceptance (workflow.mdc)",
-    "Wrong parent → spawn Task with Job slug (subagents.mdc) except grill-me switch gate",
+    "Walkthrough → hard stop if not Composer Standard (walkthrough-protocol.mdc; no spawn)",
+    "Routine Loop C skipped unless large/messy (review-protocol.mdc)",
     "Adversarial spot-check on routine review (review-protocol.mdc)",
-    "Never silently choose business logic — ask or BLOCKED (workflow.mdc)"
+    "Never silently choose business logic — ask or BLOCKED (workflow.mdc)",
+    "Prefer Cursor Models pool (Composer/Grok) for volume; Claude Other pool only when Job requires it"
   ]
 }

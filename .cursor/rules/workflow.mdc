@@ -46,7 +46,7 @@ DECISION-LOG.md is newest-first; read the entries above the archive marker (rece
 - **PowerShell: script file, not inline `$`** -- see `Shell execution` below.
 - **Never silently choose business logic** (calculations, domain rules) -- log in DECISION-LOG.md and flag.
 - **Completion checklist before "done"**: re-read every todo/phase/checklist item and confirm each is actually complete. Never declare done from memory.
-- **Model routing:** Job → slug in `subagents.mdc`. Wrong/unknown/Auto parent on a judgment job → **spawn** the assigned model (do not self-run). Everyday build defaults to Terra.
+- **Model routing:** Job → slug in `subagents.mdc`. UI default = Composer 2.5 (orchestrator). Wrong/unknown/Auto/Composer on implement/review/premier jobs → **spawn** the assigned model with Task prompt templates (do not self-run). Everyday implement defaults to Grok 4.7.
 
 ## Spec gate (before non-trivial build)
 
@@ -61,7 +61,7 @@ Closes the cheap-model failure mode of improvising when the ask is vague. Run **
 5. Success words alone with no concrete target: *better, polish, improve, clean up, make nice, smarter, more solid*
 6. Scope could be **MVP vs full** and that choice is unstated
 
-**Pass all six** → implement on Everyday tier (Terra).  
+**Pass all six** → implement on Everyday tier (spawn Grok 4.7 from Composer).  
 **Fail any** → mini-grill or full grill until goal, constraints, chosen approach, and validation exist; record in `.scratch/grill-notes.md` (or protocol artifact). Then build.
 
 **Conflict (Rule Preference):** product ambiguity → grill wins over fix-don't-suggest; clear bugfix with known expected behavior → build wins.
