@@ -204,7 +204,7 @@ Your local Windows CodeGraph install is **invisible** to Cloud Agents. Fix it in
 | **Fetch live catalog** | `CURSOR_API_KEY` → `GET https://api.cursor.com/v1/models`, or `cursor-agent --list-models` / `agent models` |
 | **Diff + report** | `python lib/model-roster.py report` (or `.\check-models.ps1`) |
 | **Weekly CI notify** | `.github/workflows/model-roster-refresh.yml` — Mondays + manual; opens/updates a GitHub issue labeled `model-roster` when assigned slugs are missing or interesting new models appear |
-| **Push into all apps** | After you edit JSON + sync + commit: `.\update-all.ps1 -AutoCommit` (or `.\check-models.ps1 -SyncOnly -PushApps`) |
+| **Push into all apps** | Local: `.\update-all.ps1 -AutoCommit`. Cloud (per GitHub repo → `main`): prompt + list in `_meta/CLOUD-APPLY.md` |
 
 **One-time setup for weekly notify:** add a [Cursor Dashboard API key](https://cursor.com/dashboard) as GitHub repo secret **`CURSOR_API_KEY`**. Without it, sync-check still runs on PRs; catalog refresh is skipped with a warning.
 
