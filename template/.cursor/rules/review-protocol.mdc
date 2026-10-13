@@ -25,10 +25,10 @@ No phase marked done, no production merge, no next-phase work until: self-review
 
 | Gate | Loop A | Loop B | Loop C | Trust-boundary |
 |---|---|---|---|---|
-| **Routine phase** (feature/module, not merging to production) | `gpt-5.6-terra-medium` | `claude-4.6-sonnet-medium-thinking` | Sonnet | Sol or Fable if triggered |
-| **Production merge / rebuild go-live / redesign final parity** | `gpt-5.6-sol-medium` | `claude-fable-5-thinking-medium` | Fable | Sol or Fable if triggered |
+| **Routine phase** (feature/module, not merging to production) | `cursor-grok-4.7-medium` | `claude-sonnet-5-5-medium` | Sonnet **only if** large/messy (~>100 lines) or user asks; else **skip** | Opus if triggered |
+| **Production merge / rebuild go-live / redesign final parity** | `claude-opus-5-5-medium` | `claude-sonnet-5-5-medium` | Sonnet | Opus if triggered |
 
-Premier stays where reversibility is expensive. Everyday covers thumbtack phases; Spec gate + expectation evidence harden the cheaper pass.
+Composer parent **spawns** these loops (Task prompt templates in `subagents.mdc`). Premier/Opus stays where reversibility is expensive. Spec gate + expectation evidence harden Everyday passes.
 
 ## Phase / production pipeline (ordered)
 
@@ -38,11 +38,11 @@ Run in order. Do not start the next stage until the current one is green.
 |---|---|---|---|
 | 1 | **Self-review** | Parent | Expectations re-walked; own fixes applied |
 | 2 | **Ponytail-review** | Parent (`ponytail.mdc`) | `Lean already. Ship.` or zero actionable cuts (or DECISION-LOG deferral) |
-| 3 | **Correctness Loop A** | Terra (routine) or Sol (go-live) | Checklist all `[x]` with evidence → `.scratch/review-pass-A*.md` |
-| 4 | **Correctness Loop B** | Sonnet (routine) or Fable (go-live) | Same → `.scratch/review-pass-B*.md` |
-| 5 | **Quality Loop C** | Sonnet (routine) or Fable (go-live) | Quality checklist green → `.scratch/review-pass-quality-*.md` |
-| 6 | **Trust-boundary** | Sol or Fable only | Only if phase touches auth/payments/roles/orders — see below |
-| 7 | **Go-live parity** | Premier pair when multi-model | Production / rebuild Phase 5 only — enumerate, don't sample |
+| 3 | **Correctness Loop A** | Grok (routine) or Opus (go-live) | Checklist all `[x]` with evidence → `.scratch/review-pass-A*.md` |
+| 4 | **Correctness Loop B** | Sonnet | Same → `.scratch/review-pass-B*.md` |
+| 5 | **Quality Loop C** | Sonnet | Routine: skip unless large/messy; go-live: required. → `.scratch/review-pass-quality-*.md` |
+| 6 | **Trust-boundary** | Opus only | Only if phase touches auth/payments/roles/orders — see below |
+| 7 | **Go-live parity** | Opus + Grok/Sonnet when multi-model | Production / rebuild Phase 5 only — enumerate, don't sample |
 
 ### Family loop rules (A, B, and C)
 
@@ -126,4 +126,4 @@ Hard domain rules (money, auth/roles, inventory, shipping, orders): numbered inv
 ## Deviations
 
 - **Rebuild/redesign**: extra gates in those protocols; still use this pipeline at their phase boundaries.
-- **Hotfix** (`hotfix-protocol.mdc`): skip Loops A/B/C. Parent writes fix canary → fix → run expect workflow (review admin if gated) → self-review → push + platform green. Log `hotfix deviation` in DECISION-LOG. **Exception:** auth/money/roles touch → one **Sol or Fable** correctness checklist pass (spawn if parent wrong); large diff (roughly >100 lines) → add Loop C once (Sonnet OK unless auth/money).
+- **Hotfix** (`hotfix-protocol.mdc`): skip Loops A/B/C. Parent writes fix canary → fix → run expect workflow (review admin if gated) → self-review → push + platform green. Log `hotfix deviation` in DECISION-LOG. **Exception:** auth/money/roles touch → one **Opus** correctness checklist pass (spawn from Composer); large diff (roughly >100 lines) → add Loop C once (Sonnet OK unless auth/money).

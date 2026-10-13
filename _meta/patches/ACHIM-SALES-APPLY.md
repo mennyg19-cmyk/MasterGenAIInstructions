@@ -2,41 +2,49 @@
 
 This Cloud Agent (MasterGenAIInstructions) **cannot push** to `mennyg19-cmyk/AchimSales` (GitHub 403 — no write permission on that repo).
 
+**Model note (2026-10-13):** Walkthrough is now **Composer 2.5 Standard** (not Luna). Prefer copying current rules from this repo over the older `achim-sales-walkthrough-codegraph.patch` (that patch still mentions Luna/Terra).
+
 ## Option A (recommended): Cloud Agent *on* AchimSales
 
-1. Open https://cursor.com/agents and start a Cloud Agent **in the AchimSales repo**
+1. Open https://cursor.com/agents and start a Cloud Agent **in the AchimSales repo** (model: **Composer 2.5 Standard**)
 2. Paste:
 
 ```
-Apply the walkthrough + CodeGraph patch from MasterGenAIInstructions.
-Repo: mennyg19-cmyk/MasterGenAIInstructions
-File: _meta/patches/achim-sales-walkthrough-codegraph.patch
-Branch to create: cursor/walkthrough-luna-codegraph-120f
-Base: main
-Then open a PR.
+Copy codebase walkthrough + model routing + CodeGraph cloud install from MasterGenAIInstructions into this repo.
+
+Source repo: mennyg19-cmyk/MasterGenAIInstructions
+Branch: cursor/composer-grok-claude-routing-120f (or main once merged)
+
+Copy at least:
+- .cursor/rules/walkthrough-protocol.mdc
+- .cursor/rules/subagents.mdc (Job tables)
+- .cursor/rules/vocabulary.mdc (walkthrough triggers)
+- .cursor/rules/review-protocol.mdc
+- .cursor/rules/workflow.mdc (Spec gate + model routing lines)
+- AGENTS.md model-routing bullets
+- Merge CodeGraph install into .cursor/environment.json (see MasterGenAIInstructions template/.cursor/environment.json)
 
 Preserve deploy-awareness.mdc Azure targets. Do not wipe project-specific git-discipline PR rules.
+UI default / walkthrough = Composer 2.5 Standard. Then open a PR.
 ```
 
-## Option B: apply the patch locally / in any clone with write access
+Fresh file copies also live under `_meta/patches/achim-sales-files/` in MasterGenAIInstructions (walkthrough at least).
+
+## Option B: apply locally / in any clone with write access
 
 ```bash
 git clone https://github.com/mennyg19-cmyk/AchimSales.git
 cd AchimSales
-git checkout -b cursor/walkthrough-luna-codegraph-120f
-curl -fsSL https://raw.githubusercontent.com/mennyg19-cmyk/MasterGenAIInstructions/cursor/model-routing-spec-gate-120f/_meta/patches/achim-sales-walkthrough-codegraph.patch | git am
-git push -u origin cursor/walkthrough-luna-codegraph-120f
-gh pr create --base main --fill
+git checkout -b cursor/walkthrough-composer-codegraph-120f
+# Prefer file copy from MasterGenAIInstructions (current Composer routing), not the legacy .patch
+git push -u origin cursor/walkthrough-composer-codegraph-120f
 ```
 
-(If the MasterGenAIInstructions branch isn’t merged yet, use that branch’s raw URL or copy the patch file from the PR.)
+## What you should end up with
 
-## What the patch adds
+- `walkthrough-protocol.mdc` (**Composer 2.5 Standard** hard lock)
+- vocabulary / subagents / review / workflow / AGENTS updates for Composer + Grok + Sonnet + Opus
+- CodeGraph on Cloud Agents via environment `install`
+- README Rule Preferences row if the project keeps one
 
-- `walkthrough-protocol.mdc` (Luna-only teaching tour)
-- vocabulary / subagents / codegraph / AGENTS updates
-- README Rule Preferences row
-- `.cursor/environment.json`, `install.sh`, `run-dev.sh` (Cloud Agent bootstrap from pending env PR #40) + CodeGraph install step
-- `.gitignore` allows those `.cursor` env files
-
-After merge: rebuild Cloud Agent environment snapshot, start agent as **GPT-5.6 Luna**, say `walkthrough`.
+After merge: rebuild Cloud Agent environment snapshot, start agent as **Composer 2.5 Standard**, say `walkthrough`.

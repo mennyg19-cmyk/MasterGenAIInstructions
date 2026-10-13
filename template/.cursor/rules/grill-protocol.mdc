@@ -8,7 +8,7 @@ Adapted from [Julius Brussee / grill-me](https://github.com/JuliusBrussee/skills
 
 **Governing rule:** automate implementation and verification, not product decisions. Grill fills gaps before code.
 
-**Models:** Everyday (Terra) for mini-grill and single-model grilling. Premier pair (Sol + Fable) only when multi-model / rebuild architecture / user says **"use more models."** Wrong parent → spawn per `subagents.mdc`.
+**Models:** Mini-grill stays on **Composer** parent (conversational). Full grill / multi-model architecture → spawn Opus (+ Sonnet if multi-model) or when user says **"use more models."** See `subagents.mdc`.
 
 ## When this fires
 

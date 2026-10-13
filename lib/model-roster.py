@@ -106,16 +106,20 @@ def render_tiers_table(data: dict) -> str:
         tier = data["tiers"][key]
         slug_list = ", ".join(f"`{s}`" for s in tier["slugs"])
         lines.append(f"| **{tier['label']}** | {slug_list} | {tier['use_for']} |")
-    gpt_note = (
-        "GPT-5.6: **Sol** > **Terra** > **Luna** (if spawnable). "
-        "Task currently accepts Sol/Terra at **medium** only. Fable replaces Opus; **medium only**."
+    tier_notes = data.get(
+        "tier_notes",
+        "Prefer Standard / medium — avoid Fast unless latency-blocked.",
     )
-    ui = (
-        f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` ({data['ui_default_label']}). "
-        "GPT is the primary family for Everyday work. Sonnet is the deliberate second family for dual-pass review. "
-        "**Do not use Auto** as the main agent — Auto can silent-route mid-protocol and defeat Job routing."
+    ui_blurb = data.get("ui_default_blurb") or (
+        f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` "
+        f"({data['ui_default_label']}). **Do not use Auto** as the main agent."
     )
-    return "\n".join(lines) + "\n\n" + gpt_note + "\n\n" + ui
+    if not ui_blurb.startswith("**Recommended"):
+        ui_blurb = (
+            f"**Recommended Cursor UI default (human):** `{data['ui_default_slug']}` "
+            f"({data['ui_default_label']}). {ui_blurb}"
+        )
+    return "\n".join(lines) + "\n\n" + tier_notes + "\n\n" + ui_blurb
 
 
 def render_jobs_table(data: dict) -> str:
@@ -129,12 +133,12 @@ def render_jobs_table(data: dict) -> str:
         else:
             slug_cell = "CodeGraph — not a model contest"
         lines.append(f"| **{job['job']}** | {slug_cell} |")
-    routing = (
-        "**Routing rule:** hard-to-reverse judgment → Premier (Sol/Fable); "
-        "everyday build + routine gates → Terra/Sonnet; cheap/wide/long → Grok or Composer-fast; "
-        "design competition → Gemini + Everyday (+ Premier if user asks); facts → CodeGraph. "
-        "**Harden with Spec gate + expectation checklists** so Everyday can replace Premier on thumbtack work."
+    routing = data.get(
+        "routing_rule",
+        "**Routing rule:** see `_meta/model-roster.json`. Facts → CodeGraph.",
     )
+    if not routing.startswith("**Routing rule:**"):
+        routing = f"**Routing rule:** {routing}"
     return "\n".join(lines) + "\n\n" + routing
 
 

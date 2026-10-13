@@ -140,45 +140,44 @@ Patterns adapted from [JuliusBrussee/skills](https://github.com/JuliusBrussee/sk
 | **Everyday** | Spec gate in `workflow.mdc` → mini-grill when underspecified |
 | **Triggers** | `vocabulary.mdc` — "grill me", "senior review", "canary", "polish UI", "deslop this prose" |
 
-### Model routing (July 2026 — token cost + GPT primary)
+### Model routing (October 2026 — post-OpenAI / Composer orchestrator)
 
-**Standing choice:** GPT is the **primary family** for Everyday work. Set Cursor's UI default to **GPT Terra** (`gpt-5.6-terra-medium`). **Do not use Auto** — it silent-routes mid-protocol and breaks Job routing.
+**Standing choice:** Set Cursor's UI default to **Composer 2.5 Standard** (`composer-2.5`). Composer is the **orchestrator** — you talk to it; it **spawns** Job-table models (Grok / Sonnet / Opus) with Task prompt templates. **Do not use Auto** — it silent-routes mid-protocol and breaks Job routing. Prefer **Standard**, not Fast.
 
-**Why we demoted Sol/Fable from Everyday:** Strong rules (ponytail, gates, Spec gate, expectations, CodeGraph) handle most process failures. Flagship models still matter for **hard-to-reverse judgment** — not for every feature commit. Terra is typically **2–3× cheaper** than Sonnet on comparable tasks ([CursorBench](https://cursor.com/cursorbench) eval-cost snapshot).
+**Why this mix:** OpenAI models in Cursor wind down ~November 2026. **Composer + Grok** sit in the Cursor Models included pool; **Claude Sonnet/Opus** cover second-family and premier judgment without Fable-priced loops. Strong rules (ponytail, Spec gate, expectations, CodeGraph) still do the process work; models do the judgment.
 
 | Tier | Models | When |
 |---|---|---|
-| **Everyday** | Terra (GPT primary), Sonnet (second family), Codex | Build, mini-grill, routine phase review (Terra Loop A + Sonnet Loop B/C) |
-| **Premier** | Sol + Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live |
-| **Cheap** | **Luna** (walkthrough only), Grok-fast, Composer-fast | Teaching tours, hotfix, sweeps, long autonomous loops |
+| **Cheap / parent** | Composer 2.5 Standard | UI chat, Spec/mini-grill, walkthrough, sweeps, single-file tidy |
+| **Everyday** | Grok 4.7 (implement + Loop A), Sonnet 5.5 (Loop B) | Build + routine dual-family review; Loop C only if large/messy |
+| **Premier** | Opus 5.5 (+ Sonnet/Grok second family) | Production merge, rebuild debate, trust-boundary, go-live |
 
-**What changed (2026-07-14 / walkthrough add):**
+**What changed (2026-10-13):**
 
-1. **Spec gate** (`workflow.mdc`) — mechanical checklist before non-trivial build; fail → mini-grill, don't invent product direction.
-2. **Mini-grill** (`grill-protocol.mdc`) — 3–5 questions until goal/constraints/approach/validation exist.
-3. **Routine vs go-live review** (`review-protocol.mdc`) — Everyday dual-family for feature phases; Sol+Fable only for production/go-live.
-4. **Wrong parent → spawn** (`subagents.mdc`) — if main agent is Auto/unknown/wrong tier, spawn Task with the Job slug instead of self-running judgment work.
-5. **Adversarial spot-check** — routine reviewers must exercise one off-happy-path case, not only re-walk the author's EXPECTED list.
-6. **Rebuild Phase 0 auditors** — Terra + Sonnet by default; Sol+Fable only for contested architecture areas.
-7. **Redesign default proposals** — Gemini + Terra + Grok (add Sol/Fable when user wants more).
-8. **Codebase walkthrough** (`walkthrough-protocol.mdc`) — Luna-only interactive tour; hard stop if wrong model; `review` stays for ship gates.
-9. **CodeGraph on Cloud Agents** — environment `install` installs CLI + indexes (template `.cursor/environment.json`).
+1. **UI default → Composer** — parent orchestrates; does not self-run implement/review/premier.
+2. **Everyday implement → Grok 4.7** — Cursor Models pool; spawn from Composer.
+3. **Premier → Opus 5.5** — replaces Sol/Fable defaults; Sonnet is go-live Loop B/C.
+4. **Routine Loop C skipped** unless ~>100 lines, messy, or user asks.
+5. **Walkthrough → Composer Standard** — hard stop if wrong model (`walkthrough-protocol.mdc`).
+6. **Task prompt templates** in `subagents.mdc` — shared header + job blocks for handoffs.
+7. Kept: Spec gate, mini-grill, adversarial spot-check, CodeGraph cloud install, roster automation.
 
 **Job → slug (full table):** synced section in `subagents.mdc` (from `_meta/model-roster.json`). Highlights:
 
 | Job | Slug(s) |
 |---|---|
-| UI default / implement | `gpt-5.6-terra-medium` |
-| Codebase walkthrough | `gpt-5.6-luna-medium` **only** (hard stop) |
-| Routine review A / B / C | Terra / Sonnet / Sonnet |
-| Go-live review A / B / C | Sol / Fable / Fable |
-| Rebuild debate | Sol + Fable |
-| Rebuild area audit | Terra + Sonnet |
-| Trust-boundary | Sol or Fable |
-| Redesign proposals | Gemini + Terra + Grok |
+| UI default / parent | `composer-2.5` |
+| Codebase walkthrough | `composer-2.5` **only** (hard stop) |
+| Implement | `cursor-grok-4.7-medium` (spawn) |
+| Routine review A / B / C | Grok / Sonnet / Sonnet (C optional) |
+| Go-live review A / B / C | Opus / Sonnet / Sonnet |
+| Rebuild debate | Opus + Grok |
+| Rebuild area audit | Grok + Sonnet |
+| Trust-boundary | Opus |
+| Redesign proposals | Gemini Flash + Grok + Sonnet |
 | Structure | CodeGraph (not a model) |
 
-**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, wrong-parent spawn, BLOCKED on business logic, adversarial review spot-check.
+**Hardening so Everyday replaces Premier on thumbtacks:** Spec gate, expectation files, verify-in-app, Composer→spawn handoff, BLOCKED on business logic, adversarial review spot-check.
 
 #### CodeGraph on Cloud Agents
 
@@ -218,7 +217,7 @@ Your local Windows CodeGraph install is **invisible** to Cloud Agents. Fix it in
 5. `.\update-all.ps1 -AutoCommit` — stamps rules into every path in `registry.json`.
 6. After the new mapping feels stable, copy `model-catalog-latest.json` → `model-catalog-snapshot.json` so “what’s new” resets.
 
-**What stays manual (on purpose):** picking which new slug becomes Terra’s replacement, which reviews stay Sol+Fable, UI default in Cursor settings. Auto-remapping those would silently wrong-route protocols.
+**What stays manual (on purpose):** picking Composer/Grok/Sonnet/Opus successors, which gates stay Premier, UI default in Cursor settings. Auto-remapping those would silently wrong-route protocols.
 
 **Catalog sources differ slightly:** Cloud Agents API, CLI `--list-models`, and IDE Task accepted lists are related but not always identical. If Task rejects a slug, treat the returned valid list as ground truth and update JSON.
 
@@ -339,7 +338,7 @@ This copies the 22 rule files and AGENTS.md into the project. It creates DECISIO
 | File | Trigger |
 |---|---|
 | `review-protocol.mdc` | Phase complete, review, production merge |
-| `walkthrough-protocol.mdc` | "walkthrough" / "walk me through" / "give me a walkthrough" / "codebase tour" — **Luna only** |
+| `walkthrough-protocol.mdc` | "walkthrough" / "walk me through" / "give me a walkthrough" / "codebase tour" — **Composer 2.5 Standard only** |
 | `plan-review.mdc` | "senior review" / "junior to senior" / large agent-written plan |
 | `grill-protocol.mdc` | "grill me" / Spec gate fail / redesign grill / rebuild if user opts in |
 | `autonomous-mode.mdc` | "run autonomously" / decision logging |

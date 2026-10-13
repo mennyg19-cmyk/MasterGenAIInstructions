@@ -18,7 +18,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 | Structural code questions | `codegraph.mdc` (MCP or CLI before grep-for-symbol) |
 | Rebuild / redesign / hotfix / cleanup / autonomous / hand off | matching `*-protocol.mdc` |
 | Grill / stress-test a plan | `grill-protocol.mdc` |
-| Codebase walkthrough (Luna only) | `walkthrough-protocol.mdc` |
+| Codebase walkthrough (Composer Standard only) | `walkthrough-protocol.mdc` |
 | Senior review of a plan | `plan-review.mdc` |
 | Context rot / long session | `context-canary.mdc` (on demand) |
 | UI implementation (direction chosen) | `interface-kit.mdc` |
@@ -43,7 +43,7 @@ Rules for ALL agents (Cursor, Claude Code, Codex, etc.). Full rulebook: `.cursor
 - **No structural Grep:** when index is healthy, Grep/SemanticSearch for symbols, callers, or layout is forbidden (`codegraph.mdc`).
 - Gate discipline + command output discipline (`workflow.mdc`); ponytail full + anti-slop always on; tiered verification; production review loop; platform green after push.
 - **Spec gate** before non-trivial build (`workflow.mdc`) — underspecified → mini-grill, don't invent product direction.
-- **Model routing:** Job table in `subagents.mdc`. UI default = Terra (not Auto). Premier (Sol/Fable) only at hard gates. **Walkthrough = Luna only** (hard stop if wrong model). Wrong/Auto/unknown parent on other judgment work → **spawn** the correct model.
+- **Model routing:** Job table in `subagents.mdc`. UI default = **Composer 2.5** orchestrator (not Auto). Everyday implement = Grok 4.7; second family = Sonnet 5.5; Premier = Opus 5.5 at hard gates. **Walkthrough = Composer Standard only** (hard stop if wrong model). Composer/Auto/unknown on implement/review/premier → **spawn** with Task prompt templates.
 - **PowerShell:** no inline `$` — script file in `.scratch/` + `-File` (`workflow.mdc`).
 - Subagents: explicit model, paths not pastes, proof-of-read, `codegraph status` first, terse replies.
 - **CodeGraph on Cloud Agents:** install CLI + `codegraph init` in environment `install` (see `codegraph.mdc` § Cloud Agents; template ships `.cursor/environment.json`).

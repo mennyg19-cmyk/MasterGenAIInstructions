@@ -1,5 +1,5 @@
 ---
-description: Interactive codebase walkthrough — Luna only, chapter-by-chapter teaching with understanding checks. Read when user says walkthrough, walk me through, give me a walkthrough, codebase tour, teach me this repo.
+description: Interactive codebase walkthrough — Composer 2.5 Standard only, chapter-by-chapter teaching with understanding checks. Read when user says walkthrough, walk me through, give me a walkthrough, codebase tour, teach me this repo.
 ---
 
 # Codebase Walkthrough Protocol
@@ -10,29 +10,29 @@ This protocol **teaches** how the app works, top-down, with real snippets and un
 
 ## Model lock (hard stop — no exceptions)
 
-**Required parent model:** GPT-5.6 **Luna** only (Standard — not Fast, not Auto, not Terra/Sol/Sonnet/Fable/Composer).
+**Required parent model:** **Composer 2.5 Standard** only (not Fast, not Auto, not Grok/Sonnet/Opus/Gemini).
 
-Preferred slug: `gpt-5.6-luna-medium` (or the picker label **GPT-5.6 Luna** / Luna Standard).
+Preferred slug: `composer-2.5` (picker label **Composer 2.5** / Standard).
 
 ### Gate (run before any tour content)
 
 1. Detect parent model when possible (run metadata, user statement, cloud `run-info`).
-2. If model is **not** Luna (including Auto, unknown, Terra, Composer, Fast variants, Premier):
+2. If model is **not** Composer 2.5 Standard (including Auto, unknown, Fast, Grok, Claude, Gemini):
    - **STOP.** Do not tour. Do not spawn a substitute. Do not “start anyway.”
    - Reply with exactly this shape (fill the picker name for their UI):
 
 ```text
 You are using the wrong model for a codebase walkthrough.
 
-Switch this Cloud Agent / chat model to: GPT-5.6 Luna (Standard — not Fast, not Auto).
+Switch this Cloud Agent / chat model to: Composer 2.5 (Standard — not Fast, not Auto).
 Then say "walkthrough" (or "continue walkthrough") again.
 
-Why: walkthroughs are long, interactive, and must stay on the cheap high-context Luna slot. Other models burn budget or skip the teaching style this protocol requires.
+Why: walkthroughs are long, interactive, and must stay on the cheap Composer Standard slot (Cursor Models pool). Other models burn budget or break the orchestrator default.
 ```
 
-3. If detection fails → ask once: “Confirm you are on **GPT-5.6 Luna** (yes/no).” No → same stop message. Yes → proceed and record `Model: gpt-5.6-luna-medium` / `Runner: parent` in the progress file.
+3. If detection fails → ask once: “Confirm you are on **Composer 2.5 Standard** (yes/no).” No → same stop message. Yes → proceed and record `Model: composer-2.5` / `Runner: parent` in the progress file.
 
-**Exception to `subagents.mdc` wrong-parent→spawn:** this protocol **hard-stops**; it does not spawn Luna for you.
+**Exception to `subagents.mdc` wrong-parent→spawn:** this protocol **hard-stops**; it does not spawn Composer for you.
 
 ## Triggers (vocabulary)
 
@@ -48,7 +48,7 @@ Any of: **walkthrough**, **give me a walkthrough**, **walk me through**, **codeb
 3. Build a **chapter map** (routes, major folders, entrypoints). Prefer CodeGraph (`files` / `explore`). Write to `.scratch/codebase-tour.md`:
 
 ```
-model: gpt-5.6-luna-medium
+model: composer-2.5
 depth: overview | standard | full
 chapters:
   - id: C1

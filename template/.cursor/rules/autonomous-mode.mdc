@@ -9,7 +9,7 @@ Scope the full task, surface ALL foreseeable questions at once, confirm understa
 
 For multi-phase or ambiguous scope: run Spec gate + `grill-protocol.mdc` (mini or full) on the scope summary **or** confirm the user already grilled / answered product questions. Record grill outcomes in `.scratch/grill-notes.md` or DECISION-LOG.
 
-**Models while away:** Everyday (Terra / Grok-fast) for implementation; Premier only at hard gates (production merge, trust-boundary, rebuild architecture). Wrong parent → spawn per `subagents.mdc`.
+**Models while away:** Composer orchestrates; spawn Grok 4.7 for implementation. Premier (Opus) only at hard gates (production merge, trust-boundary, rebuild architecture). See `subagents.mdc`.
 
 ## While away
 - Decide ambiguous items and log every one to DECISION-LOG.md (format below).

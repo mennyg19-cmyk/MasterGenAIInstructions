@@ -135,7 +135,7 @@ Not an agent rule layer — **infrastructure** that backs up what agents and pro
 
 ---
 
-## Model routing — why GPT primary, when multi-model still pays (July 2026)
+## Model routing — Composer orchestrator + Grok/Claude (October 2026)
 
 ### The original metaphor (and what we kept)
 
@@ -143,31 +143,33 @@ Early experience: one model family held **large scope** well; another held **loc
 
 **What we kept:** don't trust a single viewpoint on **load-bearing choices** (architecture debate, production merge, trust-boundary). Use **different families** when disagreement would change the decision.
 
-**What we dropped:** running Sol+Fable on every feature phase, using flagship models as the default parent chat, and treating "GPT = building / Claude = offices" as fixed law.
+**What we dropped:** OpenAI-as-primary (Terra/Sol/Luna) after Cursor’s OpenAI wind-down (~Nov 2026), Fable-priced go-live loops, and treating any one vendor as permanent law.
 
-### Standing choice: GPT primary, Terra Everyday
+### Standing choice: Composer parent, Grok build, Claude judgment
 
-Set Cursor's UI default to **GPT Terra** (`gpt-5.6-terra-medium`). **Not Auto** — Auto can silent-route mid-protocol and defeat explicit Job routing.
+Set Cursor's UI default to **Composer 2.5 Standard** (`composer-2.5`). **Not Auto**, not Fast. Composer talks to you and **spawns** Job-table models with Task prompt templates.
 
 | Role | Model | Why |
 |---|---|---|
-| **Primary family (Everyday)** | GPT Terra | Cheapest solid GPT tier for orchestration + implementation; matches "good GPT + strong rules" workflow |
-| **Second family (routine review)** | Claude Sonnet | Deliberate cross-family re-pass — not because Sonnet is "detail only," but to decorrelate misses |
-| **Premier (hard gates)** | GPT Sol + Claude Fable | Production merge, rebuild architecture/debate, trust-boundary, go-live — decisions expensive to reverse |
-| **Cheap** | Grok-fast, Composer-fast | Hotfix, sweeps, long cost-sensitive loops |
+| **Parent / orchestrator** | Composer 2.5 Standard | Cheapest Cursor-pool chat; Spec/mini-grill, walkthrough, sweeps, tidy |
+| **Everyday implement + Loop A** | Grok 4.7 | Cursor Models pool; strong long agent loops |
+| **Second family (Loop B)** | Claude Sonnet 5.5 | Cross-family re-pass without Opus every phase |
+| **Premier (hard gates)** | Claude Opus 5.5 | Production merge, rebuild debate, trust-boundary — expensive to reverse |
+| **Design eye** | Gemini Flash | Redesign proposals (with Grok + Sonnet) |
 
-Terra vs Sonnet cost: on comparable tasks Terra is often **~2–3× cheaper** than Sonnet (CursorBench eval-cost snapshot). Sonnet stays for **Loop B/C** and second-family coverage, not as the default workhorse.
+Burn **included** Composer/Grok quota for volume. Spend **Other** pool (Sonnet/Opus) only when the Job table requires a second or premier family.
 
 ### What rules harden so Everyday can replace Premier
 
 Cheaper models fail on **underspecified prompts** and **rubber-stamp review**. We encoded countermeasures:
 
-1. **Spec gate** (`workflow.mdc`) — six-item mechanical checklist before non-trivial build; fail → mini-grill.
+1. **Spec gate** (`workflow.mdc`) — six-item mechanical checklist before non-trivial build; fail → mini-grill on Composer.
 2. **Mini-grill** (`grill-protocol.mdc`) — cap at goal / constraints / approach / validation.
 3. **Expectation files** — observable acceptance written before build; verified with evidence after.
-4. **Wrong parent → spawn** (`subagents.mdc`) — judgment jobs run on the Job-table slug via Task, not silently on Auto/wrong tier.
+4. **Composer → spawn** (`subagents.mdc`) — implement/review/premier jobs use Task + prompt templates, not silent self-run.
 5. **Adversarial spot-check** (`review-protocol.mdc`) — reviewers must test one off-happy-path case.
-6. **BLOCKED on business logic** — never silently invent domain rules.
+6. **Routine Loop C optional** — skip unless large/messy.
+7. **BLOCKED on business logic** — never silently invent domain rules.
 
 **Still needs Premier:** adversarial taste on go-live, architecture debate, trust-boundary — rules can't fully substitute.
 
@@ -175,8 +177,8 @@ Cheaper models fail on **underspecified prompts** and **rubber-stamp review**. W
 
 | Gate | Loop A | Loop B | Loop C |
 |---|---|---|---|
-| **Routine feature phase** | Terra | Sonnet | Sonnet |
-| **Production / go-live / rebuild parity** | Sol | Fable | Fable |
+| **Routine feature phase** | Grok | Sonnet | Sonnet only if large/messy; else skip |
+| **Production / go-live / rebuild parity** | Opus | Sonnet | Sonnet |
 
 ### Canonical slug data + automation
 
@@ -194,7 +196,7 @@ Cheaper models fail on **underspecified prompts** and **rubber-stamp review**. W
 
 **Setup:** repo secret `CURSOR_API_KEY` from Cursor Dashboard → API Keys.
 
-**Why not fully auto-remap?** Choosing the new Everyday default (Terra’s successor) or whether Sonnet’s Loop B moves to a new Claude slug is product judgment. The automation’s job is to **yell quickly** when Cursor rotates names, then you decide, then one command updates every app.
+**Why not fully auto-remap?** Choosing Composer/Grok/Sonnet/Opus successors is product judgment. The automation’s job is to **yell quickly** when Cursor rotates names, then you decide, then one command updates every app.
 
 **Catalog caveats:** Cloud Agents `GET /v1/models`, CLI `agent models`, and IDE Task accepted lists can differ. Task rejection lists win for spawnable subagent slugs.
 
@@ -208,8 +210,8 @@ Rules are expensive — every always-on file loads every session. This system op
 
 - **~6 always-on files + 1 auto-attach deploy rule**, ~15 on demand (rebuild, review, subagents load only when triggered).
 - **Walkthrough headers off** — archived `code-walkthrough.mdc`; codegraph + clear naming replace file-navigation overhead.
-- **Model routing:** GPT Terra primary; Premier (Sol/Fable) only at hard gates. Spec gate + mini-grill harden Everyday models. Canonical slugs: `_meta/model-roster.json` + `lib/model-roster.py` check/sync.
-- **Wrong parent → spawn** — judgment jobs always run on the Job table slug via Task, not silently on Auto.
+- **Model routing:** Composer orchestrator; Grok Everyday; Sonnet second family; Opus Premier. Spec gate + mini-grill harden cheaper models. Canonical slugs: `_meta/model-roster.json` + `lib/model-roster.py` check/sync.
+- **Composer → spawn** — implement/review/premier jobs run on the Job table slug via Task + prompt templates, not silently on Auto/Composer.
 - **Subagents:** pass paths, not pasted documents; ≤10-line replies; graph-backbone instead of six blind tree walks.
 - **Anti-slop + terse routine chat** — shorter outputs.
 - **Command output discipline** — don't burn context on test logs.
