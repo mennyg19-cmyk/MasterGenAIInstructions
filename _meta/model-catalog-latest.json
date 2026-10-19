@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-12T22:00:28.249949+00:00",
+  "fetched_at": "2026-10-19T19:42:33.026056+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -220,6 +220,12 @@
       "description": ""
     },
     {
+      "id": "gemini-4-argon",
+      "displayName": "Gemini 4 Argon",
+      "aliases": [],
+      "description": ""
+    },
+    {
       "id": "glm-5.2",
       "displayName": "GLM 5.2",
       "aliases": [],
@@ -369,6 +375,12 @@
         "muse-spark",
         "muse"
       ],
+      "description": ""
+    },
+    {
+      "id": "muse-wonder-1.0",
+      "displayName": "Muse Wonder",
+      "aliases": [],
       "description": ""
     }
   ]
