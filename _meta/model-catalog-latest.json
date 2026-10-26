@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-19T19:42:33.026056+00:00",
+  "fetched_at": "2026-10-26T19:47:06.223666+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -151,6 +151,12 @@
         "composer",
         "composer-2-5"
       ],
+      "description": ""
+    },
+    {
+      "id": "deepseek-v41-flash-1017",
+      "displayName": "DeepSeek V4.1 Flash 1017",
+      "aliases": [],
       "description": ""
     },
     {
