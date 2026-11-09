@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-02T22:38:07.525229+00:00",
+  "fetched_at": "2026-11-09T23:19:03.840771+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -17,6 +17,15 @@
       "displayName": "Claude Fable 5.1",
       "aliases": [
         "fable-5-1"
+      ],
+      "description": ""
+    },
+    {
+      "id": "claude-fable-5-2",
+      "displayName": "Claude Fable 5.2",
+      "aliases": [
+        "fable-5-2",
+        "fable-5.2"
       ],
       "description": ""
     },
