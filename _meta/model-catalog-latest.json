@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-09T23:19:03.840771+00:00",
+  "fetched_at": "2026-11-16T23:15:20.190423+00:00",
   "source": "api.cursor.com/v1/models",
   "models": [
     {
@@ -211,24 +211,6 @@
       "description": ""
     },
     {
-      "id": "gemini-3.6-flash",
-      "displayName": "Gemini 3.6 Flash",
-      "aliases": [
-        "gemini-flash-latest",
-        "gemini-flash"
-      ],
-      "description": ""
-    },
-    {
-      "id": "gemini-3.7-flash",
-      "displayName": "Gemini 3.7 Flash",
-      "aliases": [
-        "gemini-flash-latest",
-        "gemini-flash"
-      ],
-      "description": ""
-    },
-    {
       "id": "gemini-3.8-flash",
       "displayName": "Gemini 3.8 Flash",
       "aliases": [],
@@ -237,6 +219,18 @@
     {
       "id": "gemini-4-argon",
       "displayName": "Gemini 4 Argon",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "gemini-4-carbon",
+      "displayName": "Gemini 4 Carbon",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "gemini-4-hydrogen",
+      "displayName": "Gemini 4 Hydrogen",
       "aliases": [],
       "description": ""
     },
